@@ -3026,7 +3026,7 @@ ${e.snapshot?JSON.stringify(e.snapshot,null,2):"No snapshot yet."}
           </button>
           <div class="brand">
             <div class="brand-logo">
-              <img src="https://mintcdn.com/clawdhub/4rYvG-uuZrMK_URE/assets/pixel-lobster.svg?fit=max&auto=format&n=4rYvG-uuZrMK_URE&q=85&s=da2032e9eac3b5d9bfe7eb96ca6a8a26" alt="HexOS" />
+              <img src="/assets/hexos-logo.svg" alt="HexOS" />
             </div>
             <div class="brand-text">
               <div class="brand-title">HEXOS</div>
