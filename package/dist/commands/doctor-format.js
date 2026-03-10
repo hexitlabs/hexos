@@ -53,12 +53,12 @@ export function buildGatewayRuntimeHints(runtime, options = {}) {
         return hints;
     }
     if (runtime.cachedLabel && platform === "darwin") {
-        const label = resolveGatewayLaunchAgentLabel(env.CLAWDBOT_PROFILE);
+        const label = resolveGatewayLaunchAgentLabel(env.HEXOS_PROFILE);
         hints.push(`LaunchAgent label cached but plist missing. Clear with: launchctl bootout gui/$UID/${label}`);
-        hints.push(`Then reinstall: ${formatCliCommand("clawdbot gateway install", env)}`);
+        hints.push(`Then reinstall: ${formatCliCommand("hexos gateway install", env)}`);
     }
     if (runtime.missingUnit) {
-        hints.push(`Service not installed. Run: ${formatCliCommand("clawdbot gateway install", env)}`);
+        hints.push(`Service not installed. Run: ${formatCliCommand("hexos gateway install", env)}`);
         if (fileLog)
             hints.push(`File logs: ${fileLog}`);
         return hints;
@@ -73,11 +73,11 @@ export function buildGatewayRuntimeHints(runtime, options = {}) {
             hints.push(`Launchd stderr (if installed): ${logs.stderrPath}`);
         }
         else if (platform === "linux") {
-            const unit = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+            const unit = resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
             hints.push(`Logs: journalctl --user -u ${unit}.service -n 200 --no-pager`);
         }
         else if (platform === "win32") {
-            const task = resolveGatewayWindowsTaskName(env.CLAWDBOT_PROFILE);
+            const task = resolveGatewayWindowsTaskName(env.HEXOS_PROFILE);
             hints.push(`Logs: schtasks /Query /TN "${task}" /V /FO LIST`);
         }
     }

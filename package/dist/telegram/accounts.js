@@ -3,7 +3,7 @@ import { listBoundAccountIds, resolveDefaultAgentBoundAccountId } from "../routi
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveTelegramToken } from "./token.js";
 const debugAccounts = (...args) => {
-    if (isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_TELEGRAM_ACCOUNTS)) {
+    if (isTruthyEnvValue(process.env.HEXOS_DEBUG_TELEGRAM_ACCOUNTS)) {
         console.warn("[telegram:accounts]", ...args);
     }
 };

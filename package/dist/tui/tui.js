@@ -241,7 +241,7 @@ export async function runTui(opts) {
     const updateHeader = () => {
         const sessionLabel = formatSessionKey(currentSessionKey);
         const agentLabel = formatAgentLabel(currentAgentId);
-        header.setText(theme.header(`clawdbot tui - ${client.connection.url} - agent ${agentLabel} - session ${sessionLabel}`));
+        header.setText(theme.header(`hexos tui - ${client.connection.url} - agent ${agentLabel} - session ${sessionLabel}`));
     };
     const busyStates = new Set(["sending", "waiting", "streaming", "running"]);
     let statusText = null;

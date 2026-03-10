@@ -72,7 +72,7 @@ export async function maybeRepairGatewayDaemon(params) {
             prompter: params.prompter,
         });
         await maybeRepairLaunchAgentBootstrap({
-            env: { ...process.env, CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel() },
+            env: { ...process.env, HEXOS_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel() },
             title: "Node",
             runtime: params.runtime,
             prompter: params.prompter,
@@ -121,7 +121,7 @@ export async function maybeRepairGatewayDaemon(params) {
                 const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
                     env: process.env,
                     port,
-                    token: params.cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+                    token: params.cfg.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN,
                     runtime: daemonRuntime,
                     warn: (message, title) => note(message, title),
                     config: params.cfg,
@@ -169,8 +169,8 @@ export async function maybeRepairGatewayDaemon(params) {
         }
     }
     if (process.platform === "darwin") {
-        const label = resolveGatewayLaunchAgentLabel(process.env.CLAWDBOT_PROFILE);
-        note(`LaunchAgent loaded; stopping requires "${formatCliCommand("clawdbot gateway stop")}" or launchctl bootout gui/$UID/${label}.`, "Gateway");
+        const label = resolveGatewayLaunchAgentLabel(process.env.HEXOS_PROFILE);
+        note(`LaunchAgent loaded; stopping requires "${formatCliCommand("hexos gateway stop")}" or launchctl bootout gui/$UID/${label}.`, "Gateway");
     }
     if (serviceRuntime?.status === "running") {
         const restart = await params.prompter.confirmSkipInNonInteractive({

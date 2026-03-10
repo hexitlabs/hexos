@@ -6,20 +6,20 @@ import { runDaemonInstall, runDaemonRestart, runDaemonStart, runDaemonStatus, ru
 import { runNodeDaemonInstall, runNodeDaemonRestart, runNodeDaemonStart, runNodeDaemonStatus, runNodeDaemonStop, runNodeDaemonUninstall, } from "./node-cli/daemon.js";
 export function registerServiceCli(program) {
     const gatewayExamples = [
-        ["clawdbot service gateway status", "Show gateway service status + probe."],
+        ["hexos service gateway status", "Show gateway service status + probe."],
         [
-            "clawdbot service gateway install --port 18789 --token <token>",
+            "hexos service gateway install --port 18789 --token <token>",
             "Install the Gateway service on port 18789.",
         ],
-        ["clawdbot service gateway restart", "Restart the Gateway service."],
+        ["hexos service gateway restart", "Restart the Gateway service."],
     ];
     const nodeExamples = [
-        ["clawdbot service node status", "Show node host service status."],
+        ["hexos service node status", "Show node host service status."],
         [
-            "clawdbot service node install --host gateway.local --port 18789 --tls",
+            "hexos service node install --host gateway.local --port 18789 --tls",
             "Install the node host service with TLS.",
         ],
-        ["clawdbot service node restart", "Restart the node host service."],
+        ["hexos service node restart", "Restart the node host service."],
     ];
     const service = program
         .command("service")

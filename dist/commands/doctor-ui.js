@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveClawdbotPackageRoot } from "../infra/clawdbot-root.js";
+import { resolveHexOSPackageRoot } from "../infra/hexos-root.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { note } from "../terminal/note.js";
 export async function maybeRepairUiProtocolFreshness(_runtime, prompter) {
-    const root = await resolveClawdbotPackageRoot({
+    const root = await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),

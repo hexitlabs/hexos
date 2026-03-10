@@ -8,8 +8,8 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 const writers = new Map();
 const log = createSubsystemLogger("agent/anthropic-payload");
 function resolvePayloadLogConfig(env) {
-    const enabled = parseBooleanValue(env.CLAWDBOT_ANTHROPIC_PAYLOAD_LOG) ?? false;
-    const fileOverride = env.CLAWDBOT_ANTHROPIC_PAYLOAD_LOG_FILE?.trim();
+    const enabled = parseBooleanValue(env.HEXOS_ANTHROPIC_PAYLOAD_LOG) ?? false;
+    const fileOverride = env.HEXOS_ANTHROPIC_PAYLOAD_LOG_FILE?.trim();
     const filePath = fileOverride
         ? resolveUserPath(fileOverride)
         : path.join(resolveStateDir(env), "logs", "anthropic-payload.jsonl");

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-import { resolveClawdbotPackageRoot } from "./clawdbot-root.js";
+import { resolveHexOSPackageRoot } from "./hexos-root.js";
 import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
 import { VERSION } from "../version.js";
@@ -44,7 +44,7 @@ export async function runGatewayUpdateCheck(params) {
         if (now - lastCheckedAt < UPDATE_CHECK_INTERVAL_MS)
             return;
     }
-    const root = await resolveClawdbotPackageRoot({
+    const root = await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -74,7 +74,7 @@ export async function runGatewayUpdateCheck(params) {
     if (cmp != null && cmp < 0) {
         const shouldNotify = state.lastNotifiedVersion !== resolved.version || state.lastNotifiedTag !== tag;
         if (shouldNotify) {
-            params.log.info(`update available (${tag}): v${resolved.version} (current v${VERSION}). Run: ${formatCliCommand("clawdbot update")}`);
+            params.log.info(`update available (${tag}): v${resolved.version} (current v${VERSION}). Run: ${formatCliCommand("hexos update")}`);
             nextState.lastNotifiedVersion = resolved.version;
             nextState.lastNotifiedTag = tag;
         }

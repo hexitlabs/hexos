@@ -18,7 +18,7 @@ import { resolveSlackChannelConfig } from "./channel-config.js";
 import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from "./commands.js";
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 import { deliverSlackSlashReplies } from "./replies.js";
-const SLACK_COMMAND_ARG_ACTION_ID = "clawdbot_cmdarg";
+const SLACK_COMMAND_ARG_ACTION_ID = "hexos_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 function chunkItems(items, size) {
     if (size <= 0)

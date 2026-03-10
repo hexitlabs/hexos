@@ -5,7 +5,7 @@ import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveBundledSkillsDir } from "./bundled-dir.js";
 import { shouldIncludeSkill } from "./config.js";
-import { parseFrontmatter, resolveClawdbotMetadata, resolveSkillInvocationPolicy, } from "./frontmatter.js";
+import { parseFrontmatter, resolveHexOSMetadata, resolveSkillInvocationPolicy, } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
 const fsp = fs.promises;
@@ -89,23 +89,23 @@ function loadSkillEntries(workspaceDir, opts) {
     const bundledSkills = bundledSkillsDir
         ? loadSkills({
             dir: bundledSkillsDir,
-            source: "clawdbot-bundled",
+            source: "hexos-bundled",
         })
         : [];
     const extraSkills = mergedExtraDirs.flatMap((dir) => {
         const resolved = resolveUserPath(dir);
         return loadSkills({
             dir: resolved,
-            source: "clawdbot-extra",
+            source: "hexos-extra",
         });
     });
     const managedSkills = loadSkills({
         dir: managedSkillsDir,
-        source: "clawdbot-managed",
+        source: "hexos-managed",
     });
     const workspaceSkills = loadSkills({
         dir: workspaceSkillsDir,
-        source: "clawdbot-workspace",
+        source: "hexos-workspace",
     });
     const merged = new Map();
     // Precedence: extra < bundled < managed < workspace
@@ -129,7 +129,7 @@ function loadSkillEntries(workspaceDir, opts) {
         return {
             skill,
             frontmatter,
-            clawdbot: resolveClawdbotMetadata(frontmatter),
+            hexos: resolveHexOSMetadata(frontmatter),
             invocation: resolveSkillInvocationPolicy(frontmatter),
         };
     });
@@ -146,7 +146,7 @@ export function buildWorkspaceSkillSnapshot(workspaceDir, opts) {
         prompt,
         skills: eligible.map((entry) => ({
             name: entry.skill.name,
-            primaryEnv: entry.clawdbot?.primaryEnv,
+            primaryEnv: entry.hexos?.primaryEnv,
         })),
         resolvedSkills,
         version: opts?.snapshotVersion,

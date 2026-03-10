@@ -6,7 +6,7 @@ import { runCommandWithRuntime } from "./cli-utils.js";
 export function registerDocsCli(program) {
     program
         .command("docs")
-        .description("Search the live Clawdbot docs")
+        .description("Search the live HexOS docs")
         .argument("[query...]", "Search query")
         .addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/docs", "docs.clawd.bot/cli/docs")}\n`)
         .action(async (queryParts) => {

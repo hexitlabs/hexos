@@ -5,7 +5,7 @@ import { isDirectiveOnly } from "./directive-handling.js";
 import { extractInlineSimpleCommand } from "./reply-inline.js";
 import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "../skill-commands.js";
 import { logVerbose } from "../../globals.js";
-import { createClawdbotTools } from "../../agents/clawdbot-tools.js";
+import { createHexOSTools } from "../../agents/hexos-tools.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 function extractTextFromToolResult(result) {
     if (!result || typeof result !== "object")
@@ -62,7 +62,7 @@ export async function handleInlineActions(params) {
             const channel = resolveGatewayMessageChannel(ctx.Surface) ??
                 resolveGatewayMessageChannel(ctx.Provider) ??
                 undefined;
-            const tools = createClawdbotTools({
+            const tools = createHexOSTools({
                 agentSessionKey: sessionKey,
                 agentChannel: channel,
                 agentAccountId: ctx.AccountId,

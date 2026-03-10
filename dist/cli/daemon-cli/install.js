@@ -65,7 +65,7 @@ export async function runDaemonInstall(opts) {
             });
             if (!json) {
                 defaultRuntime.log(`Gateway service already ${service.loadedText}.`);
-                defaultRuntime.log(`Reinstall with: ${formatCliCommand("clawdbot gateway install --force")}`);
+                defaultRuntime.log(`Reinstall with: ${formatCliCommand("hexos gateway install --force")}`);
             }
             return;
         }
@@ -73,7 +73,7 @@ export async function runDaemonInstall(opts) {
     const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
         env: process.env,
         port,
-        token: opts.token || cfg.gateway?.auth?.token || process.env.CLAWDBOT_GATEWAY_TOKEN,
+        token: opts.token || cfg.gateway?.auth?.token || process.env.HEXOS_GATEWAY_TOKEN,
         runtime: runtimeRaw,
         warn: (message) => {
             if (json)

@@ -3,13 +3,13 @@ import { NODE_SERVICE_KIND, NODE_SERVICE_MARKER, NODE_WINDOWS_TASK_SCRIPT_NAME, 
 function withNodeServiceEnv(env) {
     return {
         ...env,
-        CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-        CLAWDBOT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-        CLAWDBOT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-        CLAWDBOT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-        CLAWDBOT_LOG_PREFIX: "node",
-        CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-        CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
+        HEXOS_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+        HEXOS_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+        HEXOS_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+        HEXOS_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+        HEXOS_LOG_PREFIX: "node",
+        HEXOS_SERVICE_MARKER: NODE_SERVICE_MARKER,
+        HEXOS_SERVICE_KIND: NODE_SERVICE_KIND,
     };
 }
 function withNodeInstallEnv(args) {
@@ -18,13 +18,13 @@ function withNodeInstallEnv(args) {
         env: withNodeServiceEnv(args.env),
         environment: {
             ...args.environment,
-            CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-            CLAWDBOT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-            CLAWDBOT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-            CLAWDBOT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-            CLAWDBOT_LOG_PREFIX: "node",
-            CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-            CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
+            HEXOS_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+            HEXOS_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+            HEXOS_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+            HEXOS_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+            HEXOS_LOG_PREFIX: "node",
+            HEXOS_SERVICE_MARKER: NODE_SERVICE_MARKER,
+            HEXOS_SERVICE_KIND: NODE_SERVICE_KIND,
         },
     };
 }

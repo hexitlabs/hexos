@@ -35,7 +35,7 @@ const logCommand = async (event) => {
     }
     try {
         // Create log directory
-        const logDir = path.join(os.homedir(), ".clawdbot", "logs");
+        const logDir = path.join(os.homedir(), ".hexos", "logs");
         await fs.mkdir(logDir, { recursive: true });
         // Append to command log file
         const logFile = path.join(logDir, "commands.log");

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import process from "node:process";
-const BUNDLED_VERSION = (typeof __CLAWDBOT_VERSION__ === "string" && __CLAWDBOT_VERSION__) ||
-    process.env.CLAWDBOT_BUNDLED_VERSION ||
+const BUNDLED_VERSION = (typeof __HEXOS_VERSION__ === "string" && __HEXOS_VERSION__) ||
+    process.env.HEXOS_BUNDLED_VERSION ||
     "0.0.0";
 function argValue(args, flag) {
     const idx = args.indexOf(flag);
@@ -16,7 +16,7 @@ function hasFlag(args, flag) {
 const args = process.argv.slice(2);
 async function main() {
     if (hasFlag(args, "--version") || hasFlag(args, "-v")) {
-        // Match `clawdbot --version` behavior for Swift env/version checks.
+        // Match `hexos --version` behavior for Swift env/version checks.
         // Keep output a single line.
         console.log(BUNDLED_VERSION);
         process.exit(0);
@@ -47,7 +47,7 @@ async function main() {
     setGatewayWsLogStyle(wsLogStyle);
     const cfg = loadConfig();
     const portRaw = argValue(args, "--port") ??
-        process.env.CLAWDBOT_GATEWAY_PORT ??
+        process.env.HEXOS_GATEWAY_PORT ??
         (typeof cfg.gateway?.port === "number" ? String(cfg.gateway.port) : "") ??
         "18789";
     const port = Number.parseInt(portRaw, 10);
@@ -56,7 +56,7 @@ async function main() {
         process.exit(1);
     }
     const bindRaw = argValue(args, "--bind") ??
-        process.env.CLAWDBOT_GATEWAY_BIND ??
+        process.env.HEXOS_GATEWAY_BIND ??
         cfg.gateway?.bind ??
         "loopback";
     const bind = bindRaw === "loopback" ||
@@ -72,7 +72,7 @@ async function main() {
     }
     const token = argValue(args, "--token");
     if (token)
-        process.env.CLAWDBOT_GATEWAY_TOKEN = token;
+        process.env.HEXOS_GATEWAY_TOKEN = token;
     let server = null;
     let lock = null;
     let shuttingDown = false;
@@ -173,6 +173,6 @@ async function main() {
     }
 }
 void main().catch((err) => {
-    console.error("[clawdbot] Gateway daemon failed:", err instanceof Error ? (err.stack ?? err.message) : err);
+    console.error("[hexos] Gateway daemon failed:", err instanceof Error ? (err.stack ?? err.message) : err);
     process.exit(1);
 });

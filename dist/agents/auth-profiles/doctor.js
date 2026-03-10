@@ -26,6 +26,6 @@ export function formatAuthDoctorHint(params) {
         `- config: ${legacyProfileId}${cfgProvider || cfgMode ? ` (provider=${cfgProvider ?? "?"}, mode=${cfgMode ?? "?"})` : ""}`,
         `- auth store oauth profiles: ${storeOauthProfiles || "(none)"}`,
         `- suggested profile: ${suggested}`,
-        `Fix: run "${formatCliCommand("clawdbot doctor --yes")}"`,
+        `Fix: run "${formatCliCommand("hexos doctor --yes")}"`,
     ].join("\n");
 }

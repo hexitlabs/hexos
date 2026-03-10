@@ -737,7 +737,7 @@ async function runCliEntry(params) {
         maxBytes,
         timeoutMs,
     });
-    const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-media-cli-"));
+    const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-media-cli-"));
     const mediaPath = pathResult.path;
     const outputBase = path.join(outputDir, path.parse(mediaPath).name);
     const templCtx = {

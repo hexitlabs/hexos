@@ -17,13 +17,13 @@ export function registerBrowserCli(program) {
     const browser = program
         .command("browser")
         .description("Manage clawd's dedicated browser (Chrome/Chromium)")
-        .option("--url <url>", "Override browser control URL (default from ~/.clawdbot/clawdbot.json)")
+        .option("--url <url>", "Override browser control URL (default from ~/.hexos/hexos.json)")
         .option("--browser-profile <name>", "Browser profile name (default from config)")
         .option("--json", "Output machine-readable JSON", false)
         .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatHelpExamples([...browserCoreExamples, ...browserActionExamples].map((cmd) => [cmd, ""]), true)}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/browser", "docs.clawd.bot/cli/browser")}\n`)
         .action(() => {
         browser.outputHelp();
-        defaultRuntime.error(danger(`Missing subcommand. Try: "${formatCliCommand("clawdbot browser status")}"`));
+        defaultRuntime.error(danger(`Missing subcommand. Try: "${formatCliCommand("hexos browser status")}"`));
         defaultRuntime.exit(1);
     });
     const parentOpts = (cmd) => cmd.parent?.opts?.();

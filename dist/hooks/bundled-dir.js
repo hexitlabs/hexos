@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 export function resolveBundledHooksDir() {
-    const override = process.env.CLAWDBOT_BUNDLED_HOOKS_DIR?.trim();
+    const override = process.env.HEXOS_BUNDLED_HOOKS_DIR?.trim();
     if (override)
         return override;
     // bun --compile: ship a sibling `hooks/bundled/` next to the executable.
@@ -16,7 +16,7 @@ export function resolveBundledHooksDir() {
         // ignore
     }
     // npm: resolve `<packageRoot>/dist/hooks/bundled` relative to this module (compiled hooks).
-    // This path works when installed via npm: node_modules/clawdbot/dist/hooks/bundled-dir.js
+    // This path works when installed via npm: node_modules/hexos/dist/hooks/bundled-dir.js
     try {
         const moduleDir = path.dirname(fileURLToPath(import.meta.url));
         const distBundled = path.join(moduleDir, "bundled");

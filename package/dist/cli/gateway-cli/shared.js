@@ -60,25 +60,25 @@ export function extractGatewayMiskeys(parsed) {
     return { hasGatewayToken, hasRemoteToken };
 }
 export function renderGatewayServiceStopHints(env = process.env) {
-    const profile = env.CLAWDBOT_PROFILE;
+    const profile = env.HEXOS_PROFILE;
     switch (process.platform) {
         case "darwin":
             return [
-                `Tip: ${formatCliCommand("clawdbot gateway stop")}`,
+                `Tip: ${formatCliCommand("hexos gateway stop")}`,
                 `Or: launchctl bootout gui/$UID/${resolveGatewayLaunchAgentLabel(profile)}`,
             ];
         case "linux":
             return [
-                `Tip: ${formatCliCommand("clawdbot gateway stop")}`,
+                `Tip: ${formatCliCommand("hexos gateway stop")}`,
                 `Or: systemctl --user stop ${resolveGatewaySystemdServiceName(profile)}.service`,
             ];
         case "win32":
             return [
-                `Tip: ${formatCliCommand("clawdbot gateway stop")}`,
+                `Tip: ${formatCliCommand("hexos gateway stop")}`,
                 `Or: schtasks /End /TN "${resolveGatewayWindowsTaskName(profile)}"`,
             ];
         default:
-            return [`Tip: ${formatCliCommand("clawdbot gateway stop")}`];
+            return [`Tip: ${formatCliCommand("hexos gateway stop")}`];
     }
 }
 export async function maybeExplainGatewayServiceStop() {

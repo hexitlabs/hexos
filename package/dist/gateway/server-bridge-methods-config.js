@@ -1,10 +1,10 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { CONFIG_PATH_CLAWDBOT, loadConfig, parseConfigJson5, readConfigFileSnapshot, resolveConfigSnapshotHash, validateConfigObject, writeConfigFile, } from "../config/config.js";
+import { CONFIG_PATH_HEXOS, loadConfig, parseConfigJson5, readConfigFileSnapshot, resolveConfigSnapshotHash, validateConfigObject, writeConfigFile, } from "../config/config.js";
 import { applyLegacyMigrations } from "../config/legacy.js";
 import { applyMergePatch } from "../config/merge-patch.js";
 import { buildConfigSchema } from "../config/schema.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
-import { loadClawdbotPlugins } from "../plugins/loader.js";
+import { loadHexOSPlugins } from "../plugins/loader.js";
 import { ErrorCodes, formatValidationErrors, validateConfigGetParams, validateConfigPatchParams, validateConfigSchemaParams, validateConfigSetParams, } from "./protocol/index.js";
 function resolveBaseHash(params) {
     const raw = params?.baseHash;
@@ -74,7 +74,7 @@ export const handleConfigBridgeMethods = async (_ctx, _nodeId, method, params) =
             }
             const cfg = loadConfig();
             const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
-            const pluginRegistry = loadClawdbotPlugins({
+            const pluginRegistry = loadHexOSPlugins({
                 config: cfg,
                 workspaceDir,
                 logger: {
@@ -153,7 +153,7 @@ export const handleConfigBridgeMethods = async (_ctx, _nodeId, method, params) =
                 ok: true,
                 payloadJSON: JSON.stringify({
                     ok: true,
-                    path: CONFIG_PATH_CLAWDBOT,
+                    path: CONFIG_PATH_HEXOS,
                     config: validated.config,
                 }),
             };
@@ -232,7 +232,7 @@ export const handleConfigBridgeMethods = async (_ctx, _nodeId, method, params) =
                 ok: true,
                 payloadJSON: JSON.stringify({
                     ok: true,
-                    path: CONFIG_PATH_CLAWDBOT,
+                    path: CONFIG_PATH_HEXOS,
                     config: validated.config,
                 }),
             };

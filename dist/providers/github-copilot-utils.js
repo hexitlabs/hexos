@@ -1,7 +1,7 @@
 export const DEFAULT_GITHUB_COPILOT_BASE_URL = "https://api.githubcopilot.com";
 export function resolveGithubCopilotUserAgent() {
-    const version = process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "unknown";
-    return `clawdbot/${version}`;
+    const version = process.env.HEXOS_VERSION ?? process.env.npm_package_version ?? "unknown";
+    return `hexos/${version}`;
 }
 export function normalizeGithubCopilotDomain(input) {
     const trimmed = (input ?? "").trim();

@@ -15,7 +15,7 @@ import { normalizeConfigPaths } from "./normalize-paths.js";
 import { resolveConfigPath, resolveStateDir } from "./paths.js";
 import { applyConfigOverrides } from "./runtime-overrides.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
-import { compareClawdbotVersions } from "./version.js";
+import { compareHexOSVersions } from "./version.js";
 // Re-export for backwards compatibility
 export { CircularIncludeError, ConfigIncludeError } from "./includes.js";
 export { MissingEnvVarError } from "./env-substitution.js";
@@ -34,8 +34,8 @@ const SHELL_ENV_EXPECTED_KEYS = [
     "DISCORD_BOT_TOKEN",
     "SLACK_BOT_TOKEN",
     "SLACK_APP_TOKEN",
-    "CLAWDBOT_GATEWAY_TOKEN",
-    "CLAWDBOT_GATEWAY_PASSWORD",
+    "HEXOS_GATEWAY_TOKEN",
+    "HEXOS_GATEWAY_PASSWORD",
 ];
 const CONFIG_BACKUP_COUNT = 5;
 const loggedInvalidConfigs = new Set();
@@ -103,11 +103,11 @@ function warnIfConfigFromFuture(cfg, logger) {
     const touched = cfg.meta?.lastTouchedVersion;
     if (!touched)
         return;
-    const cmp = compareClawdbotVersions(VERSION, touched);
+    const cmp = compareHexOSVersions(VERSION, touched);
     if (cmp === null)
         return;
     if (cmp < 0) {
-        logger.warn(`Config was last written by a newer Clawdbot (${touched}); current version is ${VERSION}.`);
+        logger.warn(`Config was last written by a newer HexOS (${touched}); current version is ${VERSION}.`);
     }
 }
 function applyConfigEnv(cfg, env) {
@@ -424,12 +424,12 @@ export function createConfigIO(overrides = {}) {
     };
 }
 // NOTE: These wrappers intentionally do *not* cache the resolved config path at
-// module scope. `CLAWDBOT_CONFIG_PATH` (and friends) are expected to work even
+// module scope. `HEXOS_CONFIG_PATH` (and friends) are expected to work even
 // when set after the module has been imported (tests, one-off scripts, etc.).
 const DEFAULT_CONFIG_CACHE_MS = 200;
 let configCache = null;
 function resolveConfigCacheMs(env) {
-    const raw = env.CLAWDBOT_CONFIG_CACHE_MS?.trim();
+    const raw = env.HEXOS_CONFIG_CACHE_MS?.trim();
     if (raw === "" || raw === "0")
         return 0;
     if (!raw)
@@ -440,7 +440,7 @@ function resolveConfigCacheMs(env) {
     return Math.max(0, parsed);
 }
 function shouldUseConfigCache(env) {
-    if (env.CLAWDBOT_DISABLE_CONFIG_CACHE?.trim())
+    if (env.HEXOS_DISABLE_CONFIG_CACHE?.trim())
         return false;
     return resolveConfigCacheMs(env) > 0;
 }

@@ -1,14 +1,14 @@
 {
-  "name": "@clawdbot/memory-lancedb",
+  "name": "@hexos/memory-lancedb",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot LanceDB-backed long-term memory plugin with auto-recall/capture",
+  "description": "HexOS LanceDB-backed long-term memory plugin with auto-recall/capture",
   "dependencies": {
     "@lancedb/lancedb": "^0.23.0",
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.16.0"
   },
-  "clawdbot": {
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]

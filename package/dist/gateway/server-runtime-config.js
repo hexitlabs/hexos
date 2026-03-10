@@ -33,16 +33,16 @@ export async function resolveGatewayRuntimeConfig(params) {
     });
     const authMode = resolvedAuth.mode;
     const hooksConfig = resolveHooksConfig(params.cfg);
-    const canvasHostEnabled = process.env.CLAWDBOT_SKIP_CANVAS_HOST !== "1" && params.cfg.canvasHost?.enabled !== false;
+    const canvasHostEnabled = process.env.HEXOS_SKIP_CANVAS_HOST !== "1" && params.cfg.canvasHost?.enabled !== false;
     assertGatewayAuthConfigured(resolvedAuth);
     if (tailscaleMode === "funnel" && authMode !== "password") {
-        throw new Error("tailscale funnel requires gateway auth mode=password (set gateway.auth.password or CLAWDBOT_GATEWAY_PASSWORD)");
+        throw new Error("tailscale funnel requires gateway auth mode=password (set gateway.auth.password or HEXOS_GATEWAY_PASSWORD)");
     }
     if (tailscaleMode !== "off" && !isLoopbackHost(bindHost)) {
         throw new Error("tailscale serve/funnel requires gateway bind=loopback (127.0.0.1)");
     }
     if (!isLoopbackHost(bindHost) && authMode === "none") {
-        throw new Error(`refusing to bind gateway to ${bindHost}:${params.port} without auth (set gateway.auth.token or CLAWDBOT_GATEWAY_TOKEN, or pass --token)`);
+        throw new Error(`refusing to bind gateway to ${bindHost}:${params.port} without auth (set gateway.auth.token or HEXOS_GATEWAY_TOKEN, or pass --token)`);
     }
     return {
         bindHost,

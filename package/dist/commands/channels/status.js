@@ -127,7 +127,7 @@ export function formatGatewayChannelsStatusLines(payload) {
         for (const issue of issues) {
             lines.push(`- ${issue.channel} ${issue.accountId}: ${issue.message}${issue.fix ? ` (${issue.fix})` : ""}`);
         }
-        lines.push(`- Run: ${formatCliCommand("clawdbot doctor")}`);
+        lines.push(`- Run: ${formatCliCommand("hexos doctor")}`);
         lines.push("");
     }
     lines.push(`Tip: ${formatDocsLink("/cli#status", "status --deep")} adds gateway health probes to status output (requires a reachable gateway).`);

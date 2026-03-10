@@ -5,7 +5,7 @@ async function noteProviderPrimer(prompter) {
     const providerLines = listChatProviders().map((meta) => formatProviderPrimerLine(meta));
     await prompter.note([
         "DM security: default is pairing; unknown DMs get a pairing code.",
-        "Approve with: clawdbot pairing approve <provider> <code>",
+        "Approve with: hexos pairing approve <provider> <code>",
         'Public DMs require dmPolicy="open" + allowFrom=["*"].',
         `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
         "",
@@ -40,7 +40,7 @@ async function maybeConfigureDmPolicies(params) {
     const selectPolicy = async (policy) => {
         await prompter.note([
             "Default: pairing (unknown DMs get a pairing code).",
-            `Approve: clawdbot pairing approve ${policy.provider} <code>`,
+            `Approve: hexos pairing approve ${policy.provider} <code>`,
             `Public DMs: ${policy.policyKey}="open" + ${policy.allowFromKey} includes "*".`,
             `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
         ].join("\n"), `${policy.label} DM access`);
@@ -105,7 +105,7 @@ export async function setupProviders(cfg, runtime, prompter, options) {
                 {
                     value: "__skip__",
                     label: "Skip for now",
-                    hint: "You can add providers later via `clawdbot providers add`",
+                    hint: "You can add providers later via `hexos providers add`",
                 },
             ],
             initialValue: quickstartDefault,

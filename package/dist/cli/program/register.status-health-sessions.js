@@ -32,15 +32,15 @@ export function registerStatusHealthSessionsCommands(program) {
         .option("--verbose", "Verbose logging", false)
         .option("--debug", "Alias for --verbose", false)
         .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-        ["clawdbot status", "Show channel health + session summary."],
-        ["clawdbot status --all", "Full diagnosis (read-only)."],
-        ["clawdbot status --json", "Machine-readable output."],
-        ["clawdbot status --usage", "Show model provider usage/quota snapshots."],
+        ["hexos status", "Show channel health + session summary."],
+        ["hexos status --all", "Full diagnosis (read-only)."],
+        ["hexos status --json", "Machine-readable output."],
+        ["hexos status --usage", "Show model provider usage/quota snapshots."],
         [
-            "clawdbot status --deep",
+            "hexos status --deep",
             "Run channel probes (WA + Telegram + Discord + Slack + Signal).",
         ],
-        ["clawdbot status --deep --timeout 5000", "Tighten probe timeout."],
+        ["hexos status --deep --timeout 5000", "Tighten probe timeout."],
     ])}`)
         .addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/status", "docs.clawd.bot/cli/status")}\n`)
         .action(async (opts) => {
@@ -92,10 +92,10 @@ export function registerStatusHealthSessionsCommands(program) {
         .option("--store <path>", "Path to session store (default: resolved from config)")
         .option("--active <minutes>", "Only show sessions updated within the past N minutes")
         .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-        ["clawdbot sessions", "List all sessions."],
-        ["clawdbot sessions --active 120", "Only last 2 hours."],
-        ["clawdbot sessions --json", "Machine-readable output."],
-        ["clawdbot sessions --store ./tmp/sessions.json", "Use a specific session store."],
+        ["hexos sessions", "List all sessions."],
+        ["hexos sessions --active 120", "Only last 2 hours."],
+        ["hexos sessions --json", "Machine-readable output."],
+        ["hexos sessions --store ./tmp/sessions.json", "Use a specific session store."],
     ])}\n\n${theme.muted("Shows token usage per session when the agent reports it; set agents.defaults.contextTokens to see % of your model window.")}`)
         .addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/sessions", "docs.clawd.bot/cli/sessions")}\n`)
         .action(async (opts) => {

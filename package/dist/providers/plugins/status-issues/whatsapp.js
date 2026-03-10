@@ -35,7 +35,7 @@ export function collectWhatsAppStatusIssues(accounts) {
                 accountId,
                 kind: "auth",
                 message: "Not linked (no WhatsApp Web session).",
-                fix: "Run: clawdbot providers login (scan QR on the gateway host).",
+                fix: "Run: hexos providers login (scan QR on the gateway host).",
             });
             continue;
         }
@@ -45,7 +45,7 @@ export function collectWhatsAppStatusIssues(accounts) {
                 accountId,
                 kind: "runtime",
                 message: `Linked but disconnected${reconnectAttempts != null ? ` (reconnectAttempts=${reconnectAttempts})` : ""}${lastError ? `: ${lastError}` : "."}`,
-                fix: "Run: clawdbot doctor (or restart the gateway). If it persists, relink via providers login and check logs.",
+                fix: "Run: hexos doctor (or restart the gateway). If it persists, relink via providers login and check logs.",
             });
         }
     }

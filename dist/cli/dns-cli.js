@@ -91,7 +91,7 @@ export function registerDnsCli(program) {
         .addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/dns", "docs.clawd.bot/cli/dns")}\n`);
     dns
         .command("setup")
-        .description("Set up CoreDNS to serve clawdbot.internal for unicast DNS-SD (Wide-Area Bonjour)")
+        .description("Set up CoreDNS to serve hexos.internal for unicast DNS-SD (Wide-Area Bonjour)")
         .option("--apply", "Install/update CoreDNS config and (re)start the service (requires sudo)", false)
         .action(async (opts) => {
         const cfg = loadConfig();
@@ -116,7 +116,7 @@ export function registerDnsCli(program) {
             ],
         }).trimEnd());
         defaultRuntime.log("");
-        defaultRuntime.log(theme.heading("Recommended ~/.clawdbot/clawdbot.json:"));
+        defaultRuntime.log(theme.heading("Recommended ~/.hexos/hexos.json:"));
         defaultRuntime.log(JSON.stringify({
             gateway: { bind: "auto" },
             discovery: { wideArea: { enabled: true } },
@@ -124,7 +124,7 @@ export function registerDnsCli(program) {
         defaultRuntime.log("");
         defaultRuntime.log(theme.heading("Tailscale admin (DNS → Nameservers):"));
         defaultRuntime.log(theme.muted(`- Add nameserver: ${tailnetIPv4 ?? "<this machine's tailnet IPv4>"}`));
-        defaultRuntime.log(theme.muted("- Restrict to domain (Split DNS): clawdbot.internal"));
+        defaultRuntime.log(theme.muted("- Restrict to domain (Split DNS): hexos.internal"));
         if (!opts.apply) {
             defaultRuntime.log("");
             defaultRuntime.log(theme.muted("Run with --apply to install CoreDNS and configure it."));
@@ -141,7 +141,7 @@ export function registerDnsCli(program) {
         const corefilePath = path.join(etcDir, "Corefile");
         const confDir = path.join(etcDir, "conf.d");
         const importGlob = path.join(confDir, "*.server");
-        const serverPath = path.join(confDir, "clawdbot.internal.server");
+        const serverPath = path.join(confDir, "hexos.internal.server");
         run("brew", ["list", "coredns"], { allowFailure: true });
         run("brew", ["install", "coredns"], {
             inherit: true,
@@ -175,7 +175,7 @@ export function registerDnsCli(program) {
             const d = String(new Date().getUTCDate()).padStart(2, "0");
             const serial = `${y}${m}${d}01`;
             const zoneLines = [
-                `; created by clawdbot dns setup (will be overwritten by the gateway when wide-area discovery is enabled)`,
+                `; created by hexos dns setup (will be overwritten by the gateway when wide-area discovery is enabled)`,
                 `$ORIGIN ${WIDE_AREA_DISCOVERY_DOMAIN}`,
                 `$TTL 60`,
                 `@ IN SOA ns1 hostmaster ${serial} 7200 3600 1209600 60`,
@@ -193,7 +193,7 @@ export function registerDnsCli(program) {
         });
         if (cfg.discovery?.wideArea?.enabled !== true) {
             defaultRuntime.log("");
-            defaultRuntime.log(theme.muted("Note: enable discovery.wideArea.enabled in ~/.clawdbot/clawdbot.json on the gateway and restart the gateway so it writes the DNS-SD zone."));
+            defaultRuntime.log(theme.muted("Note: enable discovery.wideArea.enabled in ~/.hexos/hexos.json on the gateway and restart the gateway so it writes the DNS-SD zone."));
         }
     });
 }

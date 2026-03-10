@@ -22,14 +22,14 @@ export function resolveHookInstallDir(hookId, hooksDir) {
     const hooksBase = hooksDir ? resolveUserPath(hooksDir) : path.join(CONFIG_DIR, "hooks");
     return path.join(hooksBase, safeDirName(hookId));
 }
-async function ensureClawdbotHooks(manifest) {
-    const hooks = manifest.clawdbot?.hooks;
+async function ensureHexOSHooks(manifest) {
+    const hooks = manifest.hexos?.hooks;
     if (!Array.isArray(hooks)) {
-        throw new Error("package.json missing clawdbot.hooks");
+        throw new Error("package.json missing hexos.hooks");
     }
     const list = hooks.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean);
     if (list.length === 0) {
-        throw new Error("package.json clawdbot.hooks is empty");
+        throw new Error("package.json hexos.hooks is empty");
     }
     return list;
 }
@@ -71,7 +71,7 @@ async function installHookPackageFromDir(params) {
     }
     let hookEntries;
     try {
-        hookEntries = await ensureClawdbotHooks(manifest);
+        hookEntries = await ensureHexOSHooks(manifest);
     }
     catch (err) {
         return { ok: false, error: String(err) };
@@ -208,7 +208,7 @@ export async function installHooksFromArchive(params) {
     if (!resolveArchiveKind(archivePath)) {
         return { ok: false, error: `unsupported archive: ${archivePath}` };
     }
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-hook-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-hook-"));
     const extractDir = path.join(tmpDir, "extract");
     await fs.mkdir(extractDir, { recursive: true });
     logger.info?.(`Extracting ${archivePath}…`);
@@ -255,7 +255,7 @@ export async function installHooksFromNpmSpec(params) {
     const spec = params.spec.trim();
     if (!spec)
         return { ok: false, error: "missing npm spec" };
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-hook-pack-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-hook-pack-"));
     logger.info?.(`Downloading ${spec}…`);
     const res = await runCommandWithTimeout(["npm", "pack", spec], {
         timeoutMs: Math.max(timeoutMs, 300_000),

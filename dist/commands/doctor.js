@@ -5,12 +5,12 @@ import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { getModelRefStatus, resolveConfiguredModelRef, resolveHooksGmailModel, } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import { CONFIG_PATH_CLAWDBOT, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
+import { CONFIG_PATH_HEXOS, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
-import { resolveClawdbotPackageRoot } from "../infra/clawdbot-root.js";
+import { resolveHexOSPackageRoot } from "../infra/hexos-root.js";
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
@@ -41,8 +41,8 @@ function resolveMode(cfg) {
 export async function doctorCommand(runtime = defaultRuntime, options = {}) {
     const prompter = createDoctorPrompter({ runtime, options });
     printWizardHeader(runtime);
-    intro("Clawdbot doctor");
-    const root = await resolveClawdbotPackageRoot({
+    intro("HexOS doctor");
+    const root = await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -63,15 +63,15 @@ export async function doctorCommand(runtime = defaultRuntime, options = {}) {
         confirm: (p) => prompter.confirm(p),
     });
     let cfg = configResult.cfg;
-    const configPath = configResult.path ?? CONFIG_PATH_CLAWDBOT;
+    const configPath = configResult.path ?? CONFIG_PATH_HEXOS;
     if (!cfg.gateway?.mode) {
         const lines = [
             "gateway.mode is unset; gateway start will be blocked.",
-            `Fix: run ${formatCliCommand("clawdbot configure")} and set Gateway mode (local/remote).`,
-            `Or set directly: ${formatCliCommand("clawdbot config set gateway.mode local")}`,
+            `Fix: run ${formatCliCommand("hexos configure")} and set Gateway mode (local/remote).`,
+            `Or set directly: ${formatCliCommand("hexos config set gateway.mode local")}`,
         ];
         if (!fs.existsSync(configPath)) {
-            lines.push(`Missing config: run ${formatCliCommand("clawdbot setup")} first.`);
+            lines.push(`Missing config: run ${formatCliCommand("hexos setup")} first.`);
         }
         note(lines.join("\n"), "Gateway");
     }
@@ -139,7 +139,7 @@ export async function doctorCommand(runtime = defaultRuntime, options = {}) {
             }
         }
     }
-    await noteStateIntegrity(cfg, prompter, configResult.path ?? CONFIG_PATH_CLAWDBOT);
+    await noteStateIntegrity(cfg, prompter, configResult.path ?? CONFIG_PATH_HEXOS);
     cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
     noteSandboxScopeWarnings(cfg);
     await maybeMigrateLegacyGatewayService(cfg, resolveMode(cfg), runtime, prompter);
@@ -224,13 +224,13 @@ export async function doctorCommand(runtime = defaultRuntime, options = {}) {
         cfg = applyWizardMetadata(cfg, { command: "doctor", mode: resolveMode(cfg) });
         await writeConfigFile(cfg);
         logConfigUpdated(runtime);
-        const backupPath = `${CONFIG_PATH_CLAWDBOT}.bak`;
+        const backupPath = `${CONFIG_PATH_HEXOS}.bak`;
         if (fs.existsSync(backupPath)) {
             runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
         }
     }
     else {
-        runtime.log(`Run "${formatCliCommand("clawdbot doctor --fix")}" to apply changes.`);
+        runtime.log(`Run "${formatCliCommand("hexos doctor --fix")}" to apply changes.`);
     }
     if (options.workspaceSuggestions !== false) {
         const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));

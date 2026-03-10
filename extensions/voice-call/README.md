@@ -1,6 +1,6 @@
-# @clawdbot/voice-call
+# @hexos/voice-call
 
-Official Voice Call plugin for **Clawdbot**.
+Official Voice Call plugin for **HexOS**.
 
 Providers:
 - **Twilio** (Programmable Voice + Media Streams)
@@ -13,10 +13,10 @@ Plugin system: `https://docs.clawd.bot/plugin`
 
 ## Install (local dev)
 
-### Option A: install via Clawdbot (recommended)
+### Option A: install via HexOS (recommended)
 
 ```bash
-clawdbot plugins install @clawdbot/voice-call
+hexos plugins install @hexos/voice-call
 ```
 
 Restart the Gateway afterwards.
@@ -24,9 +24,9 @@ Restart the Gateway afterwards.
 ### Option B: copy into your global extensions folder (dev)
 
 ```bash
-mkdir -p ~/.clawdbot/extensions
-cp -R extensions/voice-call ~/.clawdbot/extensions/voice-call
-cd ~/.clawdbot/extensions/voice-call && pnpm install
+mkdir -p ~/.hexos/extensions
+cp -R extensions/voice-call ~/.hexos/extensions/voice-call
+cd ~/.hexos/extensions/voice-call && pnpm install
 ```
 
 ## Config
@@ -99,13 +99,13 @@ Notes:
 ## CLI
 
 ```bash
-clawdbot voicecall call --to "+15555550123" --message "Hello from Clawdbot"
-clawdbot voicecall continue --call-id <id> --message "Any questions?"
-clawdbot voicecall speak --call-id <id> --message "One moment"
-clawdbot voicecall end --call-id <id>
-clawdbot voicecall status --call-id <id>
-clawdbot voicecall tail
-clawdbot voicecall expose --mode funnel
+hexos voicecall call --to "+15555550123" --message "Hello from HexOS"
+hexos voicecall continue --call-id <id> --message "Any questions?"
+hexos voicecall speak --call-id <id> --message "One moment"
+hexos voicecall end --call-id <id>
+hexos voicecall status --call-id <id>
+hexos voicecall tail
+hexos voicecall expose --mode funnel
 ```
 
 ## Tool

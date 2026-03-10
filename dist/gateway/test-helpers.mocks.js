@@ -163,11 +163,11 @@ export const resetTestPluginRegistry = () => {
     setActivePluginRegistry(pluginRegistryState.registry);
 };
 const testConfigRoot = {
-    value: path.join(os.tmpdir(), `clawdbot-gateway-test-${process.pid}-${crypto.randomUUID()}`),
+    value: path.join(os.tmpdir(), `hexos-gateway-test-${process.pid}-${crypto.randomUUID()}`),
 };
 export const setTestConfigRoot = (root) => {
     testConfigRoot.value = root;
-    process.env.CLAWDBOT_CONFIG_PATH = path.join(root, "clawdbot.json");
+    process.env.HEXOS_CONFIG_PATH = path.join(root, "hexos.json");
 };
 export const testTailnetIPv4 = hoisted.testTailnetIPv4;
 export const piSdkMock = hoisted.piSdkMock;
@@ -232,7 +232,7 @@ vi.mock("../config/sessions.js", async () => {
 });
 vi.mock("../config/config.js", async () => {
     const actual = await vi.importActual("../config/config.js");
-    const resolveConfigPath = () => path.join(testConfigRoot.value, "clawdbot.json");
+    const resolveConfigPath = () => path.join(testConfigRoot.value, "hexos.json");
     const hashConfigRaw = (raw) => crypto
         .createHash("sha256")
         .update(raw ?? "")
@@ -309,10 +309,10 @@ vi.mock("../config/config.js", async () => {
     });
     return {
         ...actual,
-        get CONFIG_PATH_CLAWDBOT() {
+        get CONFIG_PATH_HEXOS() {
             return resolveConfigPath();
         },
-        get STATE_DIR_CLAWDBOT() {
+        get STATE_DIR_HEXOS() {
             return path.dirname(resolveConfigPath());
         },
         get isNixMode() {
@@ -498,5 +498,5 @@ vi.mock("../cli/deps.js", async () => {
         }),
     };
 });
-process.env.CLAWDBOT_SKIP_CHANNELS = "1";
-process.env.CLAWDBOT_SKIP_CRON = "1";
+process.env.HEXOS_SKIP_CHANNELS = "1";
+process.env.HEXOS_SKIP_CRON = "1";

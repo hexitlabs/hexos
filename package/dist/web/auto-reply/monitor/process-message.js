@@ -177,7 +177,7 @@ export async function processMessage(params) {
         normalizeE164(params.msg.from) === normalizeE164(params.msg.selfE164 ?? "");
     const responsePrefix = prefixContext.responsePrefix ??
         (configuredResponsePrefix === undefined && isSelfChat
-            ? (resolveIdentityNamePrefix(params.cfg, params.route.agentId) ?? "[clawdbot]")
+            ? (resolveIdentityNamePrefix(params.cfg, params.route.agentId) ?? "[hexos]")
             : undefined);
     const ctxPayload = finalizeInboundContext({
         Body: combinedBody,

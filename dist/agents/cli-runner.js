@@ -4,7 +4,7 @@ import { shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { resolveUserPath } from "../utils.js";
-import { resolveClawdbotDocsPath } from "./docs-path.js";
+import { resolveHexOSDocsPath } from "./docs-path.js";
 import { resolveSessionAgentIds } from "./agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "./bootstrap-files.js";
 import { resolveCliBackendConfig } from "./cli-backends.js";
@@ -45,7 +45,7 @@ export async function runCliAgent(params) {
     const heartbeatPrompt = sessionAgentId === defaultAgentId
         ? resolveHeartbeatPrompt(params.config?.agents?.defaults?.heartbeat?.prompt)
         : undefined;
-    const docsPath = await resolveClawdbotDocsPath({
+    const docsPath = await resolveHexOSDocsPath({
         workspaceDir,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -117,7 +117,7 @@ export async function runCliAgent(params) {
     try {
         const output = await enqueueCliRun(queueKey, async () => {
             log.info(`cli exec: provider=${params.provider} model=${normalizedModel} promptChars=${params.prompt.length}`);
-            const logOutputText = isTruthyEnvValue(process.env.CLAWDBOT_CLAUDE_CLI_LOG_OUTPUT);
+            const logOutputText = isTruthyEnvValue(process.env.HEXOS_CLAUDE_CLI_LOG_OUTPUT);
             if (logOutputText) {
                 const logArgs = [];
                 for (let i = 0; i < args.length; i += 1) {

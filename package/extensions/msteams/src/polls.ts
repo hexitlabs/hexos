@@ -97,13 +97,13 @@ export function extractMSTeamsPollVote(
   const value = activity?.value;
   if (!value || !isRecord(value)) return null;
   const pollId =
-    readNestedString(value, ["clawdbotPollId"]) ??
+    readNestedString(value, ["hexosPollId"]) ??
     readNestedString(value, ["pollId"]) ??
-    readNestedString(value, ["clawdbot", "pollId"]) ??
-    readNestedString(value, ["clawdbot", "poll", "id"]) ??
-    readNestedString(value, ["data", "clawdbotPollId"]) ??
+    readNestedString(value, ["hexos", "pollId"]) ??
+    readNestedString(value, ["hexos", "poll", "id"]) ??
+    readNestedString(value, ["data", "hexosPollId"]) ??
     readNestedString(value, ["data", "pollId"]) ??
-    readNestedString(value, ["data", "clawdbot", "pollId"]);
+    readNestedString(value, ["data", "hexos", "pollId"]);
   if (!pollId) return null;
 
   const directSelections = extractSelections(value.choices);
@@ -176,13 +176,13 @@ export function buildMSTeamsPollCard(params: {
         type: "Action.Submit",
         title: "Vote",
         data: {
-          clawdbotPollId: pollId,
+          hexosPollId: pollId,
         },
         msteams: {
           type: "messageBack",
-          text: "clawdbot poll vote",
+          text: "hexos poll vote",
           displayText: "Vote recorded",
-          value: { clawdbotPollId: pollId },
+          value: { hexosPollId: pollId },
         },
       },
     ],

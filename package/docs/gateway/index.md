@@ -9,20 +9,20 @@ Last updated: 2025-12-09
 
 ## What it is
 - The always-on process that owns the single Baileys/Telegram connection and the control/event plane.
-- Replaces the legacy `gateway` command. CLI entry point: `clawdbot gateway`.
+- Replaces the legacy `gateway` command. CLI entry point: `hexos gateway`.
 - Runs until stopped; exits non-zero on fatal errors so the supervisor restarts it.
 
 ## How to run (local)
 ```bash
-clawdbot gateway --port 18789
+hexos gateway --port 18789
 # for full debug/trace logs in stdio:
-clawdbot gateway --port 18789 --verbose
+hexos gateway --port 18789 --verbose
 # if the port is busy, terminate listeners then start:
-clawdbot gateway --force
+hexos gateway --force
 # dev loop (auto-reload on TS changes):
 pnpm gateway:watch
 ```
-- Config hot reload watches `~/.clawdbot/clawdbot.json` (or `CLAWDBOT_CONFIG_PATH`).
+- Config hot reload watches `~/.hexos/hexos.json` (or `HEXOS_CONFIG_PATH`).
   - Default mode: `gateway.reload.mode="hybrid"` (hot-apply safe changes, restart on critical).
   - Hot reload uses in-process restart via **SIGUSR1** when needed.
   - Disable with `gateway.reload.mode="off"`.
@@ -31,15 +31,15 @@ pnpm gateway:watch
   - OpenAI Chat Completions (HTTP): [`/v1/chat/completions`](/gateway/openai-http-api).
   - OpenResponses (HTTP): [`/v1/responses`](/gateway/openresponses-http-api).
   - Tools Invoke (HTTP): [`/tools/invoke`](/gateway/tools-invoke-http-api).
-- Starts a Canvas file server by default on `canvasHost.port` (default `18793`), serving `http://<gateway-host>:18793/__clawdbot__/canvas/` from `~/clawd/canvas`. Disable with `canvasHost.enabled=false` or `CLAWDBOT_SKIP_CANVAS_HOST=1`.
+- Starts a Canvas file server by default on `canvasHost.port` (default `18793`), serving `http://<gateway-host>:18793/__hexos__/canvas/` from `~/clawd/canvas`. Disable with `canvasHost.enabled=false` or `HEXOS_SKIP_CANVAS_HOST=1`.
 - Logs to stdout; use launchd/systemd to keep it alive and rotate logs.
 - Pass `--verbose` to mirror debug logging (handshakes, req/res, events) from the log file into stdio when troubleshooting.
 - `--force` uses `lsof` to find listeners on the chosen port, sends SIGTERM, logs what it killed, then starts the gateway (fails fast if `lsof` is missing).
 - If you run under a supervisor (launchd/systemd/mac app child-process mode), a stop/restart typically sends **SIGTERM**; older builds may surface this as `pnpm` `ELIFECYCLE` exit code **143** (SIGTERM), which is a normal shutdown, not a crash.
 - **SIGUSR1** triggers an in-process restart when authorized (gateway tool/config apply/update, or enable `commands.restart` for manual restarts).
-- Gateway auth: set `gateway.auth.mode=token` + `gateway.auth.token` (or pass `--token <value>` / `CLAWDBOT_GATEWAY_TOKEN`) to require clients to send `connect.params.auth.token`.
+- Gateway auth: set `gateway.auth.mode=token` + `gateway.auth.token` (or pass `--token <value>` / `HEXOS_GATEWAY_TOKEN`) to require clients to send `connect.params.auth.token`.
 - The wizard now generates a token by default, even on loopback.
-- Port precedence: `--port` > `CLAWDBOT_GATEWAY_PORT` > `gateway.port` > default `18789`.
+- Port precedence: `--port` > `HEXOS_GATEWAY_PORT` > `gateway.port` > default `18789`.
 
 ## Remote access
 - Tailscale/VPN preferred; otherwise SSH tunnel:
@@ -56,14 +56,14 @@ Usually unnecessary: one Gateway can serve multiple messaging channels and agent
 Supported if you isolate state + config and use unique ports. Full guide: [Multiple gateways](/gateway/multiple-gateways).
 
 Service names are profile-aware:
-- macOS: `com.clawdbot.<profile>`
-- Linux: `clawdbot-gateway-<profile>.service`
-- Windows: `Clawdbot Gateway (<profile>)`
+- macOS: `com.hexos.<profile>`
+- Linux: `hexos-gateway-<profile>.service`
+- Windows: `HexOS Gateway (<profile>)`
 
 Install metadata is embedded in the service config:
-- `CLAWDBOT_SERVICE_MARKER=clawdbot`
-- `CLAWDBOT_SERVICE_KIND=gateway`
-- `CLAWDBOT_SERVICE_VERSION=<version>`
+- `HEXOS_SERVICE_MARKER=hexos`
+- `HEXOS_SERVICE_KIND=gateway`
+- `HEXOS_SERVICE_VERSION=<version>`
 
 Rescue-Bot Pattern: keep a second Gateway isolated with its own profile, state dir, workspace, and base port spacing. Full guide: [Rescue-bot guide](/gateway/multiple-gateways#rescue-bot-guide).
 
@@ -72,44 +72,44 @@ Rescue-Bot Pattern: keep a second Gateway isolated with its own profile, state d
 Fast path: run a fully-isolated dev instance (config/state/workspace) without touching your primary setup.
 
 ```bash
-clawdbot --dev setup
-clawdbot --dev gateway --allow-unconfigured
+hexos --dev setup
+hexos --dev gateway --allow-unconfigured
 # then target the dev instance:
-clawdbot --dev status
-clawdbot --dev health
+hexos --dev status
+hexos --dev health
 ```
 
 Defaults (can be overridden via env/flags/config):
-- `CLAWDBOT_STATE_DIR=~/.clawdbot-dev`
-- `CLAWDBOT_CONFIG_PATH=~/.clawdbot-dev/clawdbot.json`
-- `CLAWDBOT_GATEWAY_PORT=19001` (Gateway WS + HTTP)
+- `HEXOS_STATE_DIR=~/.hexos-dev`
+- `HEXOS_CONFIG_PATH=~/.hexos-dev/hexos.json`
+- `HEXOS_GATEWAY_PORT=19001` (Gateway WS + HTTP)
 - `browser.controlUrl=http://127.0.0.1:19003` (derived: `gateway.port+2`)
 - `canvasHost.port=19005` (derived: `gateway.port+4`)
 - `agents.defaults.workspace` default becomes `~/clawd-dev` when you run `setup`/`onboard` under `--dev`.
 
 Derived ports (rules of thumb):
-- Base port = `gateway.port` (or `CLAWDBOT_GATEWAY_PORT` / `--port`)
-- `browser.controlUrl port = base + 2` (or `CLAWDBOT_BROWSER_CONTROL_URL` / config override)
-- `canvasHost.port = base + 4` (or `CLAWDBOT_CANVAS_HOST_PORT` / config override)
+- Base port = `gateway.port` (or `HEXOS_GATEWAY_PORT` / `--port`)
+- `browser.controlUrl port = base + 2` (or `HEXOS_BROWSER_CONTROL_URL` / config override)
+- `canvasHost.port = base + 4` (or `HEXOS_CANVAS_HOST_PORT` / config override)
 - Browser profile CDP ports auto-allocate from `browser.controlPort + 9 .. + 108` (persisted per profile).
 
 Checklist per instance:
 - unique `gateway.port`
-- unique `CLAWDBOT_CONFIG_PATH`
-- unique `CLAWDBOT_STATE_DIR`
+- unique `HEXOS_CONFIG_PATH`
+- unique `HEXOS_STATE_DIR`
 - unique `agents.defaults.workspace`
 - separate WhatsApp numbers (if using WA)
 
 Service install per profile:
 ```bash
-clawdbot --profile main gateway install
-clawdbot --profile rescue gateway install
+hexos --profile main gateway install
+hexos --profile rescue gateway install
 ```
 
 Example:
 ```bash
-CLAWDBOT_CONFIG_PATH=~/.clawdbot/a.json CLAWDBOT_STATE_DIR=~/.clawdbot-a clawdbot gateway --port 19001
-CLAWDBOT_CONFIG_PATH=~/.clawdbot/b.json CLAWDBOT_STATE_DIR=~/.clawdbot-b clawdbot gateway --port 19002
+HEXOS_CONFIG_PATH=~/.hexos/a.json HEXOS_STATE_DIR=~/.hexos-a hexos gateway --port 19001
+HEXOS_CONFIG_PATH=~/.hexos/b.json HEXOS_STATE_DIR=~/.hexos-b hexos gateway --port 19002
 ```
 
 ## Protocol (operator view)
@@ -123,7 +123,7 @@ CLAWDBOT_CONFIG_PATH=~/.clawdbot/b.json CLAWDBOT_STATE_DIR=~/.clawdbot-b clawdbo
 - `agent` responses are two-stage: first `res` ack `{runId,status:"accepted"}`, then a final `res` `{runId,status:"ok"|"error",summary}` after the run finishes; streamed output arrives as `event:"agent"`.
 
 ## Methods (initial set)
-- `health` — full health snapshot (same shape as `clawdbot health --json`).
+- `health` — full health snapshot (same shape as `hexos health --json`).
 - `status` — short summary.
 - `system-presence` — current presence list.
 - `system-event` — post a presence/system note (structured).
@@ -175,26 +175,26 @@ See also: [Presence](/concepts/presence) for how presence is produced/deduped an
 
 ## Supervision (macOS example)
 - Use launchd to keep the service alive:
-  - Program: path to `clawdbot`
+  - Program: path to `hexos`
   - Arguments: `gateway`
   - KeepAlive: true
   - StandardOut/Err: file paths or `syslog`
 - On failure, launchd restarts; fatal misconfig should keep exiting so the operator notices.
 - LaunchAgents are per-user and require a logged-in session; for headless setups use a custom LaunchDaemon (not shipped).
-  - `clawdbot gateway install` writes `~/Library/LaunchAgents/com.clawdbot.gateway.plist`
-    (or `com.clawdbot.<profile>.plist`).
-  - `clawdbot doctor` audits the LaunchAgent config and can update it to current defaults.
+  - `hexos gateway install` writes `~/Library/LaunchAgents/com.hexos.gateway.plist`
+    (or `com.hexos.<profile>.plist`).
+  - `hexos doctor` audits the LaunchAgent config and can update it to current defaults.
 
 ## Gateway service management (CLI)
 
 Use the Gateway CLI for install/start/stop/restart/status:
 
 ```bash
-clawdbot gateway status
-clawdbot gateway install
-clawdbot gateway stop
-clawdbot gateway restart
-clawdbot logs --follow
+hexos gateway status
+hexos gateway install
+hexos gateway stop
+hexos gateway restart
+hexos logs --follow
 ```
 
 Notes:
@@ -206,40 +206,40 @@ Notes:
 - `gateway status` prints config path + probe target to avoid “localhost vs LAN bind” confusion and profile mismatches.
 - `gateway status` includes the last gateway error line when the service looks running but the port is closed.
 - `logs` tails the Gateway file log via RPC (no manual `tail`/`grep` needed).
-- If other gateway-like services are detected, the CLI warns unless they are Clawdbot profile services.
+- If other gateway-like services are detected, the CLI warns unless they are HexOS profile services.
   We still recommend **one gateway per machine** for most setups; use isolated profiles/ports for redundancy or a rescue bot. See [Multiple gateways](/gateway/multiple-gateways).
-  - Cleanup: `clawdbot gateway uninstall` (current service) and `clawdbot doctor` (legacy migrations).
-- `gateway install` is a no-op when already installed; use `clawdbot gateway install --force` to reinstall (profile/env/path changes).
+  - Cleanup: `hexos gateway uninstall` (current service) and `hexos doctor` (legacy migrations).
+- `gateway install` is a no-op when already installed; use `hexos gateway install --force` to reinstall (profile/env/path changes).
 
 Bundled mac app:
-- Clawdbot.app can bundle a Node-based gateway relay and install a per-user LaunchAgent labeled
-  `com.clawdbot.gateway` (or `com.clawdbot.<profile>`).
-- To stop it cleanly, use `clawdbot gateway stop` (or `launchctl bootout gui/$UID/com.clawdbot.gateway`).
-- To restart, use `clawdbot gateway restart` (or `launchctl kickstart -k gui/$UID/com.clawdbot.gateway`).
-  - `launchctl` only works if the LaunchAgent is installed; otherwise use `clawdbot gateway install` first.
-  - Replace the label with `com.clawdbot.<profile>` when running a named profile.
+- HexOS.app can bundle a Node-based gateway relay and install a per-user LaunchAgent labeled
+  `com.hexos.gateway` (or `com.hexos.<profile>`).
+- To stop it cleanly, use `hexos gateway stop` (or `launchctl bootout gui/$UID/com.hexos.gateway`).
+- To restart, use `hexos gateway restart` (or `launchctl kickstart -k gui/$UID/com.hexos.gateway`).
+  - `launchctl` only works if the LaunchAgent is installed; otherwise use `hexos gateway install` first.
+  - Replace the label with `com.hexos.<profile>` when running a named profile.
 
 ## Supervision (systemd user unit)
-Clawdbot installs a **systemd user service** by default on Linux/WSL2. We
+HexOS installs a **systemd user service** by default on Linux/WSL2. We
 recommend user services for single-user machines (simpler env, per-user config).
 Use a **system service** for multi-user or always-on servers (no lingering
 required, shared supervision).
 
-`clawdbot gateway install` writes the user unit. `clawdbot doctor` audits the
+`hexos gateway install` writes the user unit. `hexos doctor` audits the
 unit and can update it to match the current recommended defaults.
 
-Create `~/.config/systemd/user/clawdbot-gateway[-<profile>].service`:
+Create `~/.config/systemd/user/hexos-gateway[-<profile>].service`:
 ```
 [Unit]
-Description=Clawdbot Gateway (profile: <profile>, v<version>)
+Description=HexOS Gateway (profile: <profile>, v<version>)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/local/bin/clawdbot gateway --port 18789
+ExecStart=/usr/local/bin/hexos gateway --port 18789
 Restart=always
 RestartSec=5
-Environment=CLAWDBOT_GATEWAY_TOKEN=
+Environment=HEXOS_GATEWAY_TOKEN=
 WorkingDirectory=/home/youruser
 
 [Install]
@@ -252,16 +252,16 @@ sudo loginctl enable-linger youruser
 Onboarding runs this on Linux/WSL2 (may prompt for sudo; writes `/var/lib/systemd/linger`).
 Then enable the service:
 ```
-systemctl --user enable --now clawdbot-gateway[-<profile>].service
+systemctl --user enable --now hexos-gateway[-<profile>].service
 ```
 
 **Alternative (system service)** - for always-on or multi-user servers, you can
 install a systemd **system** unit instead of a user unit (no lingering needed).
-Create `/etc/systemd/system/clawdbot-gateway[-<profile>].service` (copy the unit above,
+Create `/etc/systemd/system/hexos-gateway[-<profile>].service` (copy the unit above,
 switch `WantedBy=multi-user.target`, set `User=` + `WorkingDirectory=`), then:
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable --now clawdbot-gateway[-<profile>].service
+sudo systemctl enable --now hexos-gateway[-<profile>].service
 ```
 
 ## Windows (WSL2)
@@ -280,13 +280,13 @@ Windows installs should use **WSL2** and follow the Linux systemd section above.
 - Graceful shutdown: emit `shutdown` event before closing; clients must handle close + reconnect.
 
 ## CLI helpers
-- `clawdbot gateway health|status` — request health/status over the Gateway WS.
-- `clawdbot message send --target <num> --message "hi" [--media ...]` — send via Gateway (idempotent for WhatsApp).
-- `clawdbot agent --message "hi" --to <num>` — run an agent turn (waits for final by default).
-- `clawdbot gateway call <method> --params '{"k":"v"}'` — raw method invoker for debugging.
-- `clawdbot gateway stop|restart` — stop/restart the supervised gateway service (launchd/systemd).
+- `hexos gateway health|status` — request health/status over the Gateway WS.
+- `hexos message send --target <num> --message "hi" [--media ...]` — send via Gateway (idempotent for WhatsApp).
+- `hexos agent --message "hi" --to <num>` — run an agent turn (waits for final by default).
+- `hexos gateway call <method> --params '{"k":"v"}'` — raw method invoker for debugging.
+- `hexos gateway stop|restart` — stop/restart the supervised gateway service (launchd/systemd).
 - Gateway helper subcommands assume a running gateway on `--url`; they no longer auto-spawn one.
 
 ## Migration guidance
-- Retire uses of `clawdbot gateway` and the legacy TCP control port.
+- Retire uses of `hexos gateway` and the legacy TCP control port.
 - Update clients to speak the WS protocol with mandatory connect and structured presence.

@@ -49,7 +49,7 @@ export function registerTelegramCli(program) {
             console.log("Telegram token not configured; skipping requester notification.");
             return;
         }
-        await sendMessageTelegram(approved.chatId, "✅ Clawdbot access approved. Send a message to start chatting.", { token }).catch((err) => {
+        await sendMessageTelegram(approved.chatId, "✅ HexOS access approved. Send a message to start chatting.", { token }).catch((err) => {
             console.log(`Failed to notify requester: ${String(err)}`);
         });
     });

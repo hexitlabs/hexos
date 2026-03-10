@@ -24,7 +24,7 @@ const NodeHostSchema = z
 })
     .strict()
     .optional();
-export const ClawdbotSchema = z
+export const HexOSSchema = z
     .object({
     meta: z
         .object({

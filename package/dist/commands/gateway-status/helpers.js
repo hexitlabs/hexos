@@ -91,8 +91,8 @@ export function resolveAuthForTarget(cfg, target, overrides) {
             password: password.length > 0 ? password : undefined,
         };
     }
-    const envToken = process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() || "";
-    const envPassword = process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() || "";
+    const envToken = process.env.HEXOS_GATEWAY_TOKEN?.trim() || "";
+    const envPassword = process.env.HEXOS_GATEWAY_PASSWORD?.trim() || "";
     const cfgToken = typeof cfg.gateway?.auth?.token === "string" ? cfg.gateway.auth.token.trim() : "";
     const cfgPassword = typeof cfg.gateway?.auth?.password === "string" ? cfg.gateway.auth.password.trim() : "";
     return {

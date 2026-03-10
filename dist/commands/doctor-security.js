@@ -5,7 +5,7 @@ import { note } from "../terminal/note.js";
 import { formatCliCommand } from "../cli/command-format.js";
 export async function noteSecurityWarnings(cfg) {
     const warnings = [];
-    const auditHint = `- Run: ${formatCliCommand("clawdbot security audit --deep")}`;
+    const auditHint = `- Run: ${formatCliCommand("hexos security audit --deep")}`;
     const warnDmPolicy = async (params) => {
         const dmPolicy = params.dmPolicy;
         const policyPath = params.policyPath ?? `${params.allowFromPath}policy`;

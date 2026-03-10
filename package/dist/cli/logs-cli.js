@@ -69,7 +69,7 @@ function createLogWriters() {
         onBrokenPipe: (err, stream) => {
             const code = err.code ?? "EPIPE";
             const target = stream === process.stdout ? "stdout" : "stderr";
-            const message = `clawdbot logs: output ${target} closed (${code}). Stopping tail.`;
+            const message = `hexos logs: output ${target} closed (${code}). Stopping tail.`;
             try {
                 clearActiveProgressLine();
                 process.stderr.write(`${message}\n`);
@@ -88,7 +88,7 @@ function createLogWriters() {
 function emitGatewayError(err, opts, mode, rich, emitJsonLine, errorLine) {
     const details = buildGatewayConnectionDetails({ url: opts.url });
     const message = "Gateway not reachable. Is it running and accessible?";
-    const hint = `Hint: run \`${formatCliCommand("clawdbot doctor")}\`.`;
+    const hint = `Hint: run \`${formatCliCommand("hexos doctor")}\`.`;
     const errorText = err instanceof Error ? err.message : String(err);
     if (mode === "json") {
         if (!emitJsonLine({

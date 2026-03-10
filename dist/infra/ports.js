@@ -52,8 +52,8 @@ export async function handlePortError(err, port, context, runtime = defaultRunti
         if (details) {
             runtime.error(info("Port listener details:"));
             runtime.error(details);
-            if (/clawdbot|src\/index\.ts|dist\/index\.js/.test(details)) {
-                runtime.error(warn("It looks like another clawdbot instance is already running. Stop it or pick a different port."));
+            if (/hexos|src\/index\.ts|dist\/index\.js/.test(details)) {
+                runtime.error(warn("It looks like another hexos instance is already running. Stop it or pick a different port."));
             }
         }
         runtime.error(info("Resolve by stopping the process using the port or passing --port <free-port>."));

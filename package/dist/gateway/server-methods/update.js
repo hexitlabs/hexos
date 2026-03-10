@@ -1,4 +1,4 @@
-import { resolveClawdbotPackageRoot } from "../../infra/clawdbot-root.js";
+import { resolveHexOSPackageRoot } from "../../infra/hexos-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { formatDoctorNonInteractiveHint, writeRestartSentinel, } from "../../infra/restart-sentinel.js";
 import { runGatewayUpdate } from "../../infra/update-runner.js";
@@ -25,7 +25,7 @@ export const updateHandlers = {
             : undefined;
         let result;
         try {
-            const root = (await resolveClawdbotPackageRoot({
+            const root = (await resolveHexOSPackageRoot({
                 moduleUrl: import.meta.url,
                 argv1: process.argv[1],
                 cwd: process.cwd(),

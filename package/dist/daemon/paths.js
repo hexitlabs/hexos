@@ -24,12 +24,12 @@ export function resolveUserPathWithHome(input, home) {
     return path.resolve(trimmed);
 }
 export function resolveGatewayStateDir(env) {
-    const override = env.CLAWDBOT_STATE_DIR?.trim();
+    const override = env.HEXOS_STATE_DIR?.trim();
     if (override) {
         const home = override.startsWith("~") ? resolveHomeDir(env) : undefined;
         return resolveUserPathWithHome(override, home);
     }
     const home = resolveHomeDir(env);
-    const suffix = resolveGatewayProfileSuffix(env.CLAWDBOT_PROFILE);
-    return path.join(home, `.clawdbot${suffix}`);
+    const suffix = resolveGatewayProfileSuffix(env.HEXOS_PROFILE);
+    return path.join(home, `.hexos${suffix}`);
 }

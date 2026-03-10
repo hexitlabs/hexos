@@ -8,15 +8,15 @@ const writers = new Map();
 function resolveCacheTraceConfig(params) {
     const env = params.env ?? process.env;
     const config = params.cfg?.diagnostics?.cacheTrace;
-    const envEnabled = parseBooleanValue(env.CLAWDBOT_CACHE_TRACE);
+    const envEnabled = parseBooleanValue(env.HEXOS_CACHE_TRACE);
     const enabled = envEnabled ?? config?.enabled ?? false;
-    const fileOverride = config?.filePath?.trim() || env.CLAWDBOT_CACHE_TRACE_FILE?.trim();
+    const fileOverride = config?.filePath?.trim() || env.HEXOS_CACHE_TRACE_FILE?.trim();
     const filePath = fileOverride
         ? resolveUserPath(fileOverride)
         : path.join(resolveStateDir(env), "logs", "cache-trace.jsonl");
-    const includeMessages = parseBooleanValue(env.CLAWDBOT_CACHE_TRACE_MESSAGES) ?? config?.includeMessages;
-    const includePrompt = parseBooleanValue(env.CLAWDBOT_CACHE_TRACE_PROMPT) ?? config?.includePrompt;
-    const includeSystem = parseBooleanValue(env.CLAWDBOT_CACHE_TRACE_SYSTEM) ?? config?.includeSystem;
+    const includeMessages = parseBooleanValue(env.HEXOS_CACHE_TRACE_MESSAGES) ?? config?.includeMessages;
+    const includePrompt = parseBooleanValue(env.HEXOS_CACHE_TRACE_PROMPT) ?? config?.includePrompt;
+    const includeSystem = parseBooleanValue(env.HEXOS_CACHE_TRACE_SYSTEM) ?? config?.includeSystem;
     return {
         enabled,
         filePath,

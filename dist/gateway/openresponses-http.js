@@ -1,7 +1,7 @@
 /**
  * OpenResponses HTTP Handler
  *
- * Implements the OpenResponses `/v1/responses` endpoint for Clawdbot Gateway.
+ * Implements the OpenResponses `/v1/responses` endpoint for HexOS Gateway.
  *
  * @see https://www.open-responses.com/
  */
@@ -405,7 +405,7 @@ export async function handleOpenResponsesHttpRequest(req, res, opts) {
                     .map((p) => (typeof p.text === "string" ? p.text : ""))
                     .filter(Boolean)
                     .join("\n\n")
-                : "No response from Clawdbot.";
+                : "No response from HexOS.";
             const response = createResponseResource({
                 id: responseId,
                 model,
@@ -543,7 +543,7 @@ export async function handleOpenResponsesHttpRequest(req, res, opts) {
         if (evt.stream === "lifecycle") {
             const phase = evt.data?.phase;
             if (phase === "end" || phase === "error") {
-                const finalText = accumulatedText || "No response from Clawdbot.";
+                const finalText = accumulatedText || "No response from HexOS.";
                 const finalStatus = phase === "error" ? "failed" : "completed";
                 requestFinalize(finalStatus, finalText);
             }
@@ -647,7 +647,7 @@ export async function handleOpenResponsesHttpRequest(req, res, opts) {
                         .map((p) => (typeof p.text === "string" ? p.text : ""))
                         .filter(Boolean)
                         .join("\n\n")
-                    : "No response from Clawdbot.";
+                    : "No response from HexOS.";
                 accumulatedText = content;
                 sawAssistantDelta = true;
                 writeSseEvent(res, {

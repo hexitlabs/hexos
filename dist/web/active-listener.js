@@ -9,7 +9,7 @@ export function requireActiveWebListener(accountId) {
     const id = resolveWebAccountId(accountId);
     const listener = listeners.get(id) ?? null;
     if (!listener) {
-        throw new Error(`No active WhatsApp Web listener (account: ${id}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`clawdbot channels login --channel whatsapp --account ${id}`)}.`);
+        throw new Error(`No active WhatsApp Web listener (account: ${id}). Start the gateway, then link WhatsApp with: ${formatCliCommand(`hexos channels login --channel whatsapp --account ${id}`)}.`);
     }
     return { accountId: id, listener };
 }

@@ -31,7 +31,7 @@ export async function transcribeInboundAudio(cfg, ctx, runtime) {
                 throw new Error(`HTTP ${res.status}`);
             const arrayBuf = await res.arrayBuffer();
             const buffer = Buffer.from(arrayBuf);
-            tmpPath = path.join(os.tmpdir(), `clawdbot-audio-${crypto.randomUUID()}.ogg`);
+            tmpPath = path.join(os.tmpdir(), `hexos-audio-${crypto.randomUUID()}.ogg`);
             await fs.writeFile(tmpPath, buffer);
             mediaPath = tmpPath;
             if (shouldLogVerbose()) {

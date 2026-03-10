@@ -16,7 +16,7 @@ export function applySkillEnvOverrides(params) {
                 process.env[envKey] = envValue;
             }
         }
-        const primaryEnv = entry.clawdbot?.primaryEnv;
+        const primaryEnv = entry.hexos?.primaryEnv;
         if (primaryEnv && skillConfig.apiKey && !process.env[primaryEnv]) {
             updates.push({ key: primaryEnv, prev: process.env[primaryEnv] });
             process.env[primaryEnv] = skillConfig.apiKey;

@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/googlechat",
+  "name": "@hexos/googlechat",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Google Chat channel plugin",
-  "clawdbot": {
+  "description": "HexOS Google Chat channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -22,7 +22,7 @@
       "order": 55
     },
     "install": {
-      "npmSpec": "@clawdbot/googlechat",
+      "npmSpec": "@hexos/googlechat",
       "localPath": "extensions/googlechat",
       "defaultChoice": "npm"
     }
@@ -31,9 +31,9 @@
     "google-auth-library": "^10.5.0"
   },
   "devDependencies": {
-    "clawdbot": "workspace:*"
+    "hexos": "workspace:*"
   },
   "peerDependencies": {
-    "clawdbot": ">=2026.1.24"
+    "hexos": ">=2026.1.24"
   }
 }

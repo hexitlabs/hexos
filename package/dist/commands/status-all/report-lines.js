@@ -88,7 +88,7 @@ export async function buildStatusAllReportLines(params) {
         rows: agentRows,
     });
     const lines = [];
-    lines.push(heading("Clawdbot status --all"));
+    lines.push(heading("HexOS status --all"));
     lines.push("");
     lines.push(heading("Overview"));
     lines.push(overview.trimEnd());

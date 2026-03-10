@@ -14,7 +14,7 @@ import { defaultRuntime } from "../runtime.js";
 export function buildGatewayCronService(params) {
     const cronLogger = getChildLogger({ module: "cron" });
     const storePath = resolveCronStorePath(params.cfg.cron?.store);
-    const cronEnabled = process.env.CLAWDBOT_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
+    const cronEnabled = process.env.HEXOS_SKIP_CRON !== "1" && params.cfg.cron?.enabled !== false;
     const resolveCronAgent = (requested) => {
         const runtimeConfig = loadConfig();
         const normalized = typeof requested === "string" && requested.trim() ? normalizeAgentId(requested) : undefined;

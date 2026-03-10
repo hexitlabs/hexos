@@ -2,14 +2,14 @@ import fs from "node:fs/promises";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
-import { resolveClawdbotAgentDir } from "../agent-paths.js";
+import { resolveHexOSAgentDir } from "../agent-paths.js";
 import { isProfileInCooldown, markAuthProfileFailure, markAuthProfileGood, markAuthProfileUsed, } from "../auth-profiles.js";
 import { CONTEXT_WINDOW_HARD_MIN_TOKENS, CONTEXT_WINDOW_WARN_BELOW_TOKENS, evaluateContextWindowGuard, resolveContextWindowInfo, } from "../context-window-guard.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../defaults.js";
 import { FailoverError, resolveFailoverStatus } from "../failover-error.js";
 import { ensureAuthProfileStore, getApiKeyForModel, resolveAuthProfileOrder, } from "../model-auth.js";
 import { normalizeProviderId } from "../model-selection.js";
-import { ensureClawdbotModelsJson } from "../models-config.js";
+import { ensureHexOSModelsJson } from "../models-config.js";
 import { classifyFailoverReason, formatAssistantErrorText, isAuthAssistantError, isCompactionFailureError, isContextOverflowError, isFailoverAssistantError, isFailoverErrorMessage, parseImageDimensionError, isRateLimitAssistantError, isTimeoutErrorMessage, pickFallbackThinkingLevel, } from "../pi-embedded-helpers.js";
 import { normalizeUsage } from "../usage.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
@@ -46,9 +46,9 @@ export async function runEmbeddedPiAgent(params) {
         const prevCwd = process.cwd();
         const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
         const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-        const agentDir = params.agentDir ?? resolveClawdbotAgentDir();
+        const agentDir = params.agentDir ?? resolveHexOSAgentDir();
         const fallbackConfigured = (params.config?.agents?.defaults?.model?.fallbacks?.length ?? 0) > 0;
-        await ensureClawdbotModelsJson(params.config, agentDir);
+        await ensureHexOSModelsJson(params.config, agentDir);
         const { model, error, authStorage, modelRegistry } = resolveModel(provider, modelId, agentDir, params.config);
         if (!model) {
             throw new Error(error ?? `Unknown model: ${provider}/${modelId}`);

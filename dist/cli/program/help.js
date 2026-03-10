@@ -3,33 +3,33 @@ import { isRich, theme } from "../../terminal/theme.js";
 import { formatCliBannerLine, hasEmittedCliBanner } from "../banner.js";
 const EXAMPLES = [
     [
-        "clawdbot channels login --verbose",
+        "hexos channels login --verbose",
         "Link personal WhatsApp Web and show QR + connection logs.",
     ],
     [
-        'clawdbot message send --target +15555550123 --message "Hi" --json',
+        'hexos message send --target +15555550123 --message "Hi" --json',
         "Send via your web session and print JSON result.",
     ],
-    ["clawdbot gateway --port 18789", "Run the WebSocket Gateway locally."],
-    ["clawdbot --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
-    ["clawdbot gateway --force", "Kill anything bound to the default gateway port, then start it."],
-    ["clawdbot gateway ...", "Gateway control via WebSocket."],
+    ["hexos gateway --port 18789", "Run the WebSocket Gateway locally."],
+    ["hexos --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
+    ["hexos gateway --force", "Kill anything bound to the default gateway port, then start it."],
+    ["hexos gateway ...", "Gateway control via WebSocket."],
     [
-        'clawdbot agent --to +15555550123 --message "Run summary" --deliver',
+        'hexos agent --to +15555550123 --message "Run summary" --deliver',
         "Talk directly to the agent using the Gateway; optionally send the WhatsApp reply.",
     ],
     [
-        'clawdbot message send --channel telegram --target @mychat --message "Hi"',
+        'hexos message send --channel telegram --target @mychat --message "Hi"',
         "Send via your Telegram bot.",
     ],
 ];
 export function configureProgramHelp(program, ctx) {
     program
-        .name("clawdbot")
+        .name("hexos")
         .description("")
         .version(ctx.programVersion)
-        .option("--dev", "Dev profile: isolate state under ~/.clawdbot-dev, default gateway port 19001, and shift derived ports (browser/canvas)")
-        .option("--profile <name>", "Use a named profile (isolates CLAWDBOT_STATE_DIR/CLAWDBOT_CONFIG_PATH under ~/.clawdbot-<name>)");
+        .option("--dev", "Dev profile: isolate state under ~/.hexos-dev, default gateway port 19001, and shift derived ports (browser/canvas)")
+        .option("--profile <name>", "Use a named profile (isolates HEXOS_STATE_DIR/HEXOS_CONFIG_PATH under ~/.hexos-<name>)");
     program.option("--no-color", "Disable ANSI colors", false);
     program.configureHelp({
         optionTerm: (option) => theme.option(option.flags),

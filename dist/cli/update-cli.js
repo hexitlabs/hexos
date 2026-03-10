@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-import { resolveClawdbotPackageRoot } from "../infra/clawdbot-root.js";
+import { resolveHexOSPackageRoot } from "../infra/hexos-root.js";
 import { checkUpdateStatus, compareSemverStrings, fetchNpmTagVersion, resolveNpmChannelTag, } from "../infra/update-check.js";
 import { parseSemver } from "../infra/runtime-guard.js";
 import { runGatewayUpdate, } from "../infra/update-runner.js";
@@ -33,7 +33,7 @@ const STEP_LABELS = {
     "deps install": "Installing dependencies",
     build: "Building",
     "ui:build": "Building UI",
-    "clawdbot doctor": "Running doctor checks",
+    "hexos doctor": "Running doctor checks",
     "git rev-parse HEAD (after)": "Verifying update",
     "global update": "Updating via package manager",
     "global install": "Installing global package",
@@ -61,15 +61,15 @@ const UPDATE_QUIPS = [
     "Version bump! Same chaos energy, fewer crashes (probably).",
 ];
 const MAX_LOG_CHARS = 8000;
-const CLAWDBOT_REPO_URL = "https://github.com/clawdbot/clawdbot.git";
-const DEFAULT_GIT_DIR = path.join(os.homedir(), "clawdbot");
+const HEXOS_REPO_URL = "https://github.com/hexos/hexos.git";
+const DEFAULT_GIT_DIR = path.join(os.homedir(), "hexos");
 function normalizeTag(value) {
     if (!value)
         return null;
     const trimmed = value.trim();
     if (!trimmed)
         return null;
-    return trimmed.startsWith("clawdbot@") ? trimmed.slice("clawdbot@".length) : trimmed;
+    return trimmed.startsWith("hexos@") ? trimmed.slice("hexos@".length) : trimmed;
 }
 function pickUpdateQuip() {
     return UPDATE_QUIPS[Math.floor(Math.random() * UPDATE_QUIPS.length)] ?? "Update complete.";
@@ -107,11 +107,11 @@ async function isGitCheckout(root) {
         return false;
     }
 }
-async function isClawdbotPackage(root) {
+async function isHexOSPackage(root) {
     try {
         const raw = await fs.readFile(path.join(root, "package.json"), "utf-8");
         const parsed = JSON.parse(raw);
-        return parsed?.name === "clawdbot";
+        return parsed?.name === "hexos";
     }
     catch {
         return false;
@@ -136,7 +136,7 @@ async function isEmptyDir(targetPath) {
     }
 }
 function resolveGitInstallDir() {
-    const override = process.env.CLAWDBOT_GIT_DIR?.trim();
+    const override = process.env.HEXOS_GIT_DIR?.trim();
     if (override)
         return path.resolve(override);
     return DEFAULT_GIT_DIR;
@@ -186,7 +186,7 @@ async function ensureGitCheckout(params) {
     if (!dirExists) {
         return await runUpdateStep({
             name: "git clone",
-            argv: ["git", "clone", CLAWDBOT_REPO_URL, params.dir],
+            argv: ["git", "clone", HEXOS_REPO_URL, params.dir],
             timeoutMs: params.timeoutMs,
             progress: params.progress,
         });
@@ -194,18 +194,18 @@ async function ensureGitCheckout(params) {
     if (!(await isGitCheckout(params.dir))) {
         const empty = await isEmptyDir(params.dir);
         if (!empty) {
-            throw new Error(`CLAWDBOT_GIT_DIR points at a non-git directory: ${params.dir}. Set CLAWDBOT_GIT_DIR to an empty folder or a clawdbot checkout.`);
+            throw new Error(`HEXOS_GIT_DIR points at a non-git directory: ${params.dir}. Set HEXOS_GIT_DIR to an empty folder or a hexos checkout.`);
         }
         return await runUpdateStep({
             name: "git clone",
-            argv: ["git", "clone", CLAWDBOT_REPO_URL, params.dir],
+            argv: ["git", "clone", HEXOS_REPO_URL, params.dir],
             cwd: params.dir,
             timeoutMs: params.timeoutMs,
             progress: params.progress,
         });
     }
-    if (!(await isClawdbotPackage(params.dir))) {
-        throw new Error(`CLAWDBOT_GIT_DIR does not look like a clawdbot checkout: ${params.dir}.`);
+    if (!(await isHexOSPackage(params.dir))) {
+        throw new Error(`HEXOS_GIT_DIR does not look like a hexos checkout: ${params.dir}.`);
     }
     return null;
 }
@@ -240,7 +240,7 @@ export async function updateStatusCommand(opts) {
         defaultRuntime.exit(1);
         return;
     }
-    const root = (await resolveClawdbotPackageRoot({
+    const root = (await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -303,7 +303,7 @@ export async function updateStatusCommand(opts) {
             Value: updateAvailability.available ? theme.warn(`available · ${updateLine}`) : updateLine,
         },
     ];
-    defaultRuntime.log(theme.heading("Clawdbot update status"));
+    defaultRuntime.log(theme.heading("HexOS update status"));
     defaultRuntime.log("");
     defaultRuntime.log(renderTable({
         width: tableWidth,
@@ -433,7 +433,7 @@ export async function updateCommand(opts) {
         defaultRuntime.exit(1);
         return;
     }
-    const root = (await resolveClawdbotPackageRoot({
+    const root = (await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -526,7 +526,7 @@ export async function updateCommand(opts) {
     }
     const showProgress = !opts.json && process.stdout.isTTY;
     if (!opts.json) {
-        defaultRuntime.log(theme.heading("Updating Clawdbot..."));
+        defaultRuntime.log(theme.heading("Updating HexOS..."));
         defaultRuntime.log("");
     }
     const { progress, stop } = createUpdateProgress(showProgress);
@@ -546,7 +546,7 @@ export async function updateCommand(opts) {
         const beforeVersion = pkgRoot ? await readPackageVersion(pkgRoot) : null;
         const updateStep = await runUpdateStep({
             name: "global update",
-            argv: globalInstallArgs(manager, `clawdbot@${tag}`),
+            argv: globalInstallArgs(manager, `hexos@${tag}`),
             timeoutMs: timeoutMs ?? 20 * 60_000,
             progress,
         });
@@ -557,7 +557,7 @@ export async function updateCommand(opts) {
             const entryPath = path.join(pkgRoot, "dist", "entry.js");
             if (await pathExists(entryPath)) {
                 const doctorStep = await runUpdateStep({
-                    name: "clawdbot doctor",
+                    name: "hexos doctor",
                     argv: [resolveNodeRunner(), entryPath, "doctor", "--non-interactive"],
                     timeoutMs: timeoutMs ?? 20 * 60_000,
                     progress,
@@ -650,8 +650,8 @@ export async function updateCommand(opts) {
             defaultRuntime.log(theme.warn("Skipped: working directory has uncommitted changes. Commit or stash them first."));
         }
         if (result.reason === "not-git-install") {
-            defaultRuntime.log(theme.warn(`Skipped: this Clawdbot install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${formatCliCommand("clawdbot doctor")}\` and \`${formatCliCommand("clawdbot gateway restart")}\`.`));
-            defaultRuntime.log(theme.muted("Examples: `npm i -g clawdbot@latest` or `pnpm add -g clawdbot@latest`"));
+            defaultRuntime.log(theme.warn(`Skipped: this HexOS install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${formatCliCommand("hexos doctor")}\` and \`${formatCliCommand("hexos gateway restart")}\`.`));
+            defaultRuntime.log(theme.muted("Examples: `npm i -g hexos@latest` or `pnpm add -g hexos@latest`"));
         }
         defaultRuntime.exit(0);
         return;
@@ -739,7 +739,7 @@ export async function updateCommand(opts) {
             if (!opts.json && restarted) {
                 defaultRuntime.log(theme.success("Daemon restarted successfully."));
                 defaultRuntime.log("");
-                process.env.CLAWDBOT_UPDATE_IN_PROGRESS = "1";
+                process.env.HEXOS_UPDATE_IN_PROGRESS = "1";
                 try {
                     const { doctorCommand } = await import("../commands/doctor.js");
                     const interactiveDoctor = Boolean(process.stdin.isTTY) && !opts.json && opts.yes !== true;
@@ -749,24 +749,24 @@ export async function updateCommand(opts) {
                     defaultRuntime.log(theme.warn(`Doctor failed: ${String(err)}`));
                 }
                 finally {
-                    delete process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
+                    delete process.env.HEXOS_UPDATE_IN_PROGRESS;
                 }
             }
         }
         catch (err) {
             if (!opts.json) {
                 defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
-                defaultRuntime.log(theme.muted(`You may need to restart the service manually: ${formatCliCommand("clawdbot gateway restart")}`));
+                defaultRuntime.log(theme.muted(`You may need to restart the service manually: ${formatCliCommand("hexos gateway restart")}`));
             }
         }
     }
     else if (!opts.json) {
         defaultRuntime.log("");
         if (result.mode === "npm" || result.mode === "pnpm") {
-            defaultRuntime.log(theme.muted(`Tip: Run \`${formatCliCommand("clawdbot doctor")}\`, then \`${formatCliCommand("clawdbot gateway restart")}\` to apply updates to a running gateway.`));
+            defaultRuntime.log(theme.muted(`Tip: Run \`${formatCliCommand("hexos doctor")}\`, then \`${formatCliCommand("hexos gateway restart")}\` to apply updates to a running gateway.`));
         }
         else {
-            defaultRuntime.log(theme.muted(`Tip: Run \`${formatCliCommand("clawdbot gateway restart")}\` to apply updates to a running gateway.`));
+            defaultRuntime.log(theme.muted(`Tip: Run \`${formatCliCommand("hexos gateway restart")}\` to apply updates to a running gateway.`));
         }
     }
     if (!opts.json) {
@@ -775,7 +775,7 @@ export async function updateCommand(opts) {
 }
 export async function updateWizardCommand(opts = {}) {
     if (!process.stdin.isTTY) {
-        defaultRuntime.error("Update wizard requires a TTY. Use `clawdbot update --channel <stable|beta|dev>` instead.");
+        defaultRuntime.error("Update wizard requires a TTY. Use `hexos update --channel <stable|beta|dev>` instead.");
         defaultRuntime.exit(1);
         return;
     }
@@ -785,7 +785,7 @@ export async function updateWizardCommand(opts = {}) {
         defaultRuntime.exit(1);
         return;
     }
-    const root = (await resolveClawdbotPackageRoot({
+    const root = (await resolveHexOSPackageRoot({
         moduleUrl: import.meta.url,
         argv1: process.argv[1],
         cwd: process.cwd(),
@@ -855,13 +855,13 @@ export async function updateWizardCommand(opts = {}) {
             if (dirExists) {
                 const empty = await isEmptyDir(gitDir);
                 if (!empty) {
-                    defaultRuntime.error(`CLAWDBOT_GIT_DIR points at a non-git directory: ${gitDir}. Set CLAWDBOT_GIT_DIR to an empty folder or a clawdbot checkout.`);
+                    defaultRuntime.error(`HEXOS_GIT_DIR points at a non-git directory: ${gitDir}. Set HEXOS_GIT_DIR to an empty folder or a hexos checkout.`);
                     defaultRuntime.exit(1);
                     return;
                 }
             }
             const ok = await confirm({
-                message: stylePromptMessage(`Create a git checkout at ${gitDir}? (override via CLAWDBOT_GIT_DIR)`),
+                message: stylePromptMessage(`Create a git checkout at ${gitDir}? (override via HEXOS_GIT_DIR)`),
                 initialValue: true,
             });
             if (isCancel(ok) || ok === false) {
@@ -895,7 +895,7 @@ export async function updateWizardCommand(opts = {}) {
 export function registerUpdateCli(program) {
     const update = program
         .command("update")
-        .description("Update Clawdbot to the latest version")
+        .description("Update HexOS to the latest version")
         .option("--json", "Output result as JSON", false)
         .option("--no-restart", "Skip restarting the gateway service after a successful update")
         .option("--channel <stable|beta|dev>", "Persist update channel (git + npm)")
@@ -904,15 +904,15 @@ export function registerUpdateCli(program) {
         .option("--yes", "Skip confirmation prompts (non-interactive)", false)
         .addHelpText("after", () => {
         const examples = [
-            ["clawdbot update", "Update a source checkout (git)"],
-            ["clawdbot update --channel beta", "Switch to beta channel (git + npm)"],
-            ["clawdbot update --channel dev", "Switch to dev channel (git + npm)"],
-            ["clawdbot update --tag beta", "One-off update to a dist-tag or version"],
-            ["clawdbot update --no-restart", "Update without restarting the service"],
-            ["clawdbot update --json", "Output result as JSON"],
-            ["clawdbot update --yes", "Non-interactive (accept downgrade prompts)"],
-            ["clawdbot update wizard", "Interactive update wizard"],
-            ["clawdbot --update", "Shorthand for clawdbot update"],
+            ["hexos update", "Update a source checkout (git)"],
+            ["hexos update --channel beta", "Switch to beta channel (git + npm)"],
+            ["hexos update --channel dev", "Switch to dev channel (git + npm)"],
+            ["hexos update --tag beta", "One-off update to a dist-tag or version"],
+            ["hexos update --no-restart", "Update without restarting the service"],
+            ["hexos update --json", "Output result as JSON"],
+            ["hexos update --yes", "Non-interactive (accept downgrade prompts)"],
+            ["hexos update wizard", "Interactive update wizard"],
+            ["hexos --update", "Shorthand for hexos update"],
         ];
         const fmtExamples = examples
             .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -924,7 +924,7 @@ ${theme.heading("What this does:")}
 
 ${theme.heading("Switch channels:")}
   - Use --channel stable|beta|dev to persist the update channel in config
-  - Run clawdbot update status to see the active channel and source
+  - Run hexos update status to see the active channel and source
   - Use --tag <dist-tag|version> for a one-off npm update without persisting
 
 ${theme.heading("Non-interactive:")}
@@ -978,9 +978,9 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.clawd.bot/cli/upda
         .option("--json", "Output result as JSON", false)
         .option("--timeout <seconds>", "Timeout for update checks in seconds (default: 3)")
         .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-        ["clawdbot update status", "Show channel + version status."],
-        ["clawdbot update status --json", "JSON output."],
-        ["clawdbot update status --timeout 10", "Custom timeout."],
+        ["hexos update status", "Show channel + version status."],
+        ["hexos update status --json", "JSON output."],
+        ["hexos update status --timeout 10", "Custom timeout."],
     ])}\n\n${theme.heading("Notes:")}\n${theme.muted("- Shows current update channel (stable/beta/dev) and source")}\n${theme.muted("- Includes git tag/branch/SHA for source checkouts")}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.clawd.bot/cli/update")}`)
         .action(async (opts) => {
         try {

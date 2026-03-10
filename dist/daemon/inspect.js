@@ -3,10 +3,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { GATEWAY_SERVICE_KIND, GATEWAY_SERVICE_MARKER, LEGACY_GATEWAY_LAUNCH_AGENT_LABELS, LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES, LEGACY_GATEWAY_WINDOWS_TASK_NAMES, resolveGatewayLaunchAgentLabel, resolveGatewaySystemdServiceName, resolveGatewayWindowsTaskName, } from "./constants.js";
-const EXTRA_MARKERS = ["clawdbot"];
+const EXTRA_MARKERS = ["hexos"];
 const execFileAsync = promisify(execFile);
 export function renderGatewayServiceCleanupHints(env = process.env) {
-    const profile = env.CLAWDBOT_PROFILE;
+    const profile = env.HEXOS_PROFILE;
     switch (process.platform) {
         case "darwin": {
             const label = resolveGatewayLaunchAgentLabel(profile);
@@ -39,32 +39,32 @@ function containsMarker(content) {
 }
 function hasGatewayServiceMarker(content) {
     const lower = content.toLowerCase();
-    return (lower.includes("clawdbot_service_marker") &&
+    return (lower.includes("hexos_service_marker") &&
         lower.includes(GATEWAY_SERVICE_MARKER.toLowerCase()) &&
-        lower.includes("clawdbot_service_kind") &&
+        lower.includes("hexos_service_kind") &&
         lower.includes(GATEWAY_SERVICE_KIND.toLowerCase()));
 }
-function isClawdbotGatewayLaunchdService(label, contents) {
+function isHexOSGatewayLaunchdService(label, contents) {
     if (hasGatewayServiceMarker(contents))
         return true;
     const lowerContents = contents.toLowerCase();
     if (!lowerContents.includes("gateway"))
         return false;
-    return label.startsWith("com.clawdbot.");
+    return label.startsWith("com.hexos.");
 }
-function isClawdbotGatewaySystemdService(name, contents) {
+function isHexOSGatewaySystemdService(name, contents) {
     if (hasGatewayServiceMarker(contents))
         return true;
-    if (!name.startsWith("clawdbot-gateway"))
+    if (!name.startsWith("hexos-gateway"))
         return false;
     return contents.toLowerCase().includes("gateway");
 }
-function isClawdbotGatewayTaskName(name) {
+function isHexOSGatewayTaskName(name) {
     const normalized = name.trim().toLowerCase();
     if (!normalized)
         return false;
     const defaultName = resolveGatewayWindowsTaskName().toLowerCase();
-    return normalized === defaultName || normalized.startsWith("clawdbot gateway");
+    return normalized === defaultName || normalized.startsWith("hexos gateway");
 }
 function tryExtractPlistLabel(contents) {
     const match = contents.match(/<key>Label<\/key>\s*<string>([\s\S]*?)<\/string>/i);
@@ -107,7 +107,7 @@ async function scanLaunchdDir(params) {
         const label = tryExtractPlistLabel(contents) ?? labelFromName;
         if (isIgnoredLaunchdLabel(label))
             continue;
-        if (isClawdbotGatewayLaunchdService(label, contents))
+        if (isHexOSGatewayLaunchdService(label, contents))
             continue;
         results.push({
             platform: "darwin",
@@ -143,7 +143,7 @@ async function scanSystemdDir(params) {
         }
         if (!containsMarker(contents))
             continue;
-        if (isClawdbotGatewaySystemdService(name, contents))
+        if (isHexOSGatewaySystemdService(name, contents))
             continue;
         results.push({
             platform: "linux",
@@ -291,7 +291,7 @@ export async function findExtraGatewayServices(env, opts = {}) {
             const name = task.name.trim();
             if (!name)
                 continue;
-            if (isClawdbotGatewayTaskName(name))
+            if (isHexOSGatewayTaskName(name))
                 continue;
             if (LEGACY_GATEWAY_WINDOWS_TASK_NAMES.includes(name))
                 continue;

@@ -74,7 +74,7 @@ function tokenToRegex(token) {
     return parts.join("\\S+");
 }
 /**
- * Cleanup suspended Clawdbot CLI processes that have accumulated.
+ * Cleanup suspended HexOS CLI processes that have accumulated.
  * Only cleans up if there are more than the threshold (default: 10).
  */
 export async function cleanupSuspendedCliProcesses(backend, threshold = 10) {
@@ -152,7 +152,7 @@ export function buildSystemPrompt(params) {
         workspaceDir: params.workspaceDir,
         cwd: process.cwd(),
         runtime: {
-            host: "clawdbot",
+            host: "hexos",
             os: `${os.type()} ${os.release()}`,
             arch: os.arch(),
             node: process.version,
@@ -355,7 +355,7 @@ export function appendImagePathsToPrompt(prompt, paths) {
     return `${trimmed}${separator}${paths.join("\n")}`;
 }
 export async function writeCliImages(images) {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-cli-images-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-cli-images-"));
     const paths = [];
     for (let i = 0; i < images.length; i += 1) {
         const image = images[i];

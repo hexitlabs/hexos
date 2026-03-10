@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { createJiti } from "jiti";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
-import { discoverClawdbotPlugins } from "./discovery.js";
+import { discoverHexOSPlugins } from "./discovery.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import { normalizePluginsConfig, resolveEnableState, resolveMemorySlotDecision, } from "./config-state.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
@@ -109,7 +109,7 @@ function createPluginRecord(params) {
 function pushDiagnostics(diagnostics, append) {
     diagnostics.push(...append);
 }
-export function loadClawdbotPlugins(options = {}) {
+export function loadHexOSPlugins(options = {}) {
     const cfg = options.config ?? {};
     const logger = options.logger ?? defaultLogger();
     const validateOnly = options.mode === "validate";
@@ -134,7 +134,7 @@ export function loadClawdbotPlugins(options = {}) {
         runtime,
         coreGatewayHandlers: options.coreGatewayHandlers,
     });
-    const discovery = discoverClawdbotPlugins({
+    const discovery = discoverHexOSPlugins({
         workspaceDir: options.workspaceDir,
         extraPaths: normalized.loadPaths,
     });
@@ -150,7 +150,7 @@ export function loadClawdbotPlugins(options = {}) {
     const jiti = createJiti(import.meta.url, {
         interopDefault: true,
         extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
-        ...(pluginSdkAlias ? { alias: { "clawdbot/plugin-sdk": pluginSdkAlias } } : {}),
+        ...(pluginSdkAlias ? { alias: { "hexos/plugin-sdk": pluginSdkAlias } } : {}),
     });
     const manifestByRoot = new Map(manifestRegistry.plugins.map((record) => [record.rootDir, record]));
     const seenIds = new Map();

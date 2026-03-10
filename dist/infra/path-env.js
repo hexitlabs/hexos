@@ -42,20 +42,20 @@ function candidateBinDirs(opts) {
     const homeDir = opts.homeDir ?? os.homedir();
     const platform = opts.platform ?? process.platform;
     const candidates = [];
-    // Bundled macOS app: `clawdbot` lives next to the executable (process.execPath).
+    // Bundled macOS app: `hexos` lives next to the executable (process.execPath).
     try {
         const execDir = path.dirname(execPath);
-        const siblingClawdbot = path.join(execDir, "clawdbot");
-        if (isExecutable(siblingClawdbot))
+        const siblingHexOS = path.join(execDir, "hexos");
+        if (isExecutable(siblingHexOS))
             candidates.push(execDir);
     }
     catch {
         // ignore
     }
-    // Project-local installs (best effort): if a `node_modules/.bin/clawdbot` exists near cwd,
+    // Project-local installs (best effort): if a `node_modules/.bin/hexos` exists near cwd,
     // include it. This helps when running under launchd or other minimal PATH environments.
     const localBinDir = path.join(cwd, "node_modules", ".bin");
-    if (isExecutable(path.join(localBinDir, "clawdbot")))
+    if (isExecutable(path.join(localBinDir, "hexos")))
         candidates.push(localBinDir);
     const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
     const miseShims = path.join(miseDataDir, "shims");
@@ -76,13 +76,13 @@ function candidateBinDirs(opts) {
     return candidates.filter(isDirectory);
 }
 /**
- * Best-effort PATH bootstrap so skills that require the `clawdbot` CLI can run
+ * Best-effort PATH bootstrap so skills that require the `hexos` CLI can run
  * under launchd/minimal environments (and inside the macOS app bundle).
  */
-export function ensureClawdbotCliOnPath(opts = {}) {
-    if (isTruthyEnvValue(process.env.CLAWDBOT_PATH_BOOTSTRAPPED))
+export function ensureHexOSCliOnPath(opts = {}) {
+    if (isTruthyEnvValue(process.env.HEXOS_PATH_BOOTSTRAPPED))
         return;
-    process.env.CLAWDBOT_PATH_BOOTSTRAPPED = "1";
+    process.env.HEXOS_PATH_BOOTSTRAPPED = "1";
     const existing = opts.pathEnv ?? process.env.PATH ?? "";
     const prepend = candidateBinDirs(opts);
     if (prepend.length === 0)

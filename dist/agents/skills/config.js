@@ -53,7 +53,7 @@ function normalizeAllowlist(input) {
     return normalized.length > 0 ? normalized : undefined;
 }
 function isBundledSkill(entry) {
-    return entry.skill.source === "clawdbot-bundled";
+    return entry.skill.source === "hexos-bundled";
 }
 export function resolveBundledAllowlist(config) {
     return normalizeAllowlist(config?.skills?.allowBundled);
@@ -86,7 +86,7 @@ export function shouldIncludeSkill(params) {
     const skillKey = resolveSkillKey(entry.skill, entry);
     const skillConfig = resolveSkillConfig(config, skillKey);
     const allowBundled = normalizeAllowlist(config?.skills?.allowBundled);
-    const osList = entry.clawdbot?.os ?? [];
+    const osList = entry.hexos?.os ?? [];
     const remotePlatforms = eligibility?.remote?.platforms ?? [];
     if (skillConfig?.enabled === false)
         return false;
@@ -97,10 +97,10 @@ export function shouldIncludeSkill(params) {
         !remotePlatforms.some((platform) => osList.includes(platform))) {
         return false;
     }
-    if (entry.clawdbot?.always === true) {
+    if (entry.hexos?.always === true) {
         return true;
     }
-    const requiredBins = entry.clawdbot?.requires?.bins ?? [];
+    const requiredBins = entry.hexos?.requires?.bins ?? [];
     if (requiredBins.length > 0) {
         for (const bin of requiredBins) {
             if (hasBinary(bin))
@@ -110,27 +110,27 @@ export function shouldIncludeSkill(params) {
             return false;
         }
     }
-    const requiredAnyBins = entry.clawdbot?.requires?.anyBins ?? [];
+    const requiredAnyBins = entry.hexos?.requires?.anyBins ?? [];
     if (requiredAnyBins.length > 0) {
         const anyFound = requiredAnyBins.some((bin) => hasBinary(bin)) ||
             eligibility?.remote?.hasAnyBin?.(requiredAnyBins);
         if (!anyFound)
             return false;
     }
-    const requiredEnv = entry.clawdbot?.requires?.env ?? [];
+    const requiredEnv = entry.hexos?.requires?.env ?? [];
     if (requiredEnv.length > 0) {
         for (const envName of requiredEnv) {
             if (process.env[envName])
                 continue;
             if (skillConfig?.env?.[envName])
                 continue;
-            if (skillConfig?.apiKey && entry.clawdbot?.primaryEnv === envName) {
+            if (skillConfig?.apiKey && entry.hexos?.primaryEnv === envName) {
                 continue;
             }
             return false;
         }
     }
-    const requiredConfig = entry.clawdbot?.requires?.config ?? [];
+    const requiredConfig = entry.hexos?.requires?.config ?? [];
     if (requiredConfig.length > 0) {
         for (const configPath of requiredConfig) {
             if (!isConfigPathTruthy(config, configPath))

@@ -4,7 +4,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { resolveStateDir } from "../config/paths.js";
 const SENTINEL_FILENAME = "restart-sentinel.json";
 export function formatDoctorNonInteractiveHint(env = process.env) {
-    return `Run: ${formatCliCommand("clawdbot doctor --non-interactive", env)}`;
+    return `Run: ${formatCliCommand("hexos doctor --non-interactive", env)}`;
 }
 export function resolveRestartSentinelPath(env = process.env) {
     return path.join(resolveStateDir(env), SENTINEL_FILENAME);

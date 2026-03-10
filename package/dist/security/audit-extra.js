@@ -85,7 +85,7 @@ export function collectSyncedFolderFindings(params) {
             severity: "warn",
             title: "State/config path looks like a synced folder",
             detail: `stateDir=${params.stateDir}, configPath=${params.configPath}. Synced folders (iCloud/Dropbox/OneDrive/Google Drive) can leak tokens and transcripts onto other devices.`,
-            remediation: `Keep CLAWDBOT_STATE_DIR on a local-only volume and re-run "${formatCliCommand("clawdbot security audit --fix")}".`,
+            remediation: `Keep HEXOS_STATE_DIR on a local-only volume and re-run "${formatCliCommand("hexos security audit --fix")}".`,
         });
     }
     return findings;
@@ -103,7 +103,7 @@ export function collectSecretsInConfigFindings(cfg) {
             severity: "warn",
             title: "Gateway password is stored in config",
             detail: "gateway.auth.password is set in the config file; prefer environment variables for secrets when possible.",
-            remediation: "Prefer CLAWDBOT_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
+            remediation: "Prefer HEXOS_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
         });
     }
     const browserToken = typeof cfg.browser?.controlToken === "string" ? cfg.browser.controlToken.trim() : "";
@@ -113,7 +113,7 @@ export function collectSecretsInConfigFindings(cfg) {
             severity: "warn",
             title: "Browser control token is stored in config",
             detail: "browser.controlToken is set in the config file; prefer environment variables for secrets when possible.",
-            remediation: "Prefer CLAWDBOT_BROWSER_CONTROL_TOKEN (env) and remove browser.controlToken from disk.",
+            remediation: "Prefer HEXOS_BROWSER_CONTROL_TOKEN (env) and remove browser.controlToken from disk.",
         });
     }
     const hooksToken = typeof cfg.hooks?.token === "string" ? cfg.hooks.token.trim() : "";
@@ -160,7 +160,7 @@ export function collectHooksHardeningFindings(cfg) {
     }
     const browserToken = typeof cfg.browser?.controlToken === "string" && cfg.browser.controlToken.trim()
         ? cfg.browser.controlToken.trim()
-        : process.env.CLAWDBOT_BROWSER_CONTROL_TOKEN?.trim() || null;
+        : process.env.HEXOS_BROWSER_CONTROL_TOKEN?.trim() || null;
     if (token && browserToken && token === browserToken) {
         findings.push({
             checkId: "hooks.token_reuse_browser_token",

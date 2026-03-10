@@ -13,7 +13,7 @@ function renderEnvLines(env) {
 }
 export function buildSystemdUnit({ description, programArguments, workingDirectory, environment, }) {
     const execStart = programArguments.map(systemdEscapeArg).join(" ");
-    const descriptionLine = `Description=${description?.trim() || "Clawdbot Gateway"}`;
+    const descriptionLine = `Description=${description?.trim() || "HexOS Gateway"}`;
     const workingDirLine = workingDirectory
         ? `WorkingDirectory=${systemdEscapeArg(workingDirectory)}`
         : null;

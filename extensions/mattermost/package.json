@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/mattermost",
+  "name": "@hexos/mattermost",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Mattermost channel plugin",
-  "clawdbot": {
+  "description": "HexOS Mattermost channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -17,7 +17,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@clawdbot/mattermost",
+      "npmSpec": "@hexos/mattermost",
       "localPath": "extensions/mattermost",
       "defaultChoice": "npm"
     }

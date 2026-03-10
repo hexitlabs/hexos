@@ -466,7 +466,7 @@ export async function autoMigrateLegacyState(params) {
     }
     autoMigrateChecked = true;
     const env = params.env ?? process.env;
-    if (env.CLAWDBOT_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
+    if (env.HEXOS_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
         return { migrated: false, skipped: true, changes: [], warnings: [] };
     }
     const detected = await detectLegacyStateMigrations({

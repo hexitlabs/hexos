@@ -20,10 +20,10 @@ function collectEnvPrefixedKeys(prefix) {
     return keys;
 }
 export function collectAnthropicApiKeys() {
-    const forcedSingle = process.env.CLAWDBOT_LIVE_ANTHROPIC_KEY?.trim();
+    const forcedSingle = process.env.HEXOS_LIVE_ANTHROPIC_KEY?.trim();
     if (forcedSingle)
         return [forcedSingle];
-    const fromList = parseKeyList(process.env.CLAWDBOT_LIVE_ANTHROPIC_KEYS);
+    const fromList = parseKeyList(process.env.HEXOS_LIVE_ANTHROPIC_KEYS);
     const fromEnv = collectEnvPrefixedKeys("ANTHROPIC_API_KEY");
     const primary = process.env.ANTHROPIC_API_KEY?.trim();
     const seen = new Set();

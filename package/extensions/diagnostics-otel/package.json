@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/diagnostics-otel",
+  "name": "@hexos/diagnostics-otel",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot diagnostics OpenTelemetry exporter",
-  "clawdbot": {
+  "description": "HexOS diagnostics OpenTelemetry exporter",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]

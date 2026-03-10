@@ -129,7 +129,7 @@ export async function agentsAddCommand(opts, runtime = defaultRuntime, params) {
     }
     const prompter = createClackPrompter();
     try {
-        await prompter.intro("Add Clawdbot agent");
+        await prompter.intro("Add HexOS agent");
         const name = nameInput ??
             (await prompter.text({
                 message: "Agent name",

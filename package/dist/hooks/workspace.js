@@ -3,7 +3,7 @@ import path from "node:path";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { resolveBundledHooksDir } from "./bundled-dir.js";
 import { shouldIncludeHook } from "./config.js";
-import { parseFrontmatter, resolveClawdbotMetadata, resolveHookInvocationPolicy, } from "./frontmatter.js";
+import { parseFrontmatter, resolveHexOSMetadata, resolveHookInvocationPolicy, } from "./frontmatter.js";
 function filterHookEntries(entries, config, eligibility) {
     return entries.filter((entry) => shouldIncludeHook({ entry, config, eligibility }));
 }
@@ -20,7 +20,7 @@ function readHookPackageManifest(dir) {
     }
 }
 function resolvePackageHooks(manifest) {
-    const raw = manifest.clawdbot?.hooks;
+    const raw = manifest.hexos?.hooks;
     if (!Array.isArray(raw))
         return [];
     return raw.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
@@ -127,7 +127,7 @@ export function loadHookEntriesFromDir(params) {
                 pluginId: params.pluginId,
             },
             frontmatter,
-            clawdbot: resolveClawdbotMetadata(frontmatter),
+            hexos: resolveHexOSMetadata(frontmatter),
             invocation: resolveHookInvocationPolicy(frontmatter),
         };
         return entry;
@@ -144,23 +144,23 @@ function loadHookEntries(workspaceDir, opts) {
     const bundledHooks = bundledHooksDir
         ? loadHooksFromDir({
             dir: bundledHooksDir,
-            source: "clawdbot-bundled",
+            source: "hexos-bundled",
         })
         : [];
     const extraHooks = extraDirs.flatMap((dir) => {
         const resolved = resolveUserPath(dir);
         return loadHooksFromDir({
             dir: resolved,
-            source: "clawdbot-workspace", // Extra dirs treated as workspace
+            source: "hexos-workspace", // Extra dirs treated as workspace
         });
     });
     const managedHooks = loadHooksFromDir({
         dir: managedHooksDir,
-        source: "clawdbot-managed",
+        source: "hexos-managed",
     });
     const workspaceHooks = loadHooksFromDir({
         dir: workspaceHooksDir,
-        source: "clawdbot-workspace",
+        source: "hexos-workspace",
     });
     const merged = new Map();
     // Precedence: extra < bundled < managed < workspace (workspace wins)
@@ -184,7 +184,7 @@ function loadHookEntries(workspaceDir, opts) {
         return {
             hook,
             frontmatter,
-            clawdbot: resolveClawdbotMetadata(frontmatter),
+            hexos: resolveHexOSMetadata(frontmatter),
             invocation: resolveHookInvocationPolicy(frontmatter),
         };
     });
@@ -195,7 +195,7 @@ export function buildWorkspaceHookSnapshot(workspaceDir, opts) {
     return {
         hooks: eligible.map((entry) => ({
             name: entry.hook.name,
-            events: entry.clawdbot?.events ?? [],
+            events: entry.hexos?.events ?? [],
         })),
         resolvedHooks: eligible.map((entry) => entry.hook),
         version: opts?.snapshotVersion,

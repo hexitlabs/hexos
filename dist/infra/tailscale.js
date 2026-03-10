@@ -262,7 +262,7 @@ export async function ensureFunnel(port, exec = runExec, runtime = defaultRuntim
             console.error(warn("Tailscale client/server version mismatch detected; try updating tailscale/tailscaled."));
         }
         runtime.error("Failed to enable Tailscale Funnel. Is it allowed on your tailnet?");
-        runtime.error(info(`Tip: Funnel is optional for CLAWDBOT. You can keep running the web gateway without it: \`${formatCliCommand("clawdbot gateway")}\``));
+        runtime.error(info(`Tip: Funnel is optional for HEXOS. You can keep running the web gateway without it: \`${formatCliCommand("hexos gateway")}\``));
         if (shouldLogVerbose()) {
             const rich = isRich();
             if (stdout.trim()) {

@@ -19,6 +19,6 @@ export function renderSystemdUnavailableHints(options = {}) {
     }
     return [
         "systemd user services are unavailable; install/enable systemd or run the gateway under your supervisor.",
-        `If you're in a container, run the gateway in the foreground instead of \`${formatCliCommand("clawdbot gateway")}\`.`,
+        `If you're in a container, run the gateway in the foreground instead of \`${formatCliCommand("hexos gateway")}\`.`,
     ];
 }

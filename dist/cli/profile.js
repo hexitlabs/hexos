@@ -64,7 +64,7 @@ export function parseCliProfileArgs(argv) {
 }
 function resolveProfileStateDir(profile, homedir) {
     const suffix = profile.toLowerCase() === "default" ? "" : `-${profile}`;
-    return path.join(homedir(), `.clawdbot${suffix}`);
+    return path.join(homedir(), `.hexos${suffix}`);
 }
 export function applyCliProfileEnv(params) {
     const env = params.env ?? process.env;
@@ -73,14 +73,14 @@ export function applyCliProfileEnv(params) {
     if (!profile)
         return;
     // Convenience only: fill defaults, never override explicit env values.
-    env.CLAWDBOT_PROFILE = profile;
-    const stateDir = env.CLAWDBOT_STATE_DIR?.trim() || resolveProfileStateDir(profile, homedir);
-    if (!env.CLAWDBOT_STATE_DIR?.trim())
-        env.CLAWDBOT_STATE_DIR = stateDir;
-    if (!env.CLAWDBOT_CONFIG_PATH?.trim()) {
-        env.CLAWDBOT_CONFIG_PATH = path.join(stateDir, "clawdbot.json");
+    env.HEXOS_PROFILE = profile;
+    const stateDir = env.HEXOS_STATE_DIR?.trim() || resolveProfileStateDir(profile, homedir);
+    if (!env.HEXOS_STATE_DIR?.trim())
+        env.HEXOS_STATE_DIR = stateDir;
+    if (!env.HEXOS_CONFIG_PATH?.trim()) {
+        env.HEXOS_CONFIG_PATH = path.join(stateDir, "hexos.json");
     }
-    if (profile === "dev" && !env.CLAWDBOT_GATEWAY_PORT?.trim()) {
-        env.CLAWDBOT_GATEWAY_PORT = "19001";
+    if (profile === "dev" && !env.HEXOS_GATEWAY_PORT?.trim()) {
+        env.HEXOS_GATEWAY_PORT = "19001";
     }
 }

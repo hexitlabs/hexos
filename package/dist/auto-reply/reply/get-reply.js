@@ -18,7 +18,7 @@ import { applyResetModelOverride } from "./session-reset-model.js";
 import { stageSandboxMedia } from "./stage-sandbox-media.js";
 import { createTypingController } from "./typing.js";
 export async function getReplyFromConfig(ctx, opts, configOverride) {
-    const isFastTestEnv = process.env.CLAWDBOT_TEST_FAST === "1";
+    const isFastTestEnv = process.env.HEXOS_TEST_FAST === "1";
     const cfg = configOverride ?? loadConfig();
     const targetSessionKey = ctx.CommandSource === "native" ? ctx.CommandTargetSessionKey?.trim() : undefined;
     const agentSessionKey = targetSessionKey || ctx.SessionKey;

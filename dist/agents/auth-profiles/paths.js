@@ -2,14 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { saveJsonFile } from "../../infra/json-file.js";
 import { resolveUserPath } from "../../utils.js";
-import { resolveClawdbotAgentDir } from "../agent-paths.js";
+import { resolveHexOSAgentDir } from "../agent-paths.js";
 import { AUTH_PROFILE_FILENAME, AUTH_STORE_VERSION, LEGACY_AUTH_FILENAME } from "./constants.js";
 export function resolveAuthStorePath(agentDir) {
-    const resolved = resolveUserPath(agentDir ?? resolveClawdbotAgentDir());
+    const resolved = resolveUserPath(agentDir ?? resolveHexOSAgentDir());
     return path.join(resolved, AUTH_PROFILE_FILENAME);
 }
 export function resolveLegacyAuthStorePath(agentDir) {
-    const resolved = resolveUserPath(agentDir ?? resolveClawdbotAgentDir());
+    const resolved = resolveUserPath(agentDir ?? resolveHexOSAgentDir());
     return path.join(resolved, LEGACY_AUTH_FILENAME);
 }
 export function resolveAuthStorePathForDisplay(agentDir) {

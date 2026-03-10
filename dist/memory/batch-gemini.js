@@ -2,7 +2,7 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { hashText } from "./internal.js";
 const GEMINI_BATCH_MAX_REQUESTS = 50000;
-const debugEmbeddings = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_MEMORY_EMBEDDINGS);
+const debugEmbeddings = isTruthyEnvValue(process.env.HEXOS_DEBUG_MEMORY_EMBEDDINGS);
 const log = createSubsystemLogger("memory/embeddings");
 const debugLog = (message, meta) => {
     if (!debugEmbeddings)
@@ -42,7 +42,7 @@ function splitGeminiBatchRequests(requests) {
     return groups;
 }
 function buildGeminiUploadBody(params) {
-    const boundary = `clawdbot-${hashText(params.displayName)}`;
+    const boundary = `hexos-${hashText(params.displayName)}`;
     const jsonPart = JSON.stringify({
         file: {
             displayName: params.displayName,

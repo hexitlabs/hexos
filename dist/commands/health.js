@@ -14,7 +14,7 @@ import { normalizeAgentId } from "../routing/session-key.js";
 import { theme } from "../terminal/theme.js";
 const DEFAULT_TIMEOUT_MS = 10_000;
 const debugHealth = (...args) => {
-    if (isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_HEALTH)) {
+    if (isTruthyEnvValue(process.env.HEXOS_DEBUG_HEALTH)) {
         console.warn("[health:debug]", ...args);
     }
 };
@@ -420,7 +420,7 @@ export async function healthCommand(opts, runtime) {
         runtime.log(JSON.stringify(summary, null, 2));
     }
     else {
-        const debugEnabled = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_HEALTH);
+        const debugEnabled = isTruthyEnvValue(process.env.HEXOS_DEBUG_HEALTH);
         if (opts.verbose) {
             const details = buildGatewayConnectionDetails({ config: cfg });
             runtime.log(info("Gateway connection:"));

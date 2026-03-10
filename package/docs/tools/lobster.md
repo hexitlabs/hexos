@@ -1,7 +1,7 @@
 ---
 title: Lobster
-summary: "Typed workflow runtime for Clawdbot with resumable approval gates."
-description: Typed workflow runtime for Clawdbot — composable pipelines with approval gates.
+summary: "Typed workflow runtime for HexOS with resumable approval gates."
+description: Typed workflow runtime for HexOS — composable pipelines with approval gates.
 read_when:
   - You want deterministic multi-step workflows with explicit approvals
   - You need to resume a workflow without re-running earlier steps
@@ -9,7 +9,7 @@ read_when:
 
 # Lobster
 
-Lobster is a workflow shell that lets Clawdbot run multi-step tool sequences as a single, deterministic operation with explicit approval checkpoints.
+Lobster is a workflow shell that lets HexOS run multi-step tool sequences as a single, deterministic operation with explicit approval checkpoints.
 
 ## Hook
 
@@ -19,7 +19,7 @@ Your assistant can build the tools that manage itself. Ask for a workflow, and 3
 
 Today, complex workflows require many back-and-forth tool calls. Each call costs tokens, and the LLM has to orchestrate every step. Lobster moves that orchestration into a typed runtime:
 
-- **One call instead of many**: Clawdbot runs one Lobster tool call and gets a structured result.
+- **One call instead of many**: HexOS runs one Lobster tool call and gets a structured result.
 - **Approvals built in**: Side effects (send email, post comment) halt the workflow until explicitly approved.
 - **Resumable**: Halted workflows return a token; approve and resume without re-running everything.
 
@@ -35,7 +35,7 @@ Lobster is intentionally small. The goal is not "a new language," it's a predict
 
 ## How it works
 
-Clawdbot launches the local `lobster` CLI in **tool mode** and parses a JSON envelope from stdout.
+HexOS launches the local `lobster` CLI in **tool mode** and parses a JSON envelope from stdout.
 If the pipeline pauses for approval, the tool returns a `resumeToken` so you can continue later.
 
 ## Pattern: small CLI + JSON pipes + approvals
@@ -123,7 +123,7 @@ See [LLM Task](/tools/llm-task) for details and configuration options.
 
 ## Workflow files (.lobster)
 
-Lobster can run YAML/JSON workflow files with `name`, `args`, `steps`, `env`, `condition`, and `approval` fields. In Clawdbot tool calls, set `pipeline` to the file path.
+Lobster can run YAML/JSON workflow files with `name`, `args`, `steps`, `env`, `condition`, and `approval` fields. In HexOS tool calls, set `pipeline` to the file path.
 
 ```yaml
 name: inbox-triage
@@ -153,7 +153,7 @@ Notes:
 
 ## Install Lobster
 
-Install the Lobster CLI on the **same host** that runs the Clawdbot Gateway (see the [Lobster repo](https://github.com/clawdbot/lobster)), and ensure `lobster` is on `PATH`.
+Install the Lobster CLI on the **same host** that runs the HexOS Gateway (see the [Lobster repo](https://github.com/hexos/lobster)), and ensure `lobster` is on `PATH`.
 If you want to use a custom binary location, pass an **absolute** `lobsterPath` in the tool call.
 
 ## Enable the tool
@@ -178,7 +178,7 @@ Lobster is an **optional** plugin tool (not enabled by default). Allow it per ag
 You can also allow it globally with `tools.allow` if every agent should see it.
 
 Note: allowlists are opt-in for optional plugins. If your allowlist only names
-plugin tools (like `lobster`), Clawdbot keeps core tools enabled. To restrict core
+plugin tools (like `lobster`), HexOS keeps core tools enabled. To restrict core
 tools, include the core tools or groups you want in the allowlist too.
 
 ## Example: Email triage

@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/imessage",
+  "name": "@hexos/imessage",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot iMessage channel plugin",
-  "clawdbot": {
+  "description": "HexOS iMessage channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]

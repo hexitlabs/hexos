@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
-import { resolveClawdbotAgentDir } from "../../agents/agent-paths.js";
+import { resolveHexOSAgentDir } from "../../agents/agent-paths.js";
 import { ensureAuthProfileStore, listProfilesForProvider, resolveAuthProfileDisplayLabel, resolveAuthProfileOrder, } from "../../agents/auth-profiles.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import { describeFailoverError } from "../../agents/failover-error.js";
@@ -250,7 +250,7 @@ async function runTargetsWithConcurrency(params) {
     const { cfg, targets, timeoutMs, maxTokens, onProgress } = params;
     const concurrency = Math.max(1, Math.min(targets.length || 1, params.concurrency));
     const agentId = resolveDefaultAgentId(cfg);
-    const agentDir = resolveClawdbotAgentDir();
+    const agentDir = resolveHexOSAgentDir();
     const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId) ?? resolveDefaultAgentWorkspaceDir();
     const sessionDir = resolveSessionTranscriptsDirForAgent(agentId);
     await fs.mkdir(workspaceDir, { recursive: true });

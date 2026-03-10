@@ -69,7 +69,7 @@ vi.mock("../pairing/pairing-store.js", () => ({
     upsertChannelPairingRequest: (...args) => slackTestState.upsertPairingRequestMock(...args),
 }));
 vi.mock("../config/sessions.js", () => ({
-    resolveStorePath: vi.fn(() => "/tmp/clawdbot-sessions.json"),
+    resolveStorePath: vi.fn(() => "/tmp/hexos-sessions.json"),
     updateLastRoute: (...args) => slackTestState.updateLastRouteMock(...args),
     resolveSessionKey: vi.fn(),
     readSessionUpdatedAt: vi.fn(() => undefined),

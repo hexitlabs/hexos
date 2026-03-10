@@ -1,8 +1,8 @@
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
-import { resolveClawdbotAgentDir } from "../../agents/agent-paths.js";
+import { resolveHexOSAgentDir } from "../../agents/agent-paths.js";
 import { listProfilesForProvider } from "../../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveAwsSdkEnvVarName, resolveEnvApiKey, } from "../../agents/model-auth.js";
-import { ensureClawdbotModelsJson } from "../../agents/models-config.js";
+import { ensureHexOSModelsJson } from "../../agents/models-config.js";
 import { modelKey } from "./shared.js";
 const isLocalBaseUrl = (baseUrl) => {
     try {
@@ -30,8 +30,8 @@ const hasAuthForProvider = (provider, cfg, authStore) => {
     return false;
 };
 export async function loadModelRegistry(cfg) {
-    await ensureClawdbotModelsJson(cfg);
-    const agentDir = resolveClawdbotAgentDir();
+    await ensureHexOSModelsJson(cfg);
+    const agentDir = resolveHexOSAgentDir();
     const authStorage = discoverAuthStorage(agentDir);
     const registry = discoverModels(authStorage, agentDir);
     const models = registry.getAll();

@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
 import path from "node:path";
 
-import type { ClawdbotPluginApi } from "../../../src/plugins/types.js";
+import type { HexOSPluginApi } from "../../../src/plugins/types.js";
 
 type LobsterEnvelope =
   | {
@@ -150,7 +150,7 @@ function parseEnvelope(stdout: string): LobsterEnvelope {
   throw new Error("lobster returned invalid JSON envelope");
 }
 
-export function createLobsterTool(api: ClawdbotPluginApi) {
+export function createLobsterTool(api: HexOSPluginApi) {
   return {
     name: "lobster",
     description:

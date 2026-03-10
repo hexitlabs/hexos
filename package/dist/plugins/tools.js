@@ -1,6 +1,6 @@
 import { normalizeToolName } from "../agents/tool-policy.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadClawdbotPlugins } from "./loader.js";
+import { loadHexOSPlugins } from "./loader.js";
 const log = createSubsystemLogger("plugins");
 const pluginToolMeta = new WeakMap();
 export function getPluginToolMeta(tool) {
@@ -21,7 +21,7 @@ function isOptionalToolAllowed(params) {
     return params.allowlist.has("group:plugins");
 }
 export function resolvePluginTools(params) {
-    const registry = loadClawdbotPlugins({
+    const registry = loadHexOSPlugins({
         config: params.context.config,
         workspaceDir: params.context.workspaceDir,
         logger: {

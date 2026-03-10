@@ -7,9 +7,9 @@ import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
-export const DEFAULT_LOG_DIR = "/tmp/clawdbot";
-export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "clawdbot.log"); // legacy single-file path
-const LOG_PREFIX = "clawdbot";
+export const DEFAULT_LOG_DIR = "/tmp/hexos";
+export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "hexos.log"); // legacy single-file path
+const LOG_PREFIX = "hexos";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 const requireConfig = createRequire(import.meta.url);
@@ -61,7 +61,7 @@ function buildLogger(settings) {
         pruneOldRollingLogs(path.dirname(settings.file));
     }
     const logger = new TsLogger({
-        name: "clawdbot",
+        name: "hexos",
         minLevel: levelToMinLevel(settings.level),
         type: "hidden", // no ansi formatting
     });

@@ -216,7 +216,7 @@ export async function fetchNpmTagVersion(params) {
     const timeoutMs = params?.timeoutMs ?? 3500;
     const tag = params.tag;
     try {
-        const res = await fetchWithTimeout(`https://registry.npmjs.org/clawdbot/${encodeURIComponent(tag)}`, timeoutMs);
+        const res = await fetchWithTimeout(`https://registry.npmjs.org/hexos/${encodeURIComponent(tag)}`, timeoutMs);
         if (!res.ok) {
             return { tag, version: null, error: `HTTP ${res.status}` };
         }

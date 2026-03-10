@@ -8,7 +8,7 @@ import { runCommandWithRuntime } from "../cli-utils.js";
 export function registerSetupCommand(program) {
     program
         .command("setup")
-        .description("Initialize ~/.clawdbot/clawdbot.json and the agent workspace")
+        .description("Initialize ~/.hexos/hexos.json and the agent workspace")
         .addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/setup", "docs.clawd.bot/cli/setup")}\n`)
         .option("--workspace <dir>", "Agent workspace directory (default: ~/clawd; stored as agents.defaults.workspace)")
         .option("--wizard", "Run the interactive onboarding wizard", false)

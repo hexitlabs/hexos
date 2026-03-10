@@ -33,10 +33,10 @@ export function registerBrowserServeCommands(browser, _parentOpts) {
         }
         const host = (opts.bind ?? "127.0.0.1").trim();
         const port = parsePort(opts.port) ?? resolved.controlPort;
-        const envToken = process.env.CLAWDBOT_BROWSER_CONTROL_TOKEN?.trim();
+        const envToken = process.env.HEXOS_BROWSER_CONTROL_TOKEN?.trim();
         const authToken = (opts.token ?? envToken ?? resolved.controlToken)?.trim();
         if (!isLoopbackBindHost(host) && !authToken) {
-            defaultRuntime.error(danger(`Refusing to bind browser control on ${host} without --token (or CLAWDBOT_BROWSER_CONTROL_TOKEN, or browser.controlToken).`));
+            defaultRuntime.error(danger(`Refusing to bind browser control on ${host} without --token (or HEXOS_BROWSER_CONTROL_TOKEN, or browser.controlToken).`));
             defaultRuntime.exit(1);
         }
         const bridge = await startBrowserBridgeServer({
@@ -59,7 +59,7 @@ export function registerBrowserServeCommands(browser, _parentOpts) {
             `🦞 Browser control listening on ${bridge.baseUrl}/`,
             authToken ? "Auth: Bearer token required." : "Auth: off (loopback only).",
             "",
-            "Paste on the Gateway (clawdbot.json):",
+            "Paste on the Gateway (hexos.json):",
             JSON.stringify({
                 browser: {
                     enabled: true,
@@ -71,7 +71,7 @@ export function registerBrowserServeCommands(browser, _parentOpts) {
                 ? [
                     "",
                     "Or use env on the Gateway (instead of controlToken in config):",
-                    `export CLAWDBOT_BROWSER_CONTROL_TOKEN=${JSON.stringify(authToken)}`,
+                    `export HEXOS_BROWSER_CONTROL_TOKEN=${JSON.stringify(authToken)}`,
                 ]
                 : []),
         ].join("\n")));

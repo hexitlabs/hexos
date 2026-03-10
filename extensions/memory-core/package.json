@@ -1,14 +1,14 @@
 {
-  "name": "@clawdbot/memory-core",
+  "name": "@hexos/memory-core",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot core memory search plugin",
-  "clawdbot": {
+  "description": "HexOS core memory search plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]
   },
   "peerDependencies": {
-    "clawdbot": ">=2026.1.24"
+    "hexos": ">=2026.1.24"
   }
 }

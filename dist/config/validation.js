@@ -7,7 +7,7 @@ import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
-import { ClawdbotSchema } from "./zod-schema.js";
+import { HexOSSchema } from "./zod-schema.js";
 const AVATAR_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -74,7 +74,7 @@ export function validateConfigObject(raw) {
             })),
         };
     }
-    const validated = ClawdbotSchema.safeParse(raw);
+    const validated = HexOSSchema.safeParse(raw);
     if (!validated.success) {
         return {
             ok: false,

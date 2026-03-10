@@ -1,17 +1,17 @@
-# @clawdbot/zalo
+# @hexos/zalo
 
-Zalo channel plugin for Clawdbot (Bot API).
+Zalo channel plugin for HexOS (Bot API).
 
 ## Install (local checkout)
 
 ```bash
-clawdbot plugins install ./extensions/zalo
+hexos plugins install ./extensions/zalo
 ```
 
 ## Install (npm)
 
 ```bash
-clawdbot plugins install @clawdbot/zalo
+hexos plugins install @hexos/zalo
 ```
 
 Onboarding: select Zalo and confirm the install prompt to fetch the plugin automatically.

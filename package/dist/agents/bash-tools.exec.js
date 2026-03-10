@@ -16,7 +16,7 @@ import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 const DEFAULT_MAX_OUTPUT = clampNumber(readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"), 200_000, 1_000, 200_000);
-const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(readEnvInt("CLAWDBOT_BASH_PENDING_MAX_OUTPUT_CHARS"), 200_000, 1_000, 200_000);
+const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(readEnvInt("HEXOS_BASH_PENDING_MAX_OUTPUT_CHARS"), 200_000, 1_000, 200_000);
 const DEFAULT_PATH = process.env.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 const DEFAULT_NOTIFY_TAIL_CHARS = 400;
 const DEFAULT_APPROVAL_TIMEOUT_MS = 120_000;

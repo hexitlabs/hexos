@@ -6,7 +6,7 @@ import { isSubagentSessionKey } from "../routing/session-key.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { resolveUserPath } from "../utils.js";
 export function resolveDefaultAgentWorkspaceDir(env = process.env, homedir = os.homedir) {
-    const profile = env.CLAWDBOT_PROFILE?.trim();
+    const profile = env.HEXOS_PROFILE?.trim();
     if (profile && profile.toLowerCase() !== "default") {
         return path.join(homedir(), `clawd-${profile}`);
     }

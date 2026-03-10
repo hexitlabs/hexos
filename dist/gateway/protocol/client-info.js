@@ -1,16 +1,16 @@
 export const GATEWAY_CLIENT_IDS = {
     WEBCHAT_UI: "webchat-ui",
-    CONTROL_UI: "clawdbot-control-ui",
+    CONTROL_UI: "hexos-control-ui",
     WEBCHAT: "webchat",
     CLI: "cli",
     GATEWAY_CLIENT: "gateway-client",
-    MACOS_APP: "clawdbot-macos",
-    IOS_APP: "clawdbot-ios",
-    ANDROID_APP: "clawdbot-android",
+    MACOS_APP: "hexos-macos",
+    IOS_APP: "hexos-ios",
+    ANDROID_APP: "hexos-android",
     NODE_HOST: "node-host",
     TEST: "test",
     FINGERPRINT: "fingerprint",
-    PROBE: "clawdbot-probe",
+    PROBE: "hexos-probe",
 };
 // Back-compat naming (internal): these values are IDs, not display names.
 export const GATEWAY_CLIENT_NAMES = GATEWAY_CLIENT_IDS;

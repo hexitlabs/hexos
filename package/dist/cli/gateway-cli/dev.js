@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { handleReset } from "../../commands/onboard-helpers.js";
-import { CONFIG_PATH_CLAWDBOT, writeConfigFile } from "../../config/config.js";
+import { CONFIG_PATH_HEXOS, writeConfigFile } from "../../config/config.js";
 import { defaultRuntime } from "../../runtime.js";
 import { resolveUserPath, shortenHomePath } from "../../utils.js";
 const DEV_IDENTITY_NAME = "C3-PO";
@@ -27,7 +27,7 @@ async function loadDevTemplate(name, fallback) {
 }
 const resolveDevWorkspaceDir = (env = process.env) => {
     const baseDir = resolveDefaultAgentWorkspaceDir(env, os.homedir);
-    const profile = env.CLAWDBOT_PROFILE?.trim().toLowerCase();
+    const profile = env.HEXOS_PROFILE?.trim().toLowerCase();
     if (profile === "dev")
         return baseDir;
     return `${baseDir}-${DEV_AGENT_WORKSPACE_SUFFIX}`;
@@ -49,7 +49,7 @@ async function ensureDevWorkspace(dir) {
     const resolvedDir = resolveUserPath(dir);
     await fs.promises.mkdir(resolvedDir, { recursive: true });
     const [agents, soul, tools, identity, user] = await Promise.all([
-        loadDevTemplate("AGENTS.dev.md", `# AGENTS.md - Clawdbot Dev Workspace\n\nDefault dev workspace for clawdbot gateway --dev.\n`),
+        loadDevTemplate("AGENTS.dev.md", `# AGENTS.md - HexOS Dev Workspace\n\nDefault dev workspace for hexos gateway --dev.\n`),
         loadDevTemplate("SOUL.dev.md", `# SOUL.md - Dev Persona\n\nProtocol droid for debugging and operations.\n`),
         loadDevTemplate("TOOLS.dev.md", `# TOOLS.md - User Tool Notes (editable)\n\nAdd your local tool notes here.\n`),
         loadDevTemplate("IDENTITY.dev.md", `# IDENTITY.md - Agent Identity\n\n- Name: ${DEV_IDENTITY_NAME}\n- Creature: protocol droid\n- Vibe: ${DEV_IDENTITY_THEME}\n- Emoji: ${DEV_IDENTITY_EMOJI}\n`),
@@ -66,7 +66,7 @@ export async function ensureDevGatewayConfig(opts) {
     if (opts.reset) {
         await handleReset("full", workspace, defaultRuntime);
     }
-    const configExists = fs.existsSync(CONFIG_PATH_CLAWDBOT);
+    const configExists = fs.existsSync(CONFIG_PATH_HEXOS);
     if (!opts.reset && configExists)
         return;
     await writeConfigFile({
@@ -94,6 +94,6 @@ export async function ensureDevGatewayConfig(opts) {
         },
     });
     await ensureDevWorkspace(workspace);
-    defaultRuntime.log(`Dev config ready: ${shortenHomePath(CONFIG_PATH_CLAWDBOT)}`);
+    defaultRuntime.log(`Dev config ready: ${shortenHomePath(CONFIG_PATH_HEXOS)}`);
     defaultRuntime.log(`Dev workspace ready: ${shortenHomePath(resolveUserPath(workspace))}`);
 }

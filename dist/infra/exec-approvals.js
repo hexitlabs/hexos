@@ -8,8 +8,8 @@ const DEFAULT_SECURITY = "deny";
 const DEFAULT_ASK = "on-miss";
 const DEFAULT_ASK_FALLBACK = "deny";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
-const DEFAULT_SOCKET = "~/.clawdbot/exec-approvals.sock";
-const DEFAULT_FILE = "~/.clawdbot/exec-approvals.json";
+const DEFAULT_SOCKET = "~/.hexos/exec-approvals.sock";
+const DEFAULT_FILE = "~/.hexos/exec-approvals.json";
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
 function hashExecApprovalsRaw(raw) {
     return crypto

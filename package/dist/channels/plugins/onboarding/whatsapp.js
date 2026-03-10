@@ -37,7 +37,7 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
     const existingAllowFrom = cfg.channels?.whatsapp?.allowFrom ?? [];
     const existingLabel = existingAllowFrom.length > 0 ? existingAllowFrom.join(", ") : "unset";
     if (options?.forceAllowlist) {
-        await prompter.note("We need the sender/owner number so Clawdbot can allowlist you.", "WhatsApp number");
+        await prompter.note("We need the sender/owner number so HexOS can allowlist you.", "WhatsApp number");
         const entry = await prompter.text({
             message: "Your personal WhatsApp number (the phone you will message from)",
             placeholder: "+15555550123",
@@ -81,11 +81,11 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
         message: "WhatsApp phone setup",
         options: [
             { value: "personal", label: "This is my personal phone number" },
-            { value: "separate", label: "Separate phone just for Clawdbot" },
+            { value: "separate", label: "Separate phone just for HexOS" },
         ],
     }));
     if (phoneMode === "personal") {
-        await prompter.note("We need the sender/owner number so Clawdbot can allowlist you.", "WhatsApp number");
+        await prompter.note("We need the sender/owner number so HexOS can allowlist you.", "WhatsApp number");
         const entry = await prompter.text({
             message: "Your personal WhatsApp number (the phone you will message from)",
             placeholder: "+15555550123",
@@ -273,7 +273,7 @@ export const whatsappOnboardingAdapter = {
             }
         }
         else if (!linked) {
-            await prompter.note(`Run \`${formatCliCommand("clawdbot channels login")}\` later to link WhatsApp.`, "WhatsApp");
+            await prompter.note(`Run \`${formatCliCommand("hexos channels login")}\` later to link WhatsApp.`, "WhatsApp");
         }
         next = await promptWhatsAppAllowFrom(next, runtime, prompter, {
             forceAllowlist: forceAllowFrom,

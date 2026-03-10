@@ -10,7 +10,7 @@ export async function requireValidConfig(runtime) {
             ? snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n")
             : "Unknown validation issue.";
         runtime.error(`Config invalid:\n${issues}`);
-        runtime.error(`Fix the config or run ${formatCliCommand("clawdbot doctor")}.`);
+        runtime.error(`Fix the config or run ${formatCliCommand("hexos doctor")}.`);
         runtime.exit(1);
         return null;
     }

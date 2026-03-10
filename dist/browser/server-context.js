@@ -223,7 +223,7 @@ function createProfileContext(opts, profile) {
             if (await isReachable(600))
                 return;
             // Relay server is up, but no attached tab yet. Prompt user to attach.
-            throw new Error(`Chrome extension relay is running, but no tab is connected. Click the Clawdbot Chrome extension icon on a tab to attach it (profile "${profile.name}").`);
+            throw new Error(`Chrome extension relay is running, but no tab is connected. Click the HexOS Chrome extension icon on a tab to attach it (profile "${profile.name}").`);
         }
         if (!httpReachable) {
             if ((current.resolved.attachOnly || remoteCdp) && opts.onEnsureAttachTarget) {
@@ -245,7 +245,7 @@ function createProfileContext(opts, profile) {
             return;
         // HTTP responds but WebSocket fails - port in use by something else
         if (!profileState.running) {
-            throw new Error(`Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by clawdbot. ` +
+            throw new Error(`Port ${profile.cdpPort} is in use for profile "${profile.name}" but not by hexos. ` +
                 `Run action=reset-profile profile=${profile.name} to kill the process.`);
         }
         // We own it but WebSocket failed - restart
@@ -274,7 +274,7 @@ function createProfileContext(opts, profile) {
         if (tabs1.length === 0) {
             if (profile.driver === "extension") {
                 throw new Error(`tab not found (no attached Chrome tabs for profile "${profile.name}"). ` +
-                    "Click the Clawdbot Browser Relay toolbar icon on the tab you want to control (badge ON).");
+                    "Click the HexOS Browser Relay toolbar icon on the tab you want to control (badge ON).");
             }
             await openTab("about:blank");
         }

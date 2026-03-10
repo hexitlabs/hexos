@@ -6,7 +6,7 @@ export function resolveChannelDefaultAccountId(params) {
     return params.plugin.config.defaultAccountId?.(params.cfg) ?? accountIds[0] ?? DEFAULT_ACCOUNT_ID;
 }
 export function formatPairingApproveHint(channelId) {
-    const listCmd = formatCliCommand(`clawdbot pairing list ${channelId}`);
-    const approveCmd = formatCliCommand(`clawdbot pairing approve ${channelId} <code>`);
+    const listCmd = formatCliCommand(`hexos pairing list ${channelId}`);
+    const approveCmd = formatCliCommand(`hexos pairing approve ${channelId} <code>`);
     return `Approve via: ${listCmd} / ${approveCmd}`;
 }

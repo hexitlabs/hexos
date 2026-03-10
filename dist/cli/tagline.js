@@ -1,4 +1,4 @@
-const DEFAULT_TAGLINE = "All your chats, one Clawdbot.";
+const DEFAULT_TAGLINE = "All your chats, one HexOS.";
 const HOLIDAY_TAGLINES = {
     newYear: "New Year's Day: New year, new config—same old EADDRINUSE, but this time we resolve it like grown-ups.",
     lunarNewYear: "Lunar New Year: May your builds be lucky, your branches prosperous, and your merge conflicts chased away with fireworks.",
@@ -192,7 +192,7 @@ export function activeTaglines(options = {}) {
 }
 export function pickTagline(options = {}) {
     const env = options.env ?? process.env;
-    const override = env?.CLAWDBOT_TAGLINE_INDEX;
+    const override = env?.HEXOS_TAGLINE_INDEX;
     if (override !== undefined) {
         const parsed = Number.parseInt(override, 10);
         if (!Number.isNaN(parsed) && parsed >= 0) {

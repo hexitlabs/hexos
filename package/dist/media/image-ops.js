@@ -6,8 +6,8 @@ function isBun() {
     return typeof process.versions.bun === "string";
 }
 function prefersSips() {
-    return (process.env.CLAWDBOT_IMAGE_BACKEND === "sips" ||
-        (process.env.CLAWDBOT_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin"));
+    return (process.env.HEXOS_IMAGE_BACKEND === "sips" ||
+        (process.env.HEXOS_IMAGE_BACKEND !== "sharp" && isBun() && process.platform === "darwin"));
 }
 async function loadSharp() {
     const mod = (await import("sharp"));
@@ -91,7 +91,7 @@ function readJpegExifOrientation(buffer) {
     return null;
 }
 async function withTempDir(fn) {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-img-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-img-"));
     try {
         return await fn(dir);
     }

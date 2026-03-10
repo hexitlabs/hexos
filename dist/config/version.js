@@ -1,5 +1,5 @@
 const VERSION_RE = /^v?(\d+)\.(\d+)\.(\d+)(?:-(\d+))?/;
-export function parseClawdbotVersion(raw) {
+export function parseHexOSVersion(raw) {
     if (!raw)
         return null;
     const match = raw.trim().match(VERSION_RE);
@@ -13,9 +13,9 @@ export function parseClawdbotVersion(raw) {
         revision: revision ? Number.parseInt(revision, 10) : 0,
     };
 }
-export function compareClawdbotVersions(a, b) {
-    const parsedA = parseClawdbotVersion(a);
-    const parsedB = parseClawdbotVersion(b);
+export function compareHexOSVersions(a, b) {
+    const parsedA = parseHexOSVersion(a);
+    const parsedB = parseHexOSVersion(b);
     if (!parsedA || !parsedB)
         return null;
     if (parsedA.major !== parsedB.major)

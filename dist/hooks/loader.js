@@ -17,7 +17,7 @@ import { shouldIncludeHook } from "./config.js";
  * 1. Directory-based discovery (bundled, managed, workspace)
  * 2. Legacy config handlers (backwards compatibility)
  *
- * @param cfg - Clawdbot configuration
+ * @param cfg - HexOS configuration
  * @param workspaceDir - Workspace directory for hook discovery
  * @returns Number of handlers successfully loaded
  *
@@ -52,14 +52,14 @@ export async function loadInternalHooks(cfg, workspaceDir) {
                 const cacheBustedUrl = `${url}?t=${Date.now()}`;
                 const mod = (await import(cacheBustedUrl));
                 // Get handler function (default or named export)
-                const exportName = entry.clawdbot?.export ?? "default";
+                const exportName = entry.hexos?.export ?? "default";
                 const handler = mod[exportName];
                 if (typeof handler !== "function") {
                     console.error(`Hook error: Handler '${exportName}' from ${entry.hook.name} is not a function`);
                     continue;
                 }
                 // Register for all events listed in metadata
-                const events = entry.clawdbot?.events ?? [];
+                const events = entry.hexos?.events ?? [];
                 if (events.length === 0) {
                     console.warn(`Hook warning: Hook '${entry.hook.name}' has no events defined in metadata`);
                     continue;

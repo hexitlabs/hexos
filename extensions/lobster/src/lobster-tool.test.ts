@@ -4,10 +4,10 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import type { ClawdbotPluginApi, ClawdbotPluginToolContext } from "../../../src/plugins/types.js";
+import type { HexOSPluginApi, HexOSPluginToolContext } from "../../../src/plugins/types.js";
 import { createLobsterTool } from "./lobster-tool.js";
 
-async function writeFakeLobsterScript(scriptBody: string, prefix = "clawdbot-lobster-plugin-") {
+async function writeFakeLobsterScript(scriptBody: string, prefix = "hexos-lobster-plugin-") {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
   const isWindows = process.platform === "win32";
 
@@ -33,7 +33,7 @@ async function writeFakeLobster(params: { payload: unknown }) {
   return await writeFakeLobsterScript(scriptBody);
 }
 
-function fakeApi(): ClawdbotPluginApi {
+function fakeApi(): HexOSPluginApi {
   return {
     id: "lobster",
     name: "lobster",
@@ -52,7 +52,7 @@ function fakeApi(): ClawdbotPluginApi {
   };
 }
 
-function fakeCtx(overrides: Partial<ClawdbotPluginToolContext> = {}): ClawdbotPluginToolContext {
+function fakeCtx(overrides: Partial<HexOSPluginToolContext> = {}): HexOSPluginToolContext {
   return {
     config: {} as any,
     workspaceDir: "/tmp",
@@ -97,7 +97,7 @@ describe("lobster plugin tool", () => {
   it("rejects invalid JSON from lobster", async () => {
     const { binPath } = await writeFakeLobsterScript(
       `process.stdout.write("nope");\n`,
-      "clawdbot-lobster-plugin-bad-",
+      "hexos-lobster-plugin-bad-",
     );
 
     const tool = createLobsterTool(fakeApi());
@@ -112,7 +112,7 @@ describe("lobster plugin tool", () => {
 
   it("can be gated off in sandboxed contexts", async () => {
     const api = fakeApi();
-    const factoryTool = (ctx: ClawdbotPluginToolContext) => {
+    const factoryTool = (ctx: HexOSPluginToolContext) => {
       if (ctx.sandboxed) return null;
       return createLobsterTool(api);
     };

@@ -48,7 +48,7 @@ export function createGatewayReloadHandlers(params) {
         }
         if (plan.restartGmailWatcher) {
             await stopGmailWatcher().catch(() => { });
-            if (!isTruthyEnvValue(process.env.CLAWDBOT_SKIP_GMAIL_WATCHER)) {
+            if (!isTruthyEnvValue(process.env.HEXOS_SKIP_GMAIL_WATCHER)) {
                 try {
                     const gmailResult = await startGmailWatcher(nextConfig);
                     if (gmailResult.started) {
@@ -65,13 +65,13 @@ export function createGatewayReloadHandlers(params) {
                 }
             }
             else {
-                params.logHooks.info("skipping gmail watcher restart (CLAWDBOT_SKIP_GMAIL_WATCHER=1)");
+                params.logHooks.info("skipping gmail watcher restart (HEXOS_SKIP_GMAIL_WATCHER=1)");
             }
         }
         if (plan.restartChannels.size > 0) {
-            if (isTruthyEnvValue(process.env.CLAWDBOT_SKIP_CHANNELS) ||
-                isTruthyEnvValue(process.env.CLAWDBOT_SKIP_PROVIDERS)) {
-                params.logChannels.info("skipping channel reload (CLAWDBOT_SKIP_CHANNELS=1 or CLAWDBOT_SKIP_PROVIDERS=1)");
+            if (isTruthyEnvValue(process.env.HEXOS_SKIP_CHANNELS) ||
+                isTruthyEnvValue(process.env.HEXOS_SKIP_PROVIDERS)) {
+                params.logChannels.info("skipping channel reload (HEXOS_SKIP_CHANNELS=1 or HEXOS_SKIP_PROVIDERS=1)");
             }
             else {
                 const restartChannel = async (name) => {

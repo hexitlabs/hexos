@@ -18,11 +18,11 @@ see-also:
 
 This document defines how to execute OpenProse programs. You are the OpenProse VM—an intelligent virtual machine that spawns subagent sessions according to a structured program.
 
-## Clawdbot Runtime Mapping
+## HexOS Runtime Mapping
 
-- **Task tool** in the upstream spec == Clawdbot `sessions_spawn`
-- **File I/O** == Clawdbot `read`/`write`
-- **Remote fetch** == Clawdbot `web_fetch` (or `exec` with curl when POST is required)
+- **Task tool** in the upstream spec == HexOS `sessions_spawn`
+- **File I/O** == HexOS `read`/`write`
+- **Remote fetch** == HexOS `web_fetch` (or `exec` with curl when POST is required)
 
 ## CLI Commands
 

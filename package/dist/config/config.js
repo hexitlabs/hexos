@@ -4,4 +4,4 @@ export * from "./paths.js";
 export * from "./runtime-overrides.js";
 export * from "./types.js";
 export { validateConfigObject, validateConfigObjectWithPlugins } from "./validation.js";
-export { ClawdbotSchema } from "./zod-schema.js";
+export { HexOSSchema } from "./zod-schema.js";
