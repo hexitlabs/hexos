@@ -8,7 +8,7 @@ import { readFile, writeFile, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-const MEMORY_DIR = '/root/clawd/memory';
+const MEMORY_DIR = process.env.MEMORY_DIR || '/root/hexos/memory';
 const OBSERVATIONS_FILE = join(MEMORY_DIR, 'observations.json');
 const INDEX_FILE = join(MEMORY_DIR, 'observations-index.json');
 

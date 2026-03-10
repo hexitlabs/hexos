@@ -12,7 +12,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import type { Observation, ObservationIndex, SearchResult, SearchResponse, DisclosureLevel } from './types.js';
 
-const MEMORY_DIR = process.env.MEMORY_DIR || join(process.env.HOME!, 'clawd/memory');
+const MEMORY_DIR = process.env.MEMORY_DIR || join(process.env.HOME!, 'hexos/memory');
 const INDEX_PATH = join(MEMORY_DIR, 'observations.json');
 
 // Approximate token counts per level

@@ -21,7 +21,7 @@ import { join, basename, relative } from 'path';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const MEMORY_DIR = join(process.env.HOME || '/root', 'clawd', 'memory');
+const MEMORY_DIR = process.env.MEMORY_DIR || join(process.env.HOME || '/root', 'hexos', 'memory');
 const DECAY_SCORES_PATH = join(MEMORY_DIR, 'decay-scores.json');
 const DECAY_RATE = 0.03;
 
@@ -575,7 +575,7 @@ Examples:
   npx tsx memory-decay.ts prune --threshold 0.1
   npx tsx memory-decay.ts stats
 
-Data stored in: ~/clawd/memory/decay-scores.json
+Data stored in: ~/hexos/memory/decay-scores.json
 `);
 }
 
