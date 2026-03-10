@@ -1,0 +1,38 @@
+{
+  "name": "hexit-recall",
+  "version": "1.0.0",
+  "description": "Long-term semantic memory for AI assistants. 100% local, powered by Ollama.",
+  "type": "module",
+  "main": "scripts/index.js",
+  "bin": {
+    "recall-setup": "./scripts/setup.sh"
+  },
+  "scripts": {
+    "setup": "./scripts/setup.sh",
+    "decay": "npx tsx scripts/memory-decay.ts update",
+    "index": "node scripts/observations-indexer.js",
+    "synthesize": "npx tsx scripts/synthesize.ts",
+    "test": "echo \"Tests pending\""
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "semantic-search",
+    "ollama",
+    "clawdbot",
+    "ai-assistant",
+    "long-term-memory",
+    "local-first",
+    "privacy"
+  ],
+  "author": "HexIT Labs <berra@hexitlabs.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hexitlabs/hexit-recall.git"
+  },
+  "homepage": "https://github.com/hexitlabs/hexit-recall",
+  "bugs": {
+    "url": "https://github.com/hexitlabs/hexit-recall/issues"
+  }
+}

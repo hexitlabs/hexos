@@ -1,0 +1,6 @@
+{
+  "slug": "hexos-vigil",
+  "displayName": "HexOS Vigil",
+  "description": "Safety layer for AI agent actions — policy-based tool call evaluation",
+  "version": "1.0.0"
+}

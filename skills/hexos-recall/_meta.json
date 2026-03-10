@@ -1,0 +1,6 @@
+{
+  "slug": "hexos-recall",
+  "displayName": "HexOS Recall",
+  "description": "Long-term semantic memory for AI assistants, 100% local, powered by Ollama",
+  "version": "1.0.0"
+}
