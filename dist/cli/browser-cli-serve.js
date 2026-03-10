@@ -56,7 +56,7 @@ export function registerBrowserServeCommands(browser, _parentOpts) {
             });
         }
         defaultRuntime.log(info([
-            `🦞 Browser control listening on ${bridge.baseUrl}/`,
+            `🔷 Browser control listening on ${bridge.baseUrl}/`,
             authToken ? "Auth: Bearer token required." : "Auth: off (loopback only).",
             "",
             "Paste on the Gateway (hexos.json):",

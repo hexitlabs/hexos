@@ -116,7 +116,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.clawd.bot/cli/agent
         .addHelpText("after", () => `
 ${theme.heading("Examples:")}
 ${formatHelpExamples([
-        ['hexos agents set-identity --agent main --name "Clawd" --emoji "🦞"', "Set name + emoji."],
+        ['hexos agents set-identity --agent main --name "Clawd" --emoji "🔷"', "Set name + emoji."],
         ["hexos agents set-identity --agent main --avatar avatars/clawd.png", "Set avatar path."],
         ["hexos agents set-identity --workspace ~/clawd --from-identity", "Load from IDENTITY.md."],
         [

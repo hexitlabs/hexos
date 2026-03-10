@@ -80,6 +80,14 @@ async function main() {
   };
   copyDir(templatesDir, workspace, replacements);
 
+  // Copy hexos.json default config if not already present
+  const hexosConfigDest = path.join(workspace, 'hexos.json');
+  const hexosConfigSrc = path.join(templatesDir, 'hexos.json');
+  if (!fs.existsSync(hexosConfigDest) && fs.existsSync(hexosConfigSrc)) {
+    fs.copyFileSync(hexosConfigSrc, hexosConfigDest);
+    console.log('  ✓ hexos.json config created');
+  }
+
   // Create additional directories
   fs.mkdirSync(path.join(workspace, 'memory'), { recursive: true });
   fs.mkdirSync(path.join(workspace, 'scratch'), { recursive: true });

@@ -317,7 +317,7 @@ export function buildStatusMessage(args) {
     const authLabel = authLabelValue ? ` · 🔑 ${authLabelValue}` : "";
     const modelLine = `🧠 Model: ${modelLabel}${authLabel}`;
     const commit = resolveCommitHash();
-    const versionLine = `🦞 HexOS ${VERSION}${commit ? ` (${commit})` : ""}`;
+    const versionLine = `🔷 HexOS ${VERSION}${commit ? ` (${commit})` : ""}`;
     const usagePair = formatUsagePair(inputTokens, outputTokens);
     const costLine = costLabel ? `💵 Cost: ${costLabel}` : null;
     const usageCostLine = usagePair && costLine ? `${usagePair} · ${costLine}` : (usagePair ?? costLine);
