@@ -1,0 +1,44 @@
+# ============================================================================
+# HexOS Client Configuration
+# Fill this out for each new client deployment
+# Copy this file and rename it: clients/<clientname>.yaml
+# ============================================================================
+
+client:
+  name: "Client Name"
+  company: "Company Name"
+
+server:
+  host: "1.2.3.4"
+  user: "root"
+  ssh_key: "~/.ssh/id_ed25519"
+
+telegram:
+  bot_token: "BOT_TOKEN_HERE"
+  allowed_users:
+    - 123456789  # Client's Telegram user ID
+
+A:
+  name: "Assistant Name"
+  model: "anthropic/claude-sonnet-4-20250514"
+
+api:
+  provider: "anthropic"
+  key: "sk-ant-..."
+
+heartbeat:
+  interval_minutes: 120
+
+vigil:
+  policy: "moderate"
+
+# Agent configurations — customize per client
+agents:
+  - id: "researcher"
+    name: "Researcher"
+    model: "anthropic/claude-sonnet-4-20250514"
+    specialty: "Prospect research and company analysis"
+  - id: "writer"
+    name: "Writer"
+    model: "anthropic/claude-sonnet-4-20250514"
+    specialty: "Cold email drafting and content"
