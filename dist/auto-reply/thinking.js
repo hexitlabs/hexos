@@ -13,6 +13,8 @@ export const XHIGH_MODEL_REFS = [
     "openai/gpt-5.2",
     "openai-codex/gpt-5.2-codex",
     "openai-codex/gpt-5.1-codex",
+    "anthropic/claude-opus-4-6",
+    "anthropic/claude-sonnet-4-6",
 ];
 const XHIGH_MODEL_SET = new Set(XHIGH_MODEL_REFS.map((entry) => entry.toLowerCase()));
 const XHIGH_MODEL_IDS = new Set(XHIGH_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
@@ -31,9 +33,9 @@ export function normalizeThinkLevel(raw) {
         return "low";
     if (["mid", "med", "medium", "thinkharder", "think-harder", "harder"].includes(key))
         return "medium";
-    if (["high", "ultra", "ultrathink", "think-hard", "thinkhardest", "highest", "max"].includes(key))
+    if (["high", "ultra", "ultrathink", "think-hard", "thinkhardest", "highest"].includes(key))
         return "high";
-    if (["xhigh", "x-high", "x_high"].includes(key))
+    if (["xhigh", "x-high", "x_high", "max", "maximum", "uncapped"].includes(key))
         return "xhigh";
     if (["think"].includes(key))
         return "minimal";
