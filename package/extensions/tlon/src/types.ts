@@ -1,4 +1,4 @@
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { HexOSConfig } from "hexos/plugin-sdk";
 
 export type TlonResolvedAccount = {
   accountId: string;
@@ -14,7 +14,7 @@ export type TlonResolvedAccount = {
   showModelSignature: boolean | null;
 };
 
-export function resolveTlonAccount(cfg: ClawdbotConfig, accountId?: string | null): TlonResolvedAccount {
+export function resolveTlonAccount(cfg: HexOSConfig, accountId?: string | null): TlonResolvedAccount {
   const base = cfg.channels?.tlon as
     | {
         name?: string;
@@ -75,7 +75,7 @@ export function resolveTlonAccount(cfg: ClawdbotConfig, accountId?: string | nul
   };
 }
 
-export function listTlonAccountIds(cfg: ClawdbotConfig): string[] {
+export function listTlonAccountIds(cfg: HexOSConfig): string[] {
   const base = cfg.channels?.tlon as
     | { ship?: string; accounts?: Record<string, Record<string, unknown>> }
     | undefined;

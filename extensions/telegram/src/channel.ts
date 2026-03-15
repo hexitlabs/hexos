@@ -23,9 +23,9 @@ import {
   TelegramConfigSchema,
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
-  type ClawdbotConfig,
+  type HexOSConfig,
   type ResolvedTelegramAccount,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 
 import { getTelegramRuntime } from "./runtime.js";
 
@@ -408,7 +408,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
     },
     logoutAccount: async ({ accountId, cfg }) => {
       const envToken = process.env.TELEGRAM_BOT_TOKEN?.trim() ?? "";
-      const nextCfg = { ...cfg } as ClawdbotConfig;
+      const nextCfg = { ...cfg } as HexOSConfig;
       const nextTelegram = cfg.channels?.telegram ? { ...cfg.channels.telegram } : undefined;
       let cleared = false;
       let changed = false;

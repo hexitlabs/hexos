@@ -1,13 +1,13 @@
 {
-  "name": "@clawdbot/zalouser",
+  "name": "@hexos/zalouser",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Zalo Personal Account plugin via zca-cli",
+  "description": "HexOS Zalo Personal Account plugin via zca-cli",
   "dependencies": {
-    "clawdbot": "workspace:*",
+    "hexos": "workspace:*",
     "@sinclair/typebox": "0.34.47"
   },
-  "clawdbot": {
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -25,7 +25,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@clawdbot/zalouser",
+      "npmSpec": "@hexos/zalouser",
       "localPath": "extensions/zalouser",
       "defaultChoice": "npm"
     }

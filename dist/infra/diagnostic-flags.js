@@ -1,4 +1,4 @@
-const DIAGNOSTICS_ENV = "CLAWDBOT_DIAGNOSTICS";
+const DIAGNOSTICS_ENV = "HEXOS_DIAGNOSTICS";
 function normalizeFlag(value) {
     return value.trim().toLowerCase();
 }

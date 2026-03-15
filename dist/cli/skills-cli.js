@@ -70,7 +70,7 @@ export function formatSkillsList(report, opts) {
     }
     if (skills.length === 0) {
         const message = opts.eligible
-            ? `No eligible skills found. Run \`${formatCliCommand("clawdbot skills list")}\` to see all skills.`
+            ? `No eligible skills found. Run \`${formatCliCommand("hexos skills list")}\` to see all skills.`
             : "No skills found.";
         return appendClawdHubHint(message, opts.json);
     }
@@ -113,7 +113,7 @@ export function formatSkillInfo(report, skillName, opts) {
         if (opts.json) {
             return JSON.stringify({ error: "not found", skill: skillName }, null, 2);
         }
-        return appendClawdHubHint(`Skill "${skillName}" not found. Run \`${formatCliCommand("clawdbot skills list")}\` to see available skills.`, opts.json);
+        return appendClawdHubHint(`Skill "${skillName}" not found. Run \`${formatCliCommand("hexos skills list")}\` to see available skills.`, opts.json);
     }
     if (opts.json) {
         return JSON.stringify(skill, null, 2);

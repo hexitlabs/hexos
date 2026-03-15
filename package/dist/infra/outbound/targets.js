@@ -55,7 +55,7 @@ export function resolveOutboundTarget(params) {
     if (params.channel === INTERNAL_MESSAGE_CHANNEL) {
         return {
             ok: false,
-            error: new Error(`Delivering to WebChat is not supported via \`${formatCliCommand("clawdbot agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`),
+            error: new Error(`Delivering to WebChat is not supported via \`${formatCliCommand("hexos agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`),
         };
     }
     const plugin = getChannelPlugin(params.channel);

@@ -6,7 +6,7 @@ import {
   normalizeBlueBubblesHandle,
   parseBlueBubblesTarget,
 } from "./targets.js";
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { HexOSConfig } from "hexos/plugin-sdk";
 import {
   blueBubblesFetchWithTimeout,
   buildBlueBubblesApiUrl,
@@ -18,7 +18,7 @@ export type BlueBubblesSendOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: ClawdbotConfig;
+  cfg?: HexOSConfig;
   /** Message GUID to reply to (reply threading) */
   replyToMessageGuid?: string;
   /** Part index for reply (default: 0) */

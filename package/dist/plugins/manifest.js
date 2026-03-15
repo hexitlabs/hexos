@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-export const PLUGIN_MANIFEST_FILENAME = "clawdbot.plugin.json";
+export const PLUGIN_MANIFEST_FILENAME = "hexos.plugin.json";
 function normalizeStringList(value) {
     if (!Array.isArray(value))
         return [];

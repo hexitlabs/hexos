@@ -85,6 +85,6 @@ export function formatSandboxToolPolicyBlockedMessage(params) {
     if (runtime.mode === "non-main") {
         lines.push(`- Use main session key (direct): ${runtime.mainSessionKey}`);
     }
-    lines.push(`- See: ${formatCliCommand(`clawdbot sandbox explain --session ${runtime.sessionKey}`)}`);
+    lines.push(`- See: ${formatCliCommand(`hexos sandbox explain --session ${runtime.sessionKey}`)}`);
     return lines.join("\n");
 }

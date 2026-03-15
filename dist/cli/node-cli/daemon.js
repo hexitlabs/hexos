@@ -14,7 +14,7 @@ import { formatCliCommand } from "../command-format.js";
 import { buildDaemonServiceSnapshot, createNullWriter, emitDaemonActionJson, } from "../daemon-cli/response.js";
 import { formatRuntimeStatus, parsePort } from "../daemon-cli/shared.js";
 function renderNodeServiceStartHints() {
-    const base = [formatCliCommand("clawdbot node install"), formatCliCommand("clawdbot node start")];
+    const base = [formatCliCommand("hexos node install"), formatCliCommand("hexos node start")];
     switch (process.platform) {
         case "darwin":
             return [
@@ -117,7 +117,7 @@ export async function runNodeDaemonInstall(opts) {
         });
         if (!json) {
             defaultRuntime.log(`Node service already ${service.loadedText}.`);
-            defaultRuntime.log(`Reinstall with: ${formatCliCommand("clawdbot node install --force")}`);
+            defaultRuntime.log(`Reinstall with: ${formatCliCommand("hexos node install --force")}`);
         }
         return;
     }
@@ -463,7 +463,7 @@ export async function runNodeDaemonStatus(opts = {}) {
     };
     const hintEnv = {
         ...baseEnv,
-        CLAWDBOT_LOG_PREFIX: baseEnv.CLAWDBOT_LOG_PREFIX ?? "node",
+        HEXOS_LOG_PREFIX: baseEnv.HEXOS_LOG_PREFIX ?? "node",
     };
     if (runtime?.missingUnit) {
         defaultRuntime.error(errorText("Service unit not found."));

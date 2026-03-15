@@ -162,7 +162,7 @@ export async function resolveApiKeyForProvider(params) {
     throw new Error([
         `No API key found for provider "${provider}".`,
         `Auth store: ${authStorePath} (agentDir: ${resolvedAgentDir}).`,
-        `Configure auth for this agent (${formatCliCommand("clawdbot agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
+        `Configure auth for this agent (${formatCliCommand("hexos agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
     ].join(" "));
 }
 export function resolveEnvApiKey(provider) {

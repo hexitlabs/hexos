@@ -2,14 +2,14 @@ import { isTruthyEnvValue } from "../../infra/env.js";
 import { buildParseArgv, getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { resolveActionArgs } from "./helpers.js";
 const shouldRegisterPrimaryOnly = (argv) => {
-    if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS))
+    if (isTruthyEnvValue(process.env.HEXOS_DISABLE_LAZY_SUBCOMMANDS))
         return false;
     if (hasHelpOrVersion(argv))
         return false;
     return true;
 };
 const shouldEagerRegisterSubcommands = (_argv) => {
-    return isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS);
+    return isTruthyEnvValue(process.env.HEXOS_DISABLE_LAZY_SUBCOMMANDS);
 };
 const loadConfig = async () => {
     const mod = await import("../../config/config.js");

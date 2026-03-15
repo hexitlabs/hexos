@@ -1,11 +1,11 @@
 import { complete } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
-import { ensureClawdbotModelsJson } from "../../agents/models-config.js";
+import { ensureHexOSModelsJson } from "../../agents/models-config.js";
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
 import { coerceImageAssistantText } from "../../agents/tools/image-tool.helpers.js";
 export async function describeImageWithModel(params) {
-    await ensureClawdbotModelsJson(params.cfg, params.agentDir);
+    await ensureHexOSModelsJson(params.cfg, params.agentDir);
     const authStorage = discoverAuthStorage(params.agentDir);
     const modelRegistry = discoverModels(authStorage, params.agentDir);
     const model = modelRegistry.find(params.provider, params.model);

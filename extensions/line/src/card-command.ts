@@ -1,4 +1,4 @@
-import type { ClawdbotPluginApi, LineChannelData, ReplyPayload } from "clawdbot/plugin-sdk";
+import type { HexOSPluginApi, LineChannelData, ReplyPayload } from "hexos/plugin-sdk";
 import {
   createActionCard,
   createImageCard,
@@ -7,7 +7,7 @@ import {
   createReceiptCard,
   type CardAction,
   type ListItem,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 
 const CARD_USAGE = `Usage: /card <type> "title" "body" [options]
 
@@ -150,7 +150,7 @@ function parseCardArgs(argsStr: string): {
   return result;
 }
 
-export function registerLineCardCommand(api: ClawdbotPluginApi): void {
+export function registerLineCardCommand(api: HexOSPluginApi): void {
   api.registerCommand({
     name: "card",
     description: "Send a rich card message (LINE).",

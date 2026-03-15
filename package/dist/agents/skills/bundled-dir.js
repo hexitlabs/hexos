@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 export function resolveBundledSkillsDir() {
-    const override = process.env.CLAWDBOT_BUNDLED_SKILLS_DIR?.trim();
+    const override = process.env.HEXOS_BUNDLED_SKILLS_DIR?.trim();
     if (override)
         return override;
     // bun --compile: ship a sibling `skills/` next to the executable.

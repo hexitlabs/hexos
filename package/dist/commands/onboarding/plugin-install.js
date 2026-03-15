@@ -4,7 +4,7 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/ag
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
-import { loadClawdbotPlugins } from "../../plugins/loader.js";
+import { loadHexOSPlugins } from "../../plugins/loader.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 function hasGitWorkspace(workspaceDir) {
     const candidates = new Set();
@@ -148,7 +148,7 @@ export async function ensureOnboardingPluginInstalled(params) {
 export function reloadOnboardingPluginRegistry(params) {
     const workspaceDir = params.workspaceDir ?? resolveAgentWorkspaceDir(params.cfg, resolveDefaultAgentId(params.cfg));
     const log = createSubsystemLogger("plugins");
-    loadClawdbotPlugins({
+    loadHexOSPlugins({
         config: params.cfg,
         workspaceDir,
         cache: false,

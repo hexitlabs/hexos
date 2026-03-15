@@ -21,11 +21,11 @@ function setSlackDmPolicy(cfg, dmPolicy) {
     };
 }
 function buildSlackManifest(botName) {
-    const safeName = botName.trim() || "Clawdbot";
+    const safeName = botName.trim() || "HexOS";
     const manifest = {
         display_information: {
             name: safeName,
-            description: `${safeName} connector for Clawdbot`,
+            description: `${safeName} connector for HexOS`,
         },
         features: {
             bot_user: {
@@ -39,7 +39,7 @@ function buildSlackManifest(botName) {
             slash_commands: [
                 {
                     command: "/clawd",
-                    description: "Send a message to Clawdbot",
+                    description: "Send a message to HexOS",
                     should_escape: false,
                 },
             ],
@@ -157,7 +157,7 @@ export const slackOnboardingAdapter = {
         let appToken = null;
         const slackBotName = String(await prompter.text({
             message: "Slack bot display name (used for manifest)",
-            initialValue: "Clawdbot",
+            initialValue: "HexOS",
         })).trim();
         if (!accountConfigured) {
             await noteSlackTokenHelp(prompter, slackBotName);

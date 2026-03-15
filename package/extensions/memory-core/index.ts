@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi } from "clawdbot/plugin-sdk";
-import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+import type { HexOSPluginApi } from "hexos/plugin-sdk";
+import { emptyPluginConfigSchema } from "hexos/plugin-sdk";
 
 const memoryCorePlugin = {
   id: "memory-core",
@@ -7,7 +7,7 @@ const memoryCorePlugin = {
   description: "File-backed memory search tools and CLI",
   kind: "memory",
   configSchema: emptyPluginConfigSchema(),
-  register(api: ClawdbotPluginApi) {
+  register(api: HexOSPluginApi) {
     api.registerTool(
       (ctx) => {
         const memorySearchTool = api.runtime.tools.createMemorySearchTool({

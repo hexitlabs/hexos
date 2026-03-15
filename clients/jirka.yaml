@@ -1,0 +1,51 @@
+# ============================================================================
+# HexOS Client Configuration — Jirka Sefler
+# AJ Advert / SALESmanago Agency
+# ============================================================================
+
+client:
+  name: "Jirka Sefler"
+  company: "AJ Advert / SALESmanago Agency"
+
+server:
+  host: "PENDING"
+  user: "root"
+
+telegram:
+  bot_token: "PENDING_FROM_CLIENT"
+  allowed_users:
+    - 0  # PENDING — Jirka's Telegram user ID
+
+A:
+  name: "AJ Assistant"
+  model: "anthropic/claude-sonnet-4-20250514"
+
+api:
+  provider: "anthropic"
+  key: "PENDING"
+
+heartbeat:
+  interval_minutes: 120
+
+vigil:
+  policy: "moderate"
+
+agents:
+  - id: "orchestrator"
+    name: "Orchestrator"
+    specialty: "Coordinates all agents, handles user requests"
+  - id: "researcher"
+    name: "Researcher"
+    specialty: "Prospect research — finds ecommerce brands needing marketing automation"
+  - id: "auditor"
+    name: "Mini Auditor"
+    specialty: "Public website lifecycle audit — scores marketing maturity"
+  - id: "writer"
+    name: "Email Writer"
+    specialty: "Cold email drafting — personalized outreach based on research"
+  - id: "brief"
+    name: "Morning Brief"
+    specialty: "Daily prospect summary — compiles research into actionable briefs"
+  - id: "outreach"
+    name: "Outreach Manager"
+    specialty: "Manages outreach pipeline — tracks sent, replied, meetings booked"

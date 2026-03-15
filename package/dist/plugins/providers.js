@@ -1,8 +1,8 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadClawdbotPlugins } from "./loader.js";
+import { loadHexOSPlugins } from "./loader.js";
 const log = createSubsystemLogger("plugins");
 export function resolvePluginProviders(params) {
-    const registry = loadClawdbotPlugins({
+    const registry = loadHexOSPlugins({
         config: params.config,
         workspaceDir: params.workspaceDir,
         logger: {

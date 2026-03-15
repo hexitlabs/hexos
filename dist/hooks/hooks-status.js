@@ -3,10 +3,10 @@ import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 function resolveHookKey(entry) {
-    return entry.clawdbot?.hookKey ?? entry.hook.name;
+    return entry.hexos?.hookKey ?? entry.hook.name;
 }
 function normalizeInstallOptions(entry) {
-    const install = entry.clawdbot?.install ?? [];
+    const install = entry.hexos?.install ?? [];
     if (install.length === 0)
         return [];
     // For hooks, we just list all install options
@@ -16,7 +16,7 @@ function normalizeInstallOptions(entry) {
         let label = (spec.label ?? "").trim();
         if (!label) {
             if (spec.kind === "bundled") {
-                label = "Bundled with Clawdbot";
+                label = "Bundled with HexOS";
             }
             else if (spec.kind === "npm" && spec.package) {
                 label = `Install ${spec.package} (npm)`;
@@ -34,21 +34,21 @@ function normalizeInstallOptions(entry) {
 function buildHookStatus(entry, config, eligibility) {
     const hookKey = resolveHookKey(entry);
     const hookConfig = resolveHookConfig(config, hookKey);
-    const managedByPlugin = entry.hook.source === "clawdbot-plugin";
+    const managedByPlugin = entry.hook.source === "hexos-plugin";
     const disabled = managedByPlugin ? false : hookConfig?.enabled === false;
-    const always = entry.clawdbot?.always === true;
-    const emoji = entry.clawdbot?.emoji ?? entry.frontmatter.emoji;
-    const homepageRaw = entry.clawdbot?.homepage ??
+    const always = entry.hexos?.always === true;
+    const emoji = entry.hexos?.emoji ?? entry.frontmatter.emoji;
+    const homepageRaw = entry.hexos?.homepage ??
         entry.frontmatter.homepage ??
         entry.frontmatter.website ??
         entry.frontmatter.url;
     const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
-    const events = entry.clawdbot?.events ?? [];
-    const requiredBins = entry.clawdbot?.requires?.bins ?? [];
-    const requiredAnyBins = entry.clawdbot?.requires?.anyBins ?? [];
-    const requiredEnv = entry.clawdbot?.requires?.env ?? [];
-    const requiredConfig = entry.clawdbot?.requires?.config ?? [];
-    const requiredOs = entry.clawdbot?.os ?? [];
+    const events = entry.hexos?.events ?? [];
+    const requiredBins = entry.hexos?.requires?.bins ?? [];
+    const requiredAnyBins = entry.hexos?.requires?.anyBins ?? [];
+    const requiredEnv = entry.hexos?.requires?.env ?? [];
+    const requiredConfig = entry.hexos?.requires?.config ?? [];
+    const requiredOs = entry.hexos?.os ?? [];
     const missingBins = requiredBins.filter((bin) => {
         if (hasBinary(bin))
             return false;

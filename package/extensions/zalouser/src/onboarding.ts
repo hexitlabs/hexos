@@ -1,16 +1,16 @@
 import type {
   ChannelOnboardingAdapter,
   ChannelOnboardingDmPolicy,
-  ClawdbotConfig,
+  HexOSConfig,
   WizardPrompter,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 import {
   addWildcardAllowFrom,
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   promptAccountId,
   promptChannelAccessConfig,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 
 import {
   listZalouserAccountIds,
@@ -24,9 +24,9 @@ import type { ZcaFriend, ZcaGroup } from "./types.js";
 const channel = "zalouser" as const;
 
 function setZalouserDmPolicy(
-  cfg: ClawdbotConfig,
+  cfg: HexOSConfig,
   dmPolicy: "pairing" | "allowlist" | "open" | "disabled",
-): ClawdbotConfig {
+): HexOSConfig {
   const allowFrom =
     dmPolicy === "open"
       ? addWildcardAllowFrom(cfg.channels?.zalouser?.allowFrom)
@@ -41,7 +41,7 @@ function setZalouserDmPolicy(
         ...(allowFrom ? { allowFrom } : {}),
       },
     },
-  } as ClawdbotConfig;
+  } as HexOSConfig;
 }
 
 async function noteZalouserHelp(prompter: WizardPrompter): Promise<void> {
@@ -60,10 +60,10 @@ async function noteZalouserHelp(prompter: WizardPrompter): Promise<void> {
 }
 
 async function promptZalouserAllowFrom(params: {
-  cfg: ClawdbotConfig;
+  cfg: HexOSConfig;
   prompter: WizardPrompter;
   accountId: string;
-}): Promise<ClawdbotConfig> {
+}): Promise<HexOSConfig> {
   const { cfg, prompter, accountId } = params;
   const resolved = resolveZalouserAccountSync({ cfg, accountId });
   const existingAllowFrom = resolved.config.allowFrom ?? [];
@@ -131,7 +131,7 @@ async function promptZalouserAllowFrom(params: {
             allowFrom: unique,
           },
         },
-      } as ClawdbotConfig;
+      } as HexOSConfig;
     }
 
     return {
@@ -152,15 +152,15 @@ async function promptZalouserAllowFrom(params: {
           },
         },
       },
-    } as ClawdbotConfig;
+    } as HexOSConfig;
   }
 }
 
 function setZalouserGroupPolicy(
-  cfg: ClawdbotConfig,
+  cfg: HexOSConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): ClawdbotConfig {
+): HexOSConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -172,7 +172,7 @@ function setZalouserGroupPolicy(
           groupPolicy,
         },
       },
-    } as ClawdbotConfig;
+    } as HexOSConfig;
   }
   return {
     ...cfg,
@@ -191,14 +191,14 @@ function setZalouserGroupPolicy(
         },
       },
     },
-  } as ClawdbotConfig;
+  } as HexOSConfig;
 }
 
 function setZalouserGroupAllowlist(
-  cfg: ClawdbotConfig,
+  cfg: HexOSConfig,
   accountId: string,
   groupKeys: string[],
-): ClawdbotConfig {
+): HexOSConfig {
   const groups = Object.fromEntries(groupKeys.map((key) => [key, { allow: true }]));
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
@@ -211,7 +211,7 @@ function setZalouserGroupAllowlist(
           groups,
         },
       },
-    } as ClawdbotConfig;
+    } as HexOSConfig;
   }
   return {
     ...cfg,
@@ -230,11 +230,11 @@ function setZalouserGroupAllowlist(
         },
       },
     },
-  } as ClawdbotConfig;
+  } as HexOSConfig;
 }
 
 async function resolveZalouserGroups(params: {
-  cfg: ClawdbotConfig;
+  cfg: HexOSConfig;
   accountId: string;
   entries: string[];
 }): Promise<Array<{ input: string; resolved: boolean; id?: string }>> {
@@ -270,15 +270,15 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   channel,
   policyKey: "channels.zalouser.dmPolicy",
   allowFromKey: "channels.zalouser.allowFrom",
-  getCurrent: (cfg) => ((cfg as ClawdbotConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
-  setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as ClawdbotConfig, policy),
+  getCurrent: (cfg) => ((cfg as HexOSConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
+  setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as HexOSConfig, policy),
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
         ? normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID
-        : resolveDefaultZalouserAccountId(cfg as ClawdbotConfig);
+        : resolveDefaultZalouserAccountId(cfg as HexOSConfig);
     return promptZalouserAllowFrom({
-      cfg: cfg as ClawdbotConfig,
+      cfg: cfg as HexOSConfig,
       prompter,
       accountId: id,
     });
@@ -289,10 +289,10 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
   channel,
   dmPolicy,
   getStatus: async ({ cfg }) => {
-    const ids = listZalouserAccountIds(cfg as ClawdbotConfig);
+    const ids = listZalouserAccountIds(cfg as HexOSConfig);
     let configured = false;
     for (const accountId of ids) {
-      const account = resolveZalouserAccountSync({ cfg: cfg as ClawdbotConfig, accountId });
+      const account = resolveZalouserAccountSync({ cfg: cfg as HexOSConfig, accountId });
       const isAuth = await checkZcaAuthenticated(account.profile);
       if (isAuth) {
         configured = true;
@@ -324,14 +324,14 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
     }
 
     const zalouserOverride = accountOverrides.zalouser?.trim();
-    const defaultAccountId = resolveDefaultZalouserAccountId(cfg as ClawdbotConfig);
+    const defaultAccountId = resolveDefaultZalouserAccountId(cfg as HexOSConfig);
     let accountId = zalouserOverride
       ? normalizeAccountId(zalouserOverride)
       : defaultAccountId;
 
     if (shouldPromptAccountIds && !zalouserOverride) {
       accountId = await promptAccountId({
-        cfg: cfg as ClawdbotConfig,
+        cfg: cfg as HexOSConfig,
         prompter,
         label: "Zalo Personal",
         currentId: accountId,
@@ -340,7 +340,7 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
       });
     }
 
-    let next = cfg as ClawdbotConfig;
+    let next = cfg as HexOSConfig;
     const account = resolveZalouserAccountSync({ cfg: next, accountId });
     const alreadyAuthenticated = await checkZcaAuthenticated(account.profile);
 
@@ -398,7 +398,7 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
             profile: account.profile !== "default" ? account.profile : undefined,
           },
         },
-      } as ClawdbotConfig;
+      } as HexOSConfig;
     } else {
       next = {
         ...next,
@@ -417,7 +417,7 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
             },
           },
         },
-      } as ClawdbotConfig;
+      } as HexOSConfig;
     }
 
     if (forceAllowFrom) {

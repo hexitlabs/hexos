@@ -7,7 +7,7 @@ read_when:
 
 # Camera capture (agent)
 
-Clawdbot supports **camera capture** for agent workflows:
+HexOS supports **camera capture** for agent workflows:
 
 - **iOS node** (paired via Gateway): capture a **photo** (`jpg`) or **short video clip** (`mp4`, with optional audio) via `node.invoke`.
 - **Android node** (paired via Gateway): capture a **photo** (`jpg`) or **short video clip** (`mp4`, with optional audio) via `node.invoke`.
@@ -67,10 +67,10 @@ The easiest way to get attachments is via the CLI helper, which writes decoded m
 Examples:
 
 ```bash
-clawdbot nodes camera snap --node <id>               # default: both front + back (2 MEDIA lines)
-clawdbot nodes camera snap --node <id> --facing front
-clawdbot nodes camera clip --node <id> --duration 3000
-clawdbot nodes camera clip --node <id> --no-audio
+hexos nodes camera snap --node <id>               # default: both front + back (2 MEDIA lines)
+hexos nodes camera snap --node <id> --facing front
+hexos nodes camera clip --node <id> --duration 3000
+hexos nodes camera clip --node <id> --no-audio
 ```
 
 Notes:
@@ -108,30 +108,30 @@ Photos are recompressed to keep the base64 payload under 5 MB.
 
 The macOS companion app exposes a checkbox:
 
-- **Settings → General → Allow Camera** (`clawdbot.cameraEnabled`)
+- **Settings → General → Allow Camera** (`hexos.cameraEnabled`)
   - Default: **off**
   - When off: camera requests return “Camera disabled by user”.
 
 ### CLI helper (node invoke)
 
-Use the main `clawdbot` CLI to invoke camera commands on the macOS node.
+Use the main `hexos` CLI to invoke camera commands on the macOS node.
 
 Examples:
 
 ```bash
-clawdbot nodes camera list --node <id>            # list camera ids
-clawdbot nodes camera snap --node <id>            # prints MEDIA:<path>
-clawdbot nodes camera snap --node <id> --max-width 1280
-clawdbot nodes camera snap --node <id> --delay-ms 2000
-clawdbot nodes camera snap --node <id> --device-id <id>
-clawdbot nodes camera clip --node <id> --duration 10s          # prints MEDIA:<path>
-clawdbot nodes camera clip --node <id> --duration-ms 3000      # prints MEDIA:<path> (legacy flag)
-clawdbot nodes camera clip --node <id> --device-id <id>
-clawdbot nodes camera clip --node <id> --no-audio
+hexos nodes camera list --node <id>            # list camera ids
+hexos nodes camera snap --node <id>            # prints MEDIA:<path>
+hexos nodes camera snap --node <id> --max-width 1280
+hexos nodes camera snap --node <id> --delay-ms 2000
+hexos nodes camera snap --node <id> --device-id <id>
+hexos nodes camera clip --node <id> --duration 10s          # prints MEDIA:<path>
+hexos nodes camera clip --node <id> --duration-ms 3000      # prints MEDIA:<path> (legacy flag)
+hexos nodes camera clip --node <id> --device-id <id>
+hexos nodes camera clip --node <id> --no-audio
 ```
 
 Notes:
-- `clawdbot nodes camera snap` defaults to `maxWidth=1600` unless overridden.
+- `hexos nodes camera snap` defaults to `maxWidth=1600` unless overridden.
 - On macOS, `camera.snap` waits `delayMs` (default 2000ms) after warm-up/exposure settle before capturing.
 - Photo payloads are recompressed to keep base64 under 5 MB.
 
@@ -145,7 +145,7 @@ Notes:
 For *screen* video (not camera), use the macOS companion:
 
 ```bash
-clawdbot nodes screen record --node <id> --duration 10s --fps 15   # prints MEDIA:<path>
+hexos nodes screen record --node <id> --duration 10s --fps 15   # prints MEDIA:<path>
 ```
 
 Notes:

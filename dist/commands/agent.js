@@ -42,7 +42,7 @@ export async function agentCommand(opts, runtime = defaultRuntime, deps = create
     if (agentIdOverride) {
         const knownAgents = listAgentIds(cfg);
         if (!knownAgents.includes(agentIdOverride)) {
-            throw new Error(`Unknown agent id "${agentIdOverrideRaw}". Use "${formatCliCommand("clawdbot agents list")}" to see configured agents.`);
+            throw new Error(`Unknown agent id "${agentIdOverrideRaw}". Use "${formatCliCommand("hexos agents list")}" to see configured agents.`);
         }
     }
     if (agentIdOverride && opts.sessionKey) {

@@ -7,5 +7,5 @@ export function resolveProviderDefaultAccountId(params) {
         DEFAULT_ACCOUNT_ID);
 }
 export function formatPairingApproveHint(providerId) {
-    return `Approve via: clawdbot pairing list ${providerId} / clawdbot pairing approve ${providerId} <code>`;
+    return `Approve via: hexos pairing list ${providerId} / hexos pairing approve ${providerId} <code>`;
 }

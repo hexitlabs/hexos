@@ -122,7 +122,7 @@ export async function setupSkills(cfg, workspaceDir, runtime, prompter) {
                     runtime.log(result.stderr.trim());
                 else if (result.stdout)
                     runtime.log(result.stdout.trim());
-                runtime.log(`Tip: run \`${formatCliCommand("clawdbot doctor")}\` to review skills + requirements.`);
+                runtime.log(`Tip: run \`${formatCliCommand("hexos doctor")}\` to review skills + requirements.`);
                 runtime.log("Docs: https://docs.clawd.bot/skills");
             }
         }

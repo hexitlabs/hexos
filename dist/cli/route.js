@@ -14,7 +14,7 @@ async function prepareRoutedCommand(params) {
     }
 }
 export async function tryRouteCli(argv) {
-    if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_ROUTE_FIRST))
+    if (isTruthyEnvValue(process.env.HEXOS_DISABLE_ROUTE_FIRST))
         return false;
     if (hasHelpOrVersion(argv))
         return false;

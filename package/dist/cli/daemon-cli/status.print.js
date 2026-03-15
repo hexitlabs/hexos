@@ -74,7 +74,7 @@ export function printDaemonStatus(status, opts) {
             const detail = issue.detail ? ` (${issue.detail})` : "";
             defaultRuntime.error(`${warnText("Service config issue:")} ${issue.message}${detail}`);
         }
-        defaultRuntime.error(warnText(`Recommendation: run "${formatCliCommand("clawdbot doctor")}" (or "${formatCliCommand("clawdbot doctor --repair")}").`));
+        defaultRuntime.error(warnText(`Recommendation: run "${formatCliCommand("hexos doctor")}" (or "${formatCliCommand("hexos doctor --repair")}").`));
     }
     if (status.config) {
         const cliCfg = `${shortenHomePath(status.config.cli.path)}${status.config.cli.exists ? "" : " (missing)"}${status.config.cli.valid ? "" : " (invalid)"}`;
@@ -95,7 +95,7 @@ export function printDaemonStatus(status, opts) {
         }
         if (status.config.mismatch) {
             defaultRuntime.error(errorText("Root cause: CLI and service are using different config paths (likely a profile/state-dir mismatch)."));
-            defaultRuntime.error(errorText(`Fix: rerun \`${formatCliCommand("clawdbot gateway install --force")}\` from the same --profile / CLAWDBOT_STATE_DIR you expect.`));
+            defaultRuntime.error(errorText(`Fix: rerun \`${formatCliCommand("hexos gateway install --force")}\` from the same --profile / HEXOS_STATE_DIR you expect.`));
         }
         spacer();
     }
@@ -176,9 +176,9 @@ export function printDaemonStatus(status, opts) {
     }
     if (service.runtime?.cachedLabel) {
         const env = (service.command?.environment ?? process.env);
-        const labelValue = resolveGatewayLaunchAgentLabel(env.CLAWDBOT_PROFILE);
+        const labelValue = resolveGatewayLaunchAgentLabel(env.HEXOS_PROFILE);
         defaultRuntime.error(errorText(`LaunchAgent label cached but plist missing. Clear with: launchctl bootout gui/$UID/${labelValue}`));
-        defaultRuntime.error(errorText(`Then reinstall: ${formatCliCommand("clawdbot gateway install")}`));
+        defaultRuntime.error(errorText(`Then reinstall: ${formatCliCommand("hexos gateway install")}`));
         spacer();
     }
     for (const line of renderPortDiagnosticsForCli(status, rpc?.ok)) {
@@ -203,7 +203,7 @@ export function printDaemonStatus(status, opts) {
         }
         if (process.platform === "linux") {
             const env = (service.command?.environment ?? process.env);
-            const unit = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+            const unit = resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
             defaultRuntime.error(errorText(`Logs: journalctl --user -u ${unit}.service -n 200 --no-pager`));
         }
         else if (process.platform === "darwin") {
@@ -218,7 +218,7 @@ export function printDaemonStatus(status, opts) {
         for (const svc of legacyServices) {
             defaultRuntime.error(`- ${errorText(svc.label)} (${svc.detail})`);
         }
-        defaultRuntime.error(errorText(`Cleanup: ${formatCliCommand("clawdbot doctor")}`));
+        defaultRuntime.error(errorText(`Cleanup: ${formatCliCommand("hexos doctor")}`));
         spacer();
     }
     if (extraServices.length > 0) {
@@ -236,6 +236,6 @@ export function printDaemonStatus(status, opts) {
         defaultRuntime.error(errorText("If you need multiple gateways (e.g., a rescue bot on the same host), isolate ports + config/state (see docs: /gateway#multiple-gateways-same-host)."));
         spacer();
     }
-    defaultRuntime.log(`${label("Troubles:")} run ${formatCliCommand("clawdbot status")}`);
+    defaultRuntime.log(`${label("Troubles:")} run ${formatCliCommand("hexos status")}`);
     defaultRuntime.log(`${label("Troubleshooting:")} https://docs.clawd.bot/troubleshooting`);
 }

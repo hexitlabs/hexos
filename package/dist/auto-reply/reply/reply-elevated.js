@@ -160,7 +160,7 @@ export function formatElevatedUnavailableMessage(params) {
     lines.push("- agents.list[].tools.elevated.enabled");
     lines.push("- agents.list[].tools.elevated.allowFrom.<provider>");
     if (params.sessionKey) {
-        lines.push(`See: ${formatCliCommand(`clawdbot sandbox explain --session ${params.sessionKey}`)}`);
+        lines.push(`See: ${formatCliCommand(`hexos sandbox explain --session ${params.sessionKey}`)}`);
     }
     return lines.join("\n");
 }

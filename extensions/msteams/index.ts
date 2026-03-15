@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi } from "clawdbot/plugin-sdk";
-import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+import type { HexOSPluginApi } from "hexos/plugin-sdk";
+import { emptyPluginConfigSchema } from "hexos/plugin-sdk";
 
 import { msteamsPlugin } from "./src/channel.js";
 import { setMSTeamsRuntime } from "./src/runtime.js";
@@ -9,7 +9,7 @@ const plugin = {
   name: "Microsoft Teams",
   description: "Microsoft Teams channel plugin (Bot Framework)",
   configSchema: emptyPluginConfigSchema(),
-  register(api: ClawdbotPluginApi) {
+  register(api: HexOSPluginApi) {
     setMSTeamsRuntime(api.runtime);
     api.registerChannel({ plugin: msteamsPlugin });
   },

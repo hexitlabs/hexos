@@ -5,7 +5,7 @@ const SESSION_MANAGER_CACHE = new Map();
 const DEFAULT_SESSION_MANAGER_TTL_MS = 45_000; // 45 seconds
 function getSessionManagerTtl() {
     return resolveCacheTtlMs({
-        envValue: process.env.CLAWDBOT_SESSION_MANAGER_CACHE_TTL_MS,
+        envValue: process.env.HEXOS_SESSION_MANAGER_CACHE_TTL_MS,
         defaultTtlMs: DEFAULT_SESSION_MANAGER_TTL_MS,
     });
 }

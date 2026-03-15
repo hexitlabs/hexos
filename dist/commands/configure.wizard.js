@@ -44,7 +44,7 @@ async function promptChannelMode(runtime) {
             {
                 value: "remove",
                 label: "Remove channel config",
-                hint: "Delete channel tokens/settings from clawdbot.json",
+                hint: "Delete channel tokens/settings from hexos.json",
             },
         ],
         initialValue: "configure",
@@ -109,7 +109,7 @@ async function promptWebToolsConfig(nextConfig, runtime) {
 export async function runConfigureWizard(opts, runtime = defaultRuntime) {
     try {
         printWizardHeader(runtime);
-        intro(opts.command === "update" ? "Clawdbot update wizard" : "Clawdbot configure");
+        intro(opts.command === "update" ? "HexOS update wizard" : "HexOS configure");
         const prompter = createClackPrompter();
         const snapshot = await readConfigFileSnapshot();
         const baseConfig = snapshot.valid ? snapshot.config : {};
@@ -124,7 +124,7 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
                 ].join("\n"), "Config issues");
             }
             if (!snapshot.valid) {
-                outro(`Config invalid. Run \`${formatCliCommand("clawdbot doctor")}\` to repair it, then re-run configure.`);
+                outro(`Config invalid. Run \`${formatCliCommand("hexos doctor")}\` to repair it, then re-run configure.`);
                 runtime.exit(1);
                 return;
             }
@@ -132,8 +132,8 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
         const localUrl = "ws://127.0.0.1:18789";
         const localProbe = await probeGatewayReachable({
             url: localUrl,
-            token: baseConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
-            password: baseConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD,
+            token: baseConfig.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN,
+            password: baseConfig.gateway?.auth?.password ?? process.env.HEXOS_GATEWAY_PASSWORD,
         });
         const remoteUrl = baseConfig.gateway?.remote?.url?.trim() ?? "";
         const remoteProbe = remoteUrl
@@ -192,7 +192,7 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
         let gatewayPort = resolveGatewayPort(baseConfig);
         let gatewayToken = nextConfig.gateway?.auth?.token ??
             baseConfig.gateway?.auth?.token ??
-            process.env.CLAWDBOT_GATEWAY_TOKEN;
+            process.env.HEXOS_GATEWAY_TOKEN;
         const persistConfig = async () => {
             nextConfig = applyWizardMetadata(nextConfig, {
                 command: opts.command,
@@ -277,8 +277,8 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
                 });
                 const remoteUrl = nextConfig.gateway?.remote?.url?.trim();
                 const wsUrl = nextConfig.gateway?.mode === "remote" && remoteUrl ? remoteUrl : localLinks.wsUrl;
-                const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
-                const password = nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
+                const token = nextConfig.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN;
+                const password = nextConfig.gateway?.auth?.password ?? process.env.HEXOS_GATEWAY_PASSWORD;
                 await waitForGatewayReachable({
                     url: wsUrl,
                     token,
@@ -386,8 +386,8 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
                     });
                     const remoteUrl = nextConfig.gateway?.remote?.url?.trim();
                     const wsUrl = nextConfig.gateway?.mode === "remote" && remoteUrl ? remoteUrl : localLinks.wsUrl;
-                    const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
-                    const password = nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
+                    const token = nextConfig.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN;
+                    const password = nextConfig.gateway?.auth?.password ?? process.env.HEXOS_GATEWAY_PASSWORD;
                     await waitForGatewayReachable({
                         url: wsUrl,
                         token,
@@ -429,9 +429,9 @@ export async function runConfigureWizard(opts, runtime = defaultRuntime) {
             basePath: nextConfig.gateway?.controlUi?.basePath,
         });
         // Try both new and old passwords since gateway may still have old config.
-        const newPassword = nextConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
-        const oldPassword = baseConfig.gateway?.auth?.password ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
-        const token = nextConfig.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
+        const newPassword = nextConfig.gateway?.auth?.password ?? process.env.HEXOS_GATEWAY_PASSWORD;
+        const oldPassword = baseConfig.gateway?.auth?.password ?? process.env.HEXOS_GATEWAY_PASSWORD;
+        const token = nextConfig.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN;
         let gatewayProbe = await probeGatewayReachable({
             url: links.wsUrl,
             token,

@@ -13,7 +13,7 @@ function isSessionStoreRecord(value) {
 }
 function getSessionStoreTtl() {
     return resolveCacheTtlMs({
-        envValue: process.env.CLAWDBOT_SESSION_CACHE_TTL_MS,
+        envValue: process.env.HEXOS_SESSION_CACHE_TTL_MS,
         defaultTtlMs: DEFAULT_SESSION_STORE_TTL_MS,
     });
 }

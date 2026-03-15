@@ -11,9 +11,9 @@ function setProcessTitleForCommand(actionCommand) {
         current = current.parent;
     }
     const name = current.name();
-    if (!name || name === "clawdbot")
+    if (!name || name === "hexos")
         return;
-    process.title = `clawdbot-${name}`;
+    process.title = `hexos-${name}`;
 }
 // Commands that need channel plugins loaded
 const PLUGIN_REQUIRED_COMMANDS = new Set(["message", "channels", "directory"]);
@@ -24,7 +24,7 @@ export function registerPreActionHooks(program, programVersion) {
         if (hasHelpOrVersion(argv))
             return;
         const commandPath = getCommandPath(argv, 2);
-        const hideBanner = isTruthyEnvValue(process.env.CLAWDBOT_HIDE_BANNER) ||
+        const hideBanner = isTruthyEnvValue(process.env.HEXOS_HIDE_BANNER) ||
             commandPath[0] === "update" ||
             (commandPath[0] === "plugins" && commandPath[1] === "update");
         if (!hideBanner) {

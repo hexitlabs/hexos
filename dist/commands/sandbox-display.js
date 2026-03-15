@@ -54,7 +54,7 @@ export function displaySummary(containers, browsers, runtime) {
     runtime.log(`Total: ${totalCount} (${runningCount} running)`);
     if (mismatchCount > 0) {
         runtime.log(`\n⚠️  ${mismatchCount} container(s) with image mismatch detected.`);
-        runtime.log(`   Run '${formatCliCommand("clawdbot sandbox recreate --all")}' to update all containers.`);
+        runtime.log(`   Run '${formatCliCommand("hexos sandbox recreate --all")}' to update all containers.`);
     }
 }
 export function displayRecreatePreview(containers, browsers, runtime) {

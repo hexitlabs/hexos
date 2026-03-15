@@ -4,10 +4,10 @@ import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
 import { createExecTool, createProcessTool, } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
-import { createClawdbotTools } from "./clawdbot-tools.js";
+import { createHexOSTools } from "./hexos-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import { filterToolsByPolicy, isToolAllowedByPolicies, resolveEffectiveToolPolicy, resolveGroupToolPolicy, resolveSubagentToolPolicy, } from "./pi-tools.policy.js";
-import { assertRequiredParams, CLAUDE_PARAM_GROUPS, createClawdbotReadTool, createSandboxedEditTool, createSandboxedReadTool, createSandboxedWriteTool, normalizeToolParams, patchToolSchemaForClaudeCompatibility, wrapToolParamNormalization, } from "./pi-tools.read.js";
+import { assertRequiredParams, CLAUDE_PARAM_GROUPS, createHexOSReadTool, createSandboxedEditTool, createSandboxedReadTool, createSandboxedWriteTool, normalizeToolParams, patchToolSchemaForClaudeCompatibility, wrapToolParamNormalization, } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
 import { buildPluginToolGroups, collectExplicitAllowlist, expandPolicyWithPluginGroups, normalizeToolName, resolveToolProfilePolicy, stripPluginOnlyAllowlist, } from "./tool-policy.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
@@ -58,7 +58,7 @@ export const __testing = {
     wrapToolParamNormalization,
     assertRequiredParams,
 };
-export function createClawdbotCodingTools(options) {
+export function createHexOSCodingTools(options) {
     const execToolName = "exec";
     const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
     const { agentId, globalPolicy, globalProviderPolicy, agentPolicy, agentProviderPolicy, profile, providerProfile, } = resolveEffectiveToolPolicy({
@@ -112,7 +112,7 @@ export function createClawdbotCodingTools(options) {
                 return [createSandboxedReadTool(sandboxRoot)];
             }
             const freshReadTool = createReadTool(workspaceRoot);
-            return [createClawdbotReadTool(freshReadTool)];
+            return [createHexOSReadTool(freshReadTool)];
         }
         if (tool.name === "bash" || tool.name === execToolName)
             return [];
@@ -181,7 +181,7 @@ export function createClawdbotCodingTools(options) {
         processTool,
         // Channel docking: include channel-defined agent tools (login, etc.).
         ...listChannelAgentTools({ cfg: options?.config }),
-        ...createClawdbotTools({
+        ...createHexOSTools({
             browserControlUrl: sandbox?.browser?.controlUrl,
             allowHostBrowserControl: sandbox ? sandbox.browserAllowHostControl : true,
             allowedControlUrls: sandbox?.browserAllowedControlUrls,

@@ -1,4 +1,4 @@
-import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+import { emptyPluginConfigSchema } from "hexos/plugin-sdk";
 
 import { loginQwenPortalOAuth } from "./oauth.js";
 

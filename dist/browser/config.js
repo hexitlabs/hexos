@@ -61,7 +61,7 @@ function ensureDefaultProfile(profiles, defaultColor, legacyCdpPort, derivedDefa
 /**
  * Ensure a built-in "chrome" profile exists for the Chrome extension relay.
  *
- * Note: this is a Clawdbot browser profile (routing config), not a Chrome user profile.
+ * Note: this is a HexOS browser profile (routing config), not a Chrome user profile.
  * It points at the local relay CDP endpoint (controlPort + 1).
  */
 function ensureDefaultChromeExtensionProfile(profiles, controlPort) {
@@ -84,10 +84,10 @@ function ensureDefaultChromeExtensionProfile(profiles, controlPort) {
 }
 export function resolveBrowserConfig(cfg) {
     const enabled = cfg?.enabled ?? DEFAULT_CLAWD_BROWSER_ENABLED;
-    const envControlUrl = process.env.CLAWDBOT_BROWSER_CONTROL_URL?.trim();
+    const envControlUrl = process.env.HEXOS_BROWSER_CONTROL_URL?.trim();
     const controlToken = cfg?.controlToken?.trim() || undefined;
     const derivedControlPort = (() => {
-        const raw = process.env.CLAWDBOT_GATEWAY_PORT?.trim();
+        const raw = process.env.HEXOS_GATEWAY_PORT?.trim();
         if (!raw)
             return null;
         const gatewayPort = Number.parseInt(raw, 10);

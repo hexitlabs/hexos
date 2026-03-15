@@ -4,7 +4,7 @@ import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import { CONFIG_PATH_CLAWDBOT, isNixMode, loadConfig, migrateLegacyConfig, readConfigFileSnapshot, writeConfigFile, } from "../config/config.js";
+import { CONFIG_PATH_HEXOS, isNixMode, loadConfig, migrateLegacyConfig, readConfigFileSnapshot, writeConfigFile, } from "../config/config.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { logAcceptedEnvOption } from "../infra/env.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
@@ -12,7 +12,7 @@ import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import { onHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { startHeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
-import { ensureClawdbotCliOnPath } from "../infra/path-env.js";
+import { ensureHexOSCliOnPath } from "../infra/path-env.js";
 import { primeRemoteSkillsCache, refreshRemoteBinsForConnectedNodes, setSkillsRemoteRegistry, } from "../infra/skills-remote.js";
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
@@ -50,7 +50,7 @@ import { loadGatewayTlsRuntime } from "./server/tls.js";
 import { createWizardSessionTracker } from "./server-wizard-sessions.js";
 import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
-ensureClawdbotCliOnPath();
+ensureHexOSCliOnPath();
 const log = createSubsystemLogger("gateway");
 const logCanvas = log.child("canvas");
 const logDiscovery = log.child("discovery");
@@ -66,13 +66,13 @@ const logWsControl = log.child("ws");
 const canvasRuntime = runtimeForLogger(logCanvas);
 export async function startGatewayServer(port = 18789, opts = {}) {
     // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-    process.env.CLAWDBOT_GATEWAY_PORT = String(port);
+    process.env.HEXOS_GATEWAY_PORT = String(port);
     logAcceptedEnvOption({
-        key: "CLAWDBOT_RAW_STREAM",
+        key: "HEXOS_RAW_STREAM",
         description: "raw stream logging enabled",
     });
     logAcceptedEnvOption({
-        key: "CLAWDBOT_RAW_STREAM_PATH",
+        key: "HEXOS_RAW_STREAM_PATH",
         description: "raw stream log path override",
     });
     let configSnapshot = await readConfigFileSnapshot();
@@ -82,7 +82,7 @@ export async function startGatewayServer(port = 18789, opts = {}) {
         }
         const { config: migrated, changes } = migrateLegacyConfig(configSnapshot.parsed);
         if (!migrated) {
-            throw new Error(`Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("clawdbot doctor")}" to migrate.`);
+            throw new Error(`Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("hexos doctor")}" to migrate.`);
         }
         await writeConfigFile(migrated);
         if (changes.length > 0) {
@@ -98,7 +98,7 @@ export async function startGatewayServer(port = 18789, opts = {}) {
                 .map((issue) => `${issue.path || "<root>"}: ${issue.message}`)
                 .join("\n")
             : "Unknown validation issue.";
-        throw new Error(`Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("clawdbot doctor")}" to repair, then retry.`);
+        throw new Error(`Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("hexos doctor")}" to repair, then retry.`);
     }
     const autoEnable = applyPluginAutoEnable({ config: configSnapshot.config, env: process.env });
     if (autoEnable.changes.length > 0) {
@@ -393,7 +393,7 @@ export async function startGatewayServer(port = 18789, opts = {}) {
             warn: (msg) => logReload.warn(msg),
             error: (msg) => logReload.error(msg),
         },
-        watchPath: CONFIG_PATH_CLAWDBOT,
+        watchPath: CONFIG_PATH_HEXOS,
     });
     const close = createGatewayCloseHandler({
         bonjourStop,

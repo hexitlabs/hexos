@@ -1,5 +1,5 @@
-import type { ChannelOnboardingAdapter, ClawdbotConfig, WizardPrompter } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+import type { ChannelOnboardingAdapter, HexOSConfig, WizardPrompter } from "hexos/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "hexos/plugin-sdk";
 
 import {
   listMattermostAccountIds,
@@ -177,7 +177,7 @@ export const mattermostOnboardingAdapter: ChannelOnboardingAdapter = {
 
     return { cfg: next, accountId };
   },
-  disable: (cfg: ClawdbotConfig) => ({
+  disable: (cfg: HexOSConfig) => ({
     ...cfg,
     channels: {
       ...cfg.channels,

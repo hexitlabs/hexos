@@ -1,6 +1,6 @@
 import { loadConfig } from "../config/config.js";
-import { resolveClawdbotAgentDir } from "./agent-paths.js";
-import { ensureClawdbotModelsJson } from "./models-config.js";
+import { resolveHexOSAgentDir } from "./agent-paths.js";
+import { ensureHexOSModelsJson } from "./models-config.js";
 let modelCatalogPromise = null;
 let hasLoggedModelCatalogError = false;
 const defaultImportPiSdk = () => import("@mariozechner/pi-coding-agent");
@@ -30,13 +30,13 @@ export async function loadModelCatalog(params) {
         });
         try {
             const cfg = params?.config ?? loadConfig();
-            await ensureClawdbotModelsJson(cfg);
+            await ensureHexOSModelsJson(cfg);
             // IMPORTANT: keep the dynamic import *inside* the try/catch.
             // If this fails once (e.g. during a pnpm install that temporarily swaps node_modules),
             // we must not poison the cache with a rejected promise (otherwise all channel handlers
             // will keep failing until restart).
             const piSdk = await importPiSdk();
-            const agentDir = resolveClawdbotAgentDir();
+            const agentDir = resolveHexOSAgentDir();
             const authStorage = piSdk.discoverAuthStorage(agentDir);
             const registry = piSdk.discoverModels(authStorage, agentDir);
             const entries = Array.isArray(registry) ? registry : registry.getAll();

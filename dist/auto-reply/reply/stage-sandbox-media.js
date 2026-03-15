@@ -21,7 +21,7 @@ export async function stageSandboxMedia(params) {
         sessionKey,
         workspaceDir,
     });
-    // For remote attachments without sandbox, use ~/.clawdbot/media (not agent workspace for privacy)
+    // For remote attachments without sandbox, use ~/.hexos/media (not agent workspace for privacy)
     const remoteMediaCacheDir = ctx.MediaRemoteHost
         ? path.join(CONFIG_DIR, "media", "remote-cache", sessionKey)
         : null;

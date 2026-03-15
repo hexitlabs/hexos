@@ -7,30 +7,30 @@ import { formatHelpExamples } from "./help-format.js";
 // --- Helpers ---
 const SANDBOX_EXAMPLES = {
     main: [
-        ["clawdbot sandbox list", "List all sandbox containers."],
-        ["clawdbot sandbox list --browser", "List only browser containers."],
-        ["clawdbot sandbox recreate --all", "Recreate all containers."],
-        ["clawdbot sandbox recreate --session main", "Recreate a specific session."],
-        ["clawdbot sandbox recreate --agent mybot", "Recreate agent containers."],
-        ["clawdbot sandbox explain", "Explain effective sandbox config."],
+        ["hexos sandbox list", "List all sandbox containers."],
+        ["hexos sandbox list --browser", "List only browser containers."],
+        ["hexos sandbox recreate --all", "Recreate all containers."],
+        ["hexos sandbox recreate --session main", "Recreate a specific session."],
+        ["hexos sandbox recreate --agent mybot", "Recreate agent containers."],
+        ["hexos sandbox explain", "Explain effective sandbox config."],
     ],
     list: [
-        ["clawdbot sandbox list", "List all sandbox containers."],
-        ["clawdbot sandbox list --browser", "List only browser containers."],
-        ["clawdbot sandbox list --json", "JSON output."],
+        ["hexos sandbox list", "List all sandbox containers."],
+        ["hexos sandbox list --browser", "List only browser containers."],
+        ["hexos sandbox list --json", "JSON output."],
     ],
     recreate: [
-        ["clawdbot sandbox recreate --all", "Recreate all containers."],
-        ["clawdbot sandbox recreate --session main", "Recreate a specific session."],
-        ["clawdbot sandbox recreate --agent mybot", "Recreate a specific agent (includes sub-agents)."],
-        ["clawdbot sandbox recreate --browser --all", "Recreate only browser containers."],
-        ["clawdbot sandbox recreate --all --force", "Skip confirmation."],
+        ["hexos sandbox recreate --all", "Recreate all containers."],
+        ["hexos sandbox recreate --session main", "Recreate a specific session."],
+        ["hexos sandbox recreate --agent mybot", "Recreate a specific agent (includes sub-agents)."],
+        ["hexos sandbox recreate --browser --all", "Recreate only browser containers."],
+        ["hexos sandbox recreate --all --force", "Skip confirmation."],
     ],
     explain: [
-        ["clawdbot sandbox explain", "Show effective sandbox config."],
-        ["clawdbot sandbox explain --session agent:main:main", "Explain a specific session."],
-        ["clawdbot sandbox explain --agent work", "Explain an agent sandbox."],
-        ["clawdbot sandbox explain --json", "JSON output."],
+        ["hexos sandbox explain", "Show effective sandbox config."],
+        ["hexos sandbox explain --session agent:main:main", "Explain a specific session."],
+        ["hexos sandbox explain --agent work", "Explain an agent sandbox."],
+        ["hexos sandbox explain --json", "JSON output."],
     ],
 };
 function createRunner(commandFn) {

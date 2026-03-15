@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { CONFIG_PATH_CLAWDBOT, loadConfig, readConfigFileSnapshot, resolveGatewayPort, validateConfigObjectWithPlugins, writeConfigFile, } from "../config/config.js";
+import { CONFIG_PATH_HEXOS, loadConfig, readConfigFileSnapshot, resolveGatewayPort, validateConfigObjectWithPlugins, writeConfigFile, } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -16,7 +16,7 @@ export async function runGmailSetup(opts) {
     await ensureGcloudAuth();
     const configSnapshot = await readConfigFileSnapshot();
     if (!configSnapshot.valid) {
-        throw new Error(`Config invalid: ${CONFIG_PATH_CLAWDBOT}`);
+        throw new Error(`Config invalid: ${CONFIG_PATH_HEXOS}`);
     }
     const baseConfig = configSnapshot.config;
     const hooksPath = normalizeHooksPath(baseConfig.hooks?.path);
@@ -161,8 +161,8 @@ export async function runGmailSetup(opts) {
     defaultRuntime.log(`- subscription: ${subscription}`);
     defaultRuntime.log(`- push endpoint: ${pushEndpoint}`);
     defaultRuntime.log(`- hook url: ${hookUrl}`);
-    defaultRuntime.log(`- config: ${displayPath(CONFIG_PATH_CLAWDBOT)}`);
-    defaultRuntime.log(`Next: ${formatCliCommand("clawdbot webhooks gmail run")}`);
+    defaultRuntime.log(`- config: ${displayPath(CONFIG_PATH_HEXOS)}`);
+    defaultRuntime.log(`Next: ${formatCliCommand("hexos webhooks gmail run")}`);
 }
 export async function runGmailService(opts) {
     await ensureDependency("gog", ["gogcli"]);

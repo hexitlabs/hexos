@@ -162,7 +162,7 @@ export async function pickWebChannel(pref, authDir = resolveDefaultWebAuthDir())
     const choice = pref === "auto" ? "web" : pref;
     const hasWeb = await webAuthExists(authDir);
     if (!hasWeb) {
-        throw new Error(`No WhatsApp Web session found. Run \`${formatCliCommand("clawdbot channels login --channel whatsapp --verbose")}\` to link.`);
+        throw new Error(`No WhatsApp Web session found. Run \`${formatCliCommand("hexos channels login --channel whatsapp --verbose")}\` to link.`);
     }
     return choice;
 }

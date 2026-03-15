@@ -19,11 +19,11 @@ function resolveSystemdUnitPathForName(env, name) {
     return path.posix.join(home, ".config", "systemd", "user", `${name}.service`);
 }
 function resolveSystemdServiceName(env) {
-    const override = env.CLAWDBOT_SYSTEMD_UNIT?.trim();
+    const override = env.HEXOS_SYSTEMD_UNIT?.trim();
     if (override) {
         return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
     }
-    return resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+    return resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
 }
 function resolveSystemdUnitPath(env) {
     return resolveSystemdUnitPathForName(env, resolveSystemdServiceName(env));
@@ -152,8 +152,8 @@ export async function installSystemdService({ env, stdout, programArguments, wor
     await fs.mkdir(path.dirname(unitPath), { recursive: true });
     const serviceDescription = description ??
         formatGatewayServiceDescription({
-            profile: env.CLAWDBOT_PROFILE,
-            version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
+            profile: env.HEXOS_PROFILE,
+            version: environment?.HEXOS_SERVICE_VERSION ?? env.HEXOS_SERVICE_VERSION,
         });
     const unit = buildSystemdUnit({
         description: serviceDescription,
@@ -162,7 +162,7 @@ export async function installSystemdService({ env, stdout, programArguments, wor
         environment,
     });
     await fs.writeFile(unitPath, unit, "utf8");
-    const serviceName = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+    const serviceName = resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
     const unitName = `${serviceName}.service`;
     const reload = await execSystemctl(["--user", "daemon-reload"]);
     if (reload.code !== 0) {
@@ -183,7 +183,7 @@ export async function installSystemdService({ env, stdout, programArguments, wor
 }
 export async function uninstallSystemdService({ env, stdout, }) {
     await assertSystemdAvailable();
-    const serviceName = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+    const serviceName = resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
     const unitName = `${serviceName}.service`;
     await execSystemctl(["--user", "disable", "--now", unitName]);
     const unitPath = resolveSystemdUnitPath(env);

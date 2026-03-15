@@ -26,9 +26,9 @@ function formatAuthIssueHint(issue) {
         return "Run `claude setup-token` on the gateway host.";
     }
     if (issue.provider === "openai-codex" && issue.profileId === CODEX_CLI_PROFILE_ID) {
-        return `Run \`codex login\` (or \`${formatCliCommand("clawdbot configure")}\` → OpenAI Codex OAuth).`;
+        return `Run \`codex login\` (or \`${formatCliCommand("hexos configure")}\` → OpenAI Codex OAuth).`;
     }
-    return `Re-auth via \`${formatCliCommand("clawdbot configure")}\` or \`${formatCliCommand("clawdbot onboard")}\`.`;
+    return `Re-auth via \`${formatCliCommand("hexos configure")}\` or \`${formatCliCommand("hexos onboard")}\`.`;
 }
 function formatAuthIssueLine(issue) {
     const remaining = issue.remainingMs !== undefined ? ` (${formatRemainingShort(issue.remainingMs)})` : "";

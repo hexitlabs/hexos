@@ -79,7 +79,7 @@ export function buildGroupIntro(params) {
         })
         : undefined;
     const silenceLine = activation === "always"
-        ? `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Clawdbot stays silent. Do not add any other words, punctuation, tags, markdown/code blocks, or explanations.`
+        ? `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so HexOS stays silent. Do not add any other words, punctuation, tags, markdown/code blocks, or explanations.`
         : undefined;
     const cautionLine = activation === "always"
         ? "Be extremely selective: reply only when directly addressed or clearly helpful. Otherwise stay silent."

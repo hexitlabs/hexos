@@ -92,7 +92,7 @@ export function isProfileDecorated(userDataDir, desiredName, desiredColorHex) {
     return nameOk && localSeedOk && prefOk;
 }
 /**
- * Best-effort profile decoration (name + lobster-orange). Chrome preference keys
+ * Best-effort profile decoration (name + hexos-blue). Chrome preference keys
  * vary by version; we keep this conservative and idempotent.
  */
 export function decorateClawdProfile(userDataDir, opts) {

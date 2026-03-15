@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { ClientSideConnection, PROTOCOL_VERSION, ndJsonStream, } from "@agentclientprotocol/sdk";
-import { ensureClawdbotCliOnPath } from "../infra/path-env.js";
+import { ensureHexOSCliOnPath } from "../infra/path-env.js";
 function toArgs(value) {
     if (!value)
         return [];
@@ -50,8 +50,8 @@ export async function createAcpClient(opts = {}) {
     const cwd = opts.cwd ?? process.cwd();
     const verbose = Boolean(opts.verbose);
     const log = verbose ? (msg) => console.error(`[acp-client] ${msg}`) : () => { };
-    ensureClawdbotCliOnPath({ cwd });
-    const serverCommand = opts.serverCommand ?? "clawdbot";
+    ensureHexOSCliOnPath({ cwd });
+    const serverCommand = opts.serverCommand ?? "hexos";
     const serverArgs = buildServerArgs(opts);
     log(`spawning: ${serverCommand} ${serverArgs.join(" ")}`);
     const agent = spawn(serverCommand, serverArgs, {
@@ -88,7 +88,7 @@ export async function createAcpClient(opts = {}) {
             fs: { readTextFile: true, writeTextFile: true },
             terminal: true,
         },
-        clientInfo: { name: "clawdbot-acp-client", version: "1.0.0" },
+        clientInfo: { name: "hexos-acp-client", version: "1.0.0" },
     });
     log("creating session");
     const session = await client.newSession({
@@ -107,7 +107,7 @@ export async function runAcpClientInteractive(opts = {}) {
         input: process.stdin,
         output: process.stdout,
     });
-    console.log("Clawdbot ACP client");
+    console.log("HexOS ACP client");
     console.log(`Session: ${sessionId}`);
     console.log('Type a prompt, or "exit" to quit.\n');
     const prompt = () => {

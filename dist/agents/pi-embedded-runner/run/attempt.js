@@ -15,15 +15,15 @@ import { isSubagentSessionKey } from "../../../routing/session-key.js";
 import { resolveUserPath } from "../../../utils.js";
 import { createCacheTrace } from "../../cache-trace.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
-import { resolveClawdbotAgentDir } from "../../agent-paths.js";
+import { resolveHexOSAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
-import { resolveClawdbotDocsPath } from "../../docs-path.js";
+import { resolveHexOSDocsPath } from "../../docs-path.js";
 import { resolveModelAuthMode } from "../../model-auth.js";
 import { isCloudCodeAssistFormatError, resolveBootstrapMaxChars, validateAnthropicTurns, validateGeminiTurns, } from "../../pi-embedded-helpers.js";
 import { subscribeEmbeddedPiSession } from "../../pi-embedded-subscribe.js";
 import { ensurePiCompactionReserveTokens, resolveCompactionReserveTokensFloor, } from "../../pi-settings.js";
-import { createClawdbotCodingTools } from "../../pi-tools.js";
+import { createHexOSCodingTools } from "../../pi-tools.js";
 import { resolveSandboxContext } from "../../sandbox.js";
 import { guardSessionManager } from "../../session-tool-result-guard-wrapper.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
@@ -141,12 +141,12 @@ export async function runEmbeddedAttempt(params) {
         const workspaceNotes = hookAdjustedBootstrapFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing)
             ? ["Reminder: commit your changes in this workspace after edits."]
             : undefined;
-        const agentDir = params.agentDir ?? resolveClawdbotAgentDir();
+        const agentDir = params.agentDir ?? resolveHexOSAgentDir();
         // Check if the model supports native image input
         const modelHasVision = params.model.input?.includes("image") ?? false;
         const toolsRaw = params.disableTools
             ? []
-            : createClawdbotCodingTools({
+            : createHexOSCodingTools({
                 exec: {
                     ...params.execOverrides,
                     elevated: params.bashElevated,
@@ -263,7 +263,7 @@ export async function runEmbeddedAttempt(params) {
         });
         const isDefaultAgent = sessionAgentId === defaultAgentId;
         const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
-        const docsPath = await resolveClawdbotDocsPath({
+        const docsPath = await resolveHexOSDocsPath({
             workspaceDir: effectiveWorkspace,
             argv1: process.argv[1],
             cwd: process.cwd(),

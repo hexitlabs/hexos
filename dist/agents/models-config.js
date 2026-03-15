@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { loadConfig } from "../config/config.js";
-import { resolveClawdbotAgentDir } from "./agent-paths.js";
+import { resolveHexOSAgentDir } from "./agent-paths.js";
 import { normalizeProviders, resolveImplicitBedrockProvider, resolveImplicitCopilotProvider, resolveImplicitProviders, } from "./models-config.providers.js";
 const DEFAULT_MODE = "merge";
 function isRecord(value) {
@@ -57,9 +57,9 @@ async function readJson(pathname) {
         return null;
     }
 }
-export async function ensureClawdbotModelsJson(config, agentDirOverride) {
+export async function ensureHexOSModelsJson(config, agentDirOverride) {
     const cfg = config ?? loadConfig();
-    const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveClawdbotAgentDir();
+    const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveHexOSAgentDir();
     const explicitProviders = (cfg.models?.providers ?? {});
     const implicitProviders = await resolveImplicitProviders({ agentDir });
     const providers = mergeProviders({

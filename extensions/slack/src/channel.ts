@@ -29,7 +29,7 @@ import {
   type ChannelMessageActionName,
   type ChannelPlugin,
   type ResolvedSlackAccount,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 
 import { getSlackRuntime } from "./runtime.js";
 

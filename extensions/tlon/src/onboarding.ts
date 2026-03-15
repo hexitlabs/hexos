@@ -5,11 +5,11 @@ import {
   normalizeAccountId,
   type ChannelOnboardingAdapter,
   type WizardPrompter,
-} from "clawdbot/plugin-sdk";
+} from "hexos/plugin-sdk";
 
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { HexOSConfig } from "hexos/plugin-sdk";
 
 const channel = "tlon" as const;
 
@@ -18,7 +18,7 @@ function isConfigured(account: TlonResolvedAccount): boolean {
 }
 
 function applyAccountConfig(params: {
-  cfg: ClawdbotConfig;
+  cfg: HexOSConfig;
   accountId: string;
   input: {
     name?: string;
@@ -29,7 +29,7 @@ function applyAccountConfig(params: {
     dmAllowlist?: string[];
     autoDiscoverChannels?: boolean;
   };
-}): ClawdbotConfig {
+}): HexOSConfig {
   const { cfg, accountId, input } = params;
   const useDefault = accountId === DEFAULT_ACCOUNT_ID;
   const base = cfg.channels?.tlon ?? {};

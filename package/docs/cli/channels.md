@@ -1,11 +1,11 @@
 ---
-summary: "CLI reference for `clawdbot channels` (accounts, status, login/logout, logs)"
+summary: "CLI reference for `hexos channels` (accounts, status, login/logout, logs)"
 read_when:
   - You want to add/remove channel accounts (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
   - You want to check channel status or tail channel logs
 ---
 
-# `clawdbot channels`
+# `hexos channels`
 
 Manage chat channel accounts and their runtime status on the Gateway.
 
@@ -16,43 +16,43 @@ Related docs:
 ## Common commands
 
 ```bash
-clawdbot channels list
-clawdbot channels status
-clawdbot channels capabilities
-clawdbot channels capabilities --channel discord --target channel:123
-clawdbot channels resolve --channel slack "#general" "@jane"
-clawdbot channels logs --channel all
+hexos channels list
+hexos channels status
+hexos channels capabilities
+hexos channels capabilities --channel discord --target channel:123
+hexos channels resolve --channel slack "#general" "@jane"
+hexos channels logs --channel all
 ```
 
 ## Add / remove accounts
 
 ```bash
-clawdbot channels add --channel telegram --token <bot-token>
-clawdbot channels remove --channel telegram --delete
+hexos channels add --channel telegram --token <bot-token>
+hexos channels remove --channel telegram --delete
 ```
 
-Tip: `clawdbot channels add --help` shows per-channel flags (token, app token, signal-cli paths, etc).
+Tip: `hexos channels add --help` shows per-channel flags (token, app token, signal-cli paths, etc).
 
 ## Login / logout (interactive)
 
 ```bash
-clawdbot channels login --channel whatsapp
-clawdbot channels logout --channel whatsapp
+hexos channels login --channel whatsapp
+hexos channels logout --channel whatsapp
 ```
 
 ## Troubleshooting
 
-- Run `clawdbot status --deep` for a broad probe.
-- Use `clawdbot doctor` for guided fixes.
-- `clawdbot channels list` prints `Claude: HTTP 403 ... user:profile` → usage snapshot needs the `user:profile` scope. Use `--no-usage`, or provide a claude.ai session key (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), or re-auth via Claude Code CLI.
+- Run `hexos status --deep` for a broad probe.
+- Use `hexos doctor` for guided fixes.
+- `hexos channels list` prints `Claude: HTTP 403 ... user:profile` → usage snapshot needs the `user:profile` scope. Use `--no-usage`, or provide a claude.ai session key (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), or re-auth via Claude Code CLI.
 
 ## Capabilities probe
 
 Fetch provider capability hints (intents/scopes where available) plus static feature support:
 
 ```bash
-clawdbot channels capabilities
-clawdbot channels capabilities --channel discord --target channel:123
+hexos channels capabilities
+hexos channels capabilities --channel discord --target channel:123
 ```
 
 Notes:
@@ -65,9 +65,9 @@ Notes:
 Resolve channel/user names to IDs using the provider directory:
 
 ```bash
-clawdbot channels resolve --channel slack "#general" "@jane"
-clawdbot channels resolve --channel discord "My Server/#support" "@someone"
-clawdbot channels resolve --channel matrix "Project Room"
+hexos channels resolve --channel slack "#general" "@jane"
+hexos channels resolve --channel discord "My Server/#support" "@someone"
+hexos channels resolve --channel matrix "Project Room"
 ```
 
 Notes:

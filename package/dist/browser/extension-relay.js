@@ -121,9 +121,9 @@ export async function ensureChromeExtensionRelayServer(opts) {
             case "Browser.getVersion":
                 return {
                     protocolVersion: "1.3",
-                    product: "Chrome/Clawdbot-Extension-Relay",
+                    product: "Chrome/HexOS-Extension-Relay",
                     revision: "0",
-                    userAgent: "Clawdbot-Extension-Relay",
+                    userAgent: "HexOS-Extension-Relay",
                     jsVersion: "V8",
                 };
             case "Browser.setDownloadBehavior":
@@ -204,7 +204,7 @@ export async function ensureChromeExtensionRelayServer(opts) {
         if ((path === "/json/version" || path === "/json/version/") &&
             (req.method === "GET" || req.method === "PUT")) {
             const payload = {
-                Browser: "Clawdbot/extension-relay",
+                Browser: "HexOS/extension-relay",
                 "Protocol-Version": "1.3",
             };
             // Only advertise the WS URL if a real extension is connected.

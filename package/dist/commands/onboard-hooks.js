@@ -51,9 +51,9 @@ export async function setupInternalHooks(cfg, runtime, prompter) {
         `Enabled ${selected.length} hook${selected.length > 1 ? "s" : ""}: ${selected.join(", ")}`,
         "",
         "You can manage hooks later with:",
-        `  ${formatCliCommand("clawdbot hooks list")}`,
-        `  ${formatCliCommand("clawdbot hooks enable <name>")}`,
-        `  ${formatCliCommand("clawdbot hooks disable <name>")}`,
+        `  ${formatCliCommand("hexos hooks list")}`,
+        `  ${formatCliCommand("hexos hooks enable <name>")}`,
+        `  ${formatCliCommand("hexos hooks disable <name>")}`,
     ].join("\n"), "Hooks Configured");
     return next;
 }

@@ -8,7 +8,7 @@ read_when:
 
 # Browser (clawd-managed)
 
-Clawdbot can run a **dedicated Chrome/Brave/Edge/Chromium profile** that the agent controls.
+HexOS can run a **dedicated Chrome/Brave/Edge/Chromium profile** that the agent controls.
 It is isolated from your personal browser and is managed through a small local
 control server.
 
@@ -32,10 +32,10 @@ agent automation and verification.
 ## Quick start
 
 ```bash
-clawdbot browser --browser-profile clawd status
-clawdbot browser --browser-profile clawd start
-clawdbot browser --browser-profile clawd open https://example.com
-clawdbot browser --browser-profile clawd snapshot
+hexos browser --browser-profile clawd status
+hexos browser --browser-profile clawd start
+hexos browser --browser-profile clawd open https://example.com
+hexos browser --browser-profile clawd snapshot
 ```
 
 If you get “Browser disabled”, enable it in config (see below) and restart the
@@ -44,14 +44,14 @@ Gateway.
 ## Profiles: `clawd` vs `chrome`
 
 - `clawd`: managed, isolated browser (no extension required).
-- `chrome`: extension relay to your **system browser** (requires the Clawdbot
+- `chrome`: extension relay to your **system browser** (requires the HexOS
   extension to be attached to a tab).
 
 Set `browser.defaultProfile: "clawd"` if you want managed mode by default.
 
 ## Configuration
 
-Browser settings live in `~/.clawdbot/clawdbot.json`.
+Browser settings live in `~/.hexos/hexos.json`.
 
 ```json5
 {
@@ -78,7 +78,7 @@ Browser settings live in `~/.clawdbot/clawdbot.json`.
 
 Notes:
 - `controlUrl` defaults to `http://127.0.0.1:18791`.
-- If you override the Gateway port (`gateway.port` or `CLAWDBOT_GATEWAY_PORT`),
+- If you override the Gateway port (`gateway.port` or `HEXOS_GATEWAY_PORT`),
   the default browser ports shift to stay in the same “family” (control = gateway + 2).
 - `cdpUrl` defaults to `controlUrl + 1` when unset.
 - `remoteCdpTimeoutMs` applies to remote (non-loopback) CDP reachability checks.
@@ -92,13 +92,13 @@ Notes:
 ## Use Brave (or another Chromium-based browser)
 
 If your **system default** browser is Chromium-based (Chrome/Brave/Edge/etc),
-Clawdbot uses it automatically. Set `browser.executablePath` to override
+HexOS uses it automatically. Set `browser.executablePath` to override
 auto-detection:
 
 CLI example:
 
 ```bash
-clawdbot config set browser.executablePath "/usr/bin/google-chrome"
+hexos config set browser.executablePath "/usr/bin/google-chrome"
 ```
 
 ```json5
@@ -131,7 +131,7 @@ clawdbot config set browser.executablePath "/usr/bin/google-chrome"
 - **Remote control:** `controlUrl` is non-loopback. The Gateway **does not** start
   a local server; it assumes you are pointing at an existing server elsewhere.
 - **Remote CDP:** set `browser.profiles.<name>.cdpUrl` (or `browser.cdpUrl`) to
-  attach to a remote Chromium-based browser. In this case, Clawdbot will not launch a local browser.
+  attach to a remote Chromium-based browser. In this case, HexOS will not launch a local browser.
 
 ## Remote browser (control server)
 
@@ -162,13 +162,13 @@ Remote CDP URLs can include auth:
 - Query tokens (e.g., `https://provider.example?token=<token>`)
 - HTTP Basic auth (e.g., `https://user:pass@provider.example`)
 
-Clawdbot preserves the auth when calling `/json/*` endpoints and when connecting
+HexOS preserves the auth when calling `/json/*` endpoints and when connecting
 to the CDP WebSocket. Prefer environment variables or secrets managers for
 tokens instead of committing them to config files.
 
 ### Node browser proxy (zero-config default)
 
-If you run a **node host** on the machine that has your browser, Clawdbot can
+If you run a **node host** on the machine that has your browser, HexOS can
 auto-route browser tool calls to that node without any custom `controlUrl`
 setup. This is the default path for remote gateways.
 
@@ -182,7 +182,7 @@ Notes:
 ### Browserless (hosted remote CDP)
 
 [Browserless](https://browserless.io) is a hosted Chromium service that exposes
-CDP endpoints over HTTPS. You can point a Clawdbot browser profile at a
+CDP endpoints over HTTPS. You can point a HexOS browser profile at a
 Browserless region endpoint and authenticate with your API key.
 
 Example:
@@ -213,7 +213,7 @@ Run a standalone browser control server (recommended when your Gateway is remote
 
 ```bash
 # on the machine that runs Chrome/Brave/Edge
-clawdbot browser serve --bind <browser-host> --port 18791 --token <token>
+hexos browser serve --bind <browser-host> --port 18791 --token <token>
 ```
 
 Then point your Gateway at it:
@@ -234,7 +234,7 @@ Then point your Gateway at it:
 And set the auth token in the Gateway environment:
 
 ```bash
-export CLAWDBOT_BROWSER_CONTROL_TOKEN="<token>"
+export HEXOS_BROWSER_CONTROL_TOKEN="<token>"
 ```
 
 Option B: store the token in the Gateway config instead (same shared token):
@@ -260,14 +260,14 @@ Key ideas:
 
 ### Tokens (what is shared with what?)
 
-- `browser.controlToken` / `CLAWDBOT_BROWSER_CONTROL_TOKEN` is **only** for authenticating browser control HTTP requests to `browser.controlUrl`.
+- `browser.controlToken` / `HEXOS_BROWSER_CONTROL_TOKEN` is **only** for authenticating browser control HTTP requests to `browser.controlUrl`.
 - It is **not** the Gateway token (`gateway.auth.token`) and **not** a node pairing token.
 - You *can* reuse the same string value, but it’s better to keep them separate to reduce blast radius.
 
 ### Binding (don’t expose to your LAN by accident)
 
 Recommended:
-- Keep `clawdbot browser serve` bound to loopback (`127.0.0.1`) and publish it via Tailscale.
+- Keep `hexos browser serve` bound to loopback (`127.0.0.1`) and publish it via Tailscale.
 - Or bind to a Tailnet IP only (never `0.0.0.0`) and require a token.
 
 Avoid:
@@ -275,7 +275,7 @@ Avoid:
 
 ### TLS / HTTPS (recommended approach: terminate in front)
 
-Best practice here: keep `clawdbot browser serve` on HTTP and terminate TLS in front.
+Best practice here: keep `hexos browser serve` on HTTP and terminate TLS in front.
 
 If you’re already using Tailscale, you have two good options:
 
@@ -286,7 +286,7 @@ If you’re already using Tailscale, you have two good options:
 
 ```bash
 # on the browser machine
-clawdbot browser serve --bind 127.0.0.1 --port 18791 --token <token>
+hexos browser serve --bind 127.0.0.1 --port 18791 --token <token>
 tailscale serve https / http://127.0.0.1:18791
 ```
 
@@ -298,7 +298,7 @@ Notes:
 
 ## Profiles (multi-browser)
 
-Clawdbot supports multiple named profiles (routing configs). Profiles can be:
+HexOS supports multiple named profiles (routing configs). Profiles can be:
 - **clawd-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
 - **remote**: an explicit CDP URL (Chromium-based browser running elsewhere)
 - **extension relay**: your existing Chrome tab(s) via the local relay + Chrome extension
@@ -313,17 +313,17 @@ All control endpoints accept `?profile=<name>`; the CLI uses `--browser-profile`
 
 ## Chrome extension relay (use your existing Chrome)
 
-Clawdbot can also drive **your existing Chrome tabs** (no separate “clawd” Chrome instance) via a local CDP relay + a Chrome extension.
+HexOS can also drive **your existing Chrome tabs** (no separate “clawd” Chrome instance) via a local CDP relay + a Chrome extension.
 
 Full guide: [Chrome extension](/tools/chrome-extension)
 
 Flow:
-- You run a **browser control server** (Gateway on the same machine, or `clawdbot browser serve`).
+- You run a **browser control server** (Gateway on the same machine, or `hexos browser serve`).
 - A local **relay server** listens at a loopback `cdpUrl` (default: `http://127.0.0.1:18792`).
-- You click the **Clawdbot Browser Relay** extension icon on a tab to attach (it does not auto-attach).
+- You click the **HexOS Browser Relay** extension icon on a tab to attach (it does not auto-attach).
 - The agent controls that tab via the normal `browser` tool, by selecting the right profile.
 
-If the Gateway runs on the same machine as Chrome (default setup), you usually **do not** need `clawdbot browser serve`.
+If the Gateway runs on the same machine as Chrome (default setup), you usually **do not** need `hexos browser serve`.
 Use `browser serve` only when the Gateway runs elsewhere (remote mode).
 
 ### Sandboxed sessions
@@ -338,21 +338,21 @@ Chrome extension relay takeover requires host browser control, so either:
 1) Load the extension (dev/unpacked):
 
 ```bash
-clawdbot browser extension install
+hexos browser extension install
 ```
 
 - Chrome → `chrome://extensions` → enable “Developer mode”
-- “Load unpacked” → select the directory printed by `clawdbot browser extension path`
+- “Load unpacked” → select the directory printed by `hexos browser extension path`
 - Pin the extension, then click it on the tab you want to control (badge shows `ON`).
 
 2) Use it:
-- CLI: `clawdbot browser --browser-profile chrome tabs`
+- CLI: `hexos browser --browser-profile chrome tabs`
 - Agent tool: `browser` with `profile="chrome"`
 
 Optional: if you want a different name or relay port, create your own profile:
 
 ```bash
-clawdbot browser create-profile \
+hexos browser create-profile \
   --name my-chrome \
   --driver extension \
   --cdp-url http://127.0.0.1:18792 \
@@ -371,7 +371,7 @@ Notes:
 
 ## Browser selection
 
-When launching locally, Clawdbot picks the first available:
+When launching locally, HexOS picks the first available:
 1. Chrome
 2. Brave
 3. Edge
@@ -414,7 +414,7 @@ For the Chrome extension relay driver, ARIA snapshots and screenshots require Pl
 
 If you see `Playwright is not available in this gateway build`, install the full
 Playwright package (not `playwright-core`) and restart the gateway, or reinstall
-Clawdbot with browser support.
+HexOS with browser support.
 
 ## How it works (internal)
 
@@ -434,76 +434,76 @@ All commands accept `--browser-profile <name>` to target a specific profile.
 All commands also accept `--json` for machine-readable output (stable payloads).
 
 Basics:
-- `clawdbot browser status`
-- `clawdbot browser start`
-- `clawdbot browser stop`
-- `clawdbot browser tabs`
-- `clawdbot browser tab`
-- `clawdbot browser tab new`
-- `clawdbot browser tab select 2`
-- `clawdbot browser tab close 2`
-- `clawdbot browser open https://example.com`
-- `clawdbot browser focus abcd1234`
-- `clawdbot browser close abcd1234`
+- `hexos browser status`
+- `hexos browser start`
+- `hexos browser stop`
+- `hexos browser tabs`
+- `hexos browser tab`
+- `hexos browser tab new`
+- `hexos browser tab select 2`
+- `hexos browser tab close 2`
+- `hexos browser open https://example.com`
+- `hexos browser focus abcd1234`
+- `hexos browser close abcd1234`
 
 Inspection:
-- `clawdbot browser screenshot`
-- `clawdbot browser screenshot --full-page`
-- `clawdbot browser screenshot --ref 12`
-- `clawdbot browser screenshot --ref e12`
-- `clawdbot browser snapshot`
-- `clawdbot browser snapshot --format aria --limit 200`
-- `clawdbot browser snapshot --interactive --compact --depth 6`
-- `clawdbot browser snapshot --efficient`
-- `clawdbot browser snapshot --labels`
-- `clawdbot browser snapshot --selector "#main" --interactive`
-- `clawdbot browser snapshot --frame "iframe#main" --interactive`
-- `clawdbot browser console --level error`
-- `clawdbot browser errors --clear`
-- `clawdbot browser requests --filter api --clear`
-- `clawdbot browser pdf`
-- `clawdbot browser responsebody "**/api" --max-chars 5000`
+- `hexos browser screenshot`
+- `hexos browser screenshot --full-page`
+- `hexos browser screenshot --ref 12`
+- `hexos browser screenshot --ref e12`
+- `hexos browser snapshot`
+- `hexos browser snapshot --format aria --limit 200`
+- `hexos browser snapshot --interactive --compact --depth 6`
+- `hexos browser snapshot --efficient`
+- `hexos browser snapshot --labels`
+- `hexos browser snapshot --selector "#main" --interactive`
+- `hexos browser snapshot --frame "iframe#main" --interactive`
+- `hexos browser console --level error`
+- `hexos browser errors --clear`
+- `hexos browser requests --filter api --clear`
+- `hexos browser pdf`
+- `hexos browser responsebody "**/api" --max-chars 5000`
 
 Actions:
-- `clawdbot browser navigate https://example.com`
-- `clawdbot browser resize 1280 720`
-- `clawdbot browser click 12 --double`
-- `clawdbot browser click e12 --double`
-- `clawdbot browser type 23 "hello" --submit`
-- `clawdbot browser press Enter`
-- `clawdbot browser hover 44`
-- `clawdbot browser scrollintoview e12`
-- `clawdbot browser drag 10 11`
-- `clawdbot browser select 9 OptionA OptionB`
-- `clawdbot browser download e12 /tmp/report.pdf`
-- `clawdbot browser waitfordownload /tmp/report.pdf`
-- `clawdbot browser upload /tmp/file.pdf`
-- `clawdbot browser fill --fields '[{"ref":"1","type":"text","value":"Ada"}]'`
-- `clawdbot browser dialog --accept`
-- `clawdbot browser wait --text "Done"`
-- `clawdbot browser wait "#main" --url "**/dash" --load networkidle --fn "window.ready===true"`
-- `clawdbot browser evaluate --fn '(el) => el.textContent' --ref 7`
-- `clawdbot browser highlight e12`
-- `clawdbot browser trace start`
-- `clawdbot browser trace stop`
+- `hexos browser navigate https://example.com`
+- `hexos browser resize 1280 720`
+- `hexos browser click 12 --double`
+- `hexos browser click e12 --double`
+- `hexos browser type 23 "hello" --submit`
+- `hexos browser press Enter`
+- `hexos browser hover 44`
+- `hexos browser scrollintoview e12`
+- `hexos browser drag 10 11`
+- `hexos browser select 9 OptionA OptionB`
+- `hexos browser download e12 /tmp/report.pdf`
+- `hexos browser waitfordownload /tmp/report.pdf`
+- `hexos browser upload /tmp/file.pdf`
+- `hexos browser fill --fields '[{"ref":"1","type":"text","value":"Ada"}]'`
+- `hexos browser dialog --accept`
+- `hexos browser wait --text "Done"`
+- `hexos browser wait "#main" --url "**/dash" --load networkidle --fn "window.ready===true"`
+- `hexos browser evaluate --fn '(el) => el.textContent' --ref 7`
+- `hexos browser highlight e12`
+- `hexos browser trace start`
+- `hexos browser trace stop`
 
 State:
-- `clawdbot browser cookies`
-- `clawdbot browser cookies set session abc123 --url "https://example.com"`
-- `clawdbot browser cookies clear`
-- `clawdbot browser storage local get`
-- `clawdbot browser storage local set theme dark`
-- `clawdbot browser storage session clear`
-- `clawdbot browser set offline on`
-- `clawdbot browser set headers --json '{"X-Debug":"1"}'`
-- `clawdbot browser set credentials user pass`
-- `clawdbot browser set credentials --clear`
-- `clawdbot browser set geo 37.7749 -122.4194 --origin "https://example.com"`
-- `clawdbot browser set geo --clear`
-- `clawdbot browser set media dark`
-- `clawdbot browser set timezone America/New_York`
-- `clawdbot browser set locale en-US`
-- `clawdbot browser set device "iPhone 14"`
+- `hexos browser cookies`
+- `hexos browser cookies set session abc123 --url "https://example.com"`
+- `hexos browser cookies clear`
+- `hexos browser storage local get`
+- `hexos browser storage local set theme dark`
+- `hexos browser storage session clear`
+- `hexos browser set offline on`
+- `hexos browser set headers --json '{"X-Debug":"1"}'`
+- `hexos browser set credentials user pass`
+- `hexos browser set credentials --clear`
+- `hexos browser set geo 37.7749 -122.4194 --origin "https://example.com"`
+- `hexos browser set geo --clear`
+- `hexos browser set media dark`
+- `hexos browser set timezone America/New_York`
+- `hexos browser set locale en-US`
+- `hexos browser set device "iPhone 14"`
 
 Notes:
 - `upload` and `dialog` are **arming** calls; run them before the click/press
@@ -523,16 +523,16 @@ Notes:
 
 ## Snapshots and refs
 
-Clawdbot supports two “snapshot” styles:
+HexOS supports two “snapshot” styles:
 
-- **AI snapshot (numeric refs)**: `clawdbot browser snapshot` (default; `--format ai`)
+- **AI snapshot (numeric refs)**: `hexos browser snapshot` (default; `--format ai`)
   - Output: a text snapshot that includes numeric refs.
-  - Actions: `clawdbot browser click 12`, `clawdbot browser type 23 "hello"`.
+  - Actions: `hexos browser click 12`, `hexos browser type 23 "hello"`.
   - Internally, the ref is resolved via Playwright’s `aria-ref`.
 
-- **Role snapshot (role refs like `e12`)**: `clawdbot browser snapshot --interactive` (or `--compact`, `--depth`, `--selector`, `--frame`)
+- **Role snapshot (role refs like `e12`)**: `hexos browser snapshot --interactive` (or `--compact`, `--depth`, `--selector`, `--frame`)
   - Output: a role-based list/tree with `[ref=e12]` (and optional `[nth=1]`).
-  - Actions: `clawdbot browser click e12`, `clawdbot browser highlight e12`.
+  - Actions: `hexos browser click e12`, `hexos browser highlight e12`.
   - Internally, the ref is resolved via `getByRole(...)` (plus `nth()` for duplicates).
   - Add `--labels` to include a viewport screenshot with overlayed `e12` labels.
 
@@ -545,18 +545,18 @@ Ref behavior:
 You can wait on more than just time/text:
 
 - Wait for URL (globs supported by Playwright):
-  - `clawdbot browser wait --url "**/dash"`
+  - `hexos browser wait --url "**/dash"`
 - Wait for load state:
-  - `clawdbot browser wait --load networkidle`
+  - `hexos browser wait --load networkidle`
 - Wait for a JS predicate:
-  - `clawdbot browser wait --fn "window.ready===true"`
+  - `hexos browser wait --fn "window.ready===true"`
 - Wait for a selector to become visible:
-  - `clawdbot browser wait "#main"`
+  - `hexos browser wait "#main"`
 
 These can be combined:
 
 ```bash
-clawdbot browser wait "#main" \
+hexos browser wait "#main" \
   --url "**/dash" \
   --load networkidle \
   --fn "window.ready===true" \
@@ -567,16 +567,16 @@ clawdbot browser wait "#main" \
 
 When an action fails (e.g. “not visible”, “strict mode violation”, “covered”):
 
-1. `clawdbot browser snapshot --interactive`
+1. `hexos browser snapshot --interactive`
 2. Use `click <ref>` / `type <ref>` (prefer role refs in interactive mode)
-3. If it still fails: `clawdbot browser highlight <ref>` to see what Playwright is targeting
+3. If it still fails: `hexos browser highlight <ref>` to see what Playwright is targeting
 4. If the page behaves oddly:
-   - `clawdbot browser errors --clear`
-   - `clawdbot browser requests --filter api --clear`
+   - `hexos browser errors --clear`
+   - `hexos browser requests --filter api --clear`
 5. For deep debugging: record a trace:
-   - `clawdbot browser trace start`
+   - `hexos browser trace start`
    - reproduce the issue
-   - `clawdbot browser trace stop` (prints `TRACE:<path>`)
+   - `hexos browser trace stop` (prints `TRACE:<path>`)
 
 ## JSON output
 
@@ -585,10 +585,10 @@ When an action fails (e.g. “not visible”, “strict mode violation”, “co
 Examples:
 
 ```bash
-clawdbot browser status --json
-clawdbot browser snapshot --interactive --json
-clawdbot browser requests --filter api --json
-clawdbot browser cookies --json
+hexos browser status --json
+hexos browser snapshot --interactive --json
+hexos browser requests --filter api --json
+hexos browser cookies --json
 ```
 
 Role snapshots in JSON include `refs` plus a small `stats` block (lines/chars/refs/interactive) so tools can reason about payload size and density.

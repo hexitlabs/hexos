@@ -6,7 +6,7 @@ import { runNonInteractiveOnboardingRemote } from "./onboard-non-interactive/rem
 export async function runNonInteractiveOnboarding(opts, runtime = defaultRuntime) {
     const snapshot = await readConfigFileSnapshot();
     if (snapshot.exists && !snapshot.valid) {
-        runtime.error(`Config invalid. Run \`${formatCliCommand("clawdbot doctor")}\` to repair it, then re-run onboarding.`);
+        runtime.error(`Config invalid. Run \`${formatCliCommand("hexos doctor")}\` to repair it, then re-run onboarding.`);
         runtime.exit(1);
         return;
     }

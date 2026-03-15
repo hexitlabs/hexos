@@ -1,10 +1,10 @@
 import path from "node:path";
-import { resolveClawdbotAgentDir } from "../../agents/agent-paths.js";
+import { resolveHexOSAgentDir } from "../../agents/agent-paths.js";
 import { buildAuthHealthSummary, DEFAULT_OAUTH_WARN_MS, formatRemainingShort, } from "../../agents/auth-health.js";
 import { ensureAuthProfileStore, resolveAuthStorePathForDisplay, resolveProfileUnusableUntilForDisplay, } from "../../agents/auth-profiles.js";
 import { resolveEnvApiKey } from "../../agents/model-auth.js";
 import { buildModelAliasIndex, parseModelRef, resolveConfiguredModelRef, resolveModelRefFromString, } from "../../agents/model-selection.js";
-import { CONFIG_PATH_CLAWDBOT, loadConfig } from "../../config/config.js";
+import { CONFIG_PATH_HEXOS, loadConfig } from "../../config/config.js";
 import { getShellEnvAppliedKeys, shouldEnableShellEnvFallback } from "../../infra/shell-env.js";
 import { withProgressTotals } from "../../cli/progress.js";
 import { formatUsageWindowSummary, loadProviderUsageSummary, resolveUsageProviderId, } from "../../infra/provider-usage.js";
@@ -42,7 +42,7 @@ export async function modelsStatusCommand(opts, runtime) {
         return acc;
     }, {});
     const allowed = Object.keys(cfg.agents?.defaults?.models ?? {});
-    const agentDir = resolveClawdbotAgentDir();
+    const agentDir = resolveHexOSAgentDir();
     const store = ensureAuthProfileStore();
     const modelsPath = path.join(agentDir, "models.json");
     const providersFromStore = new Set(Object.values(store.profiles)
@@ -207,7 +207,7 @@ export async function modelsStatusCommand(opts, runtime) {
     })();
     if (opts.json) {
         runtime.log(JSON.stringify({
-            configPath: CONFIG_PATH_CLAWDBOT,
+            configPath: CONFIG_PATH_HEXOS,
             agentDir,
             defaultModel: defaultLabel,
             resolvedDefault: resolvedLabel,
@@ -247,7 +247,7 @@ export async function modelsStatusCommand(opts, runtime) {
     const rich = isRich(opts);
     const label = (value) => colorize(rich, theme.accent, value.padEnd(14));
     const displayDefault = rawModel && rawModel !== resolvedLabel ? `${resolvedLabel} (from ${rawModel})` : resolvedLabel;
-    runtime.log(`${label("Config")}${colorize(rich, theme.muted, ":")} ${colorize(rich, theme.info, shortenHomePath(CONFIG_PATH_CLAWDBOT))}`);
+    runtime.log(`${label("Config")}${colorize(rich, theme.muted, ":")} ${colorize(rich, theme.info, shortenHomePath(CONFIG_PATH_HEXOS))}`);
     runtime.log(`${label("Agent dir")}${colorize(rich, theme.muted, ":")} ${colorize(rich, theme.info, shortenHomePath(agentDir))}`);
     runtime.log(`${label("Default")}${colorize(rich, theme.muted, ":")} ${colorize(rich, theme.success, displayDefault)}`);
     runtime.log(`${label(`Fallbacks (${fallbacks.length || 0})`)}${colorize(rich, theme.muted, ":")} ${colorize(rich, fallbacks.length ? theme.warn : theme.muted, fallbacks.length ? fallbacks.join(", ") : "-")}`);
@@ -292,8 +292,8 @@ export async function modelsStatusCommand(opts, runtime) {
         runtime.log(colorize(rich, theme.heading, "Missing auth"));
         for (const provider of missingProvidersInUse) {
             const hint = provider === "anthropic"
-                ? `Run \`claude setup-token\` or \`${formatCliCommand("clawdbot configure")}\`.`
-                : `Run \`${formatCliCommand("clawdbot configure")}\` or set an API key env var.`;
+                ? `Run \`claude setup-token\` or \`${formatCliCommand("hexos configure")}\`.`
+                : `Run \`${formatCliCommand("hexos configure")}\` or set an API key env var.`;
             runtime.log(`- ${theme.heading(provider)} ${hint}`);
         }
     }

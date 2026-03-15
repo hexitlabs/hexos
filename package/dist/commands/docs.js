@@ -3,7 +3,7 @@ import { runCommandWithTimeout } from "../process/exec.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { isRich, theme } from "../terminal/theme.js";
 import { formatCliCommand } from "../cli/command-format.js";
-const SEARCH_TOOL = "https://docs.clawd.bot/mcp.SearchClawdbot";
+const SEARCH_TOOL = "https://docs.clawd.bot/mcp.SearchHexOS";
 const SEARCH_TIMEOUT_MS = 30_000;
 const DEFAULT_SNIPPET_MAX = 220;
 function resolveNodeRunner() {
@@ -122,11 +122,11 @@ export async function docsSearchCommand(queryParts, runtime) {
         const docs = formatDocsLink("/", "docs.clawd.bot");
         if (isRich()) {
             runtime.log(`${theme.muted("Docs:")} ${docs}`);
-            runtime.log(`${theme.muted("Search:")} ${formatCliCommand('clawdbot docs "your query"')}`);
+            runtime.log(`${theme.muted("Search:")} ${formatCliCommand('hexos docs "your query"')}`);
         }
         else {
             runtime.log("Docs: https://docs.clawd.bot/");
-            runtime.log(`Search: ${formatCliCommand('clawdbot docs "your query"')}`);
+            runtime.log(`Search: ${formatCliCommand('hexos docs "your query"')}`);
         }
         return;
     }

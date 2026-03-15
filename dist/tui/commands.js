@@ -120,6 +120,7 @@ export function helpText(options = {}) {
         "/session <key> (or /sessions)",
         "/model <provider/model> (or /models)",
         `/think <${thinkLevels}>`,
+        "/effort <min|low|medium|high|max>",
         "/verbose <on|off>",
         "/reasoning <on|off>",
         "/usage <off|tokens|full>",

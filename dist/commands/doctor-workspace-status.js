@@ -1,6 +1,6 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
-import { loadClawdbotPlugins } from "../plugins/loader.js";
+import { loadHexOSPlugins } from "../plugins/loader.js";
 import { note } from "../terminal/note.js";
 import { detectLegacyWorkspaceDirs, formatLegacyWorkspaceWarning } from "./doctor-workspace.js";
 export function noteWorkspaceStatus(cfg) {
@@ -16,7 +16,7 @@ export function noteWorkspaceStatus(cfg) {
             .length}`,
         `Blocked by allowlist: ${skillsReport.skills.filter((s) => s.blockedByAllowlist).length}`,
     ].join("\n"), "Skills status");
-    const pluginRegistry = loadClawdbotPlugins({
+    const pluginRegistry = loadHexOSPlugins({
         config: cfg,
         workspaceDir,
         logger: {

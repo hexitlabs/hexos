@@ -258,7 +258,7 @@ export function registerExecApprovalsCli(program) {
     const allowlist = approvals
         .command("allowlist")
         .description("Edit the per-agent allowlist")
-        .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatExample('clawdbot approvals allowlist add "~/Projects/**/bin/rg"', "Allowlist a local binary pattern for the main agent.")}\n${formatExample('clawdbot approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"', "Allowlist on a specific node/agent.")}\n${formatExample('clawdbot approvals allowlist add --agent "*" "/usr/bin/uname"', "Allowlist for all agents (wildcard).")}\n${formatExample('clawdbot approvals allowlist remove "~/Projects/**/bin/rg"', "Remove an allowlist pattern.")}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.clawd.bot/cli/approvals")}\n`);
+        .addHelpText("after", () => `\n${theme.heading("Examples:")}\n${formatExample('hexos approvals allowlist add "~/Projects/**/bin/rg"', "Allowlist a local binary pattern for the main agent.")}\n${formatExample('hexos approvals allowlist add --agent main --node <id|name|ip> "/usr/bin/uptime"', "Allowlist on a specific node/agent.")}\n${formatExample('hexos approvals allowlist add --agent "*" "/usr/bin/uname"', "Allowlist for all agents (wildcard).")}\n${formatExample('hexos approvals allowlist remove "~/Projects/**/bin/rg"', "Remove an allowlist pattern.")}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/approvals", "docs.clawd.bot/cli/approvals")}\n`);
     const allowlistAdd = allowlist
         .command("add <pattern>")
         .description("Add a glob pattern to an allowlist")

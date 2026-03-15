@@ -1,4 +1,4 @@
-import { ClawdbotSchema, CONFIG_PATH_CLAWDBOT, migrateLegacyConfig, readConfigFileSnapshot, } from "../config/config.js";
+import { HexOSSchema, CONFIG_PATH_HEXOS, migrateLegacyConfig, readConfigFileSnapshot, } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
@@ -46,7 +46,7 @@ function resolvePathTarget(root, path) {
     return current;
 }
 function stripUnknownConfigKeys(config) {
-    const parsed = ClawdbotSchema.safeParse(config);
+    const parsed = HexOSSchema.safeParse(config);
     if (parsed.success) {
         return { config, removed: [] };
     }
@@ -129,7 +129,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params) {
                 cfg = migrated;
         }
         else {
-            fixHints.push(`Run "${formatCliCommand("clawdbot doctor --fix")}" to apply legacy migrations.`);
+            fixHints.push(`Run "${formatCliCommand("hexos doctor --fix")}" to apply legacy migrations.`);
         }
     }
     const normalized = normalizeLegacyConfigValues(candidate);
@@ -141,7 +141,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params) {
             cfg = normalized.config;
         }
         else {
-            fixHints.push(`Run "${formatCliCommand("clawdbot doctor --fix")}" to apply these changes.`);
+            fixHints.push(`Run "${formatCliCommand("hexos doctor --fix")}" to apply these changes.`);
         }
     }
     const autoEnable = applyPluginAutoEnable({ config: candidate, env: process.env });
@@ -153,7 +153,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params) {
             cfg = autoEnable.config;
         }
         else {
-            fixHints.push(`Run "${formatCliCommand("clawdbot doctor --fix")}" to apply these changes.`);
+            fixHints.push(`Run "${formatCliCommand("hexos doctor --fix")}" to apply these changes.`);
         }
     }
     const unknown = stripUnknownConfigKeys(candidate);
@@ -167,7 +167,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params) {
         }
         else {
             note(lines, "Unknown config keys");
-            fixHints.push('Run "clawdbot doctor --fix" to remove these keys.');
+            fixHints.push('Run "hexos doctor --fix" to remove these keys.');
         }
     }
     if (!shouldRepair && pendingChanges) {
@@ -184,5 +184,5 @@ export async function loadAndMaybeMigrateDoctorConfig(params) {
         }
     }
     noteOpencodeProviderOverrides(cfg);
-    return { cfg, path: snapshot.path ?? CONFIG_PATH_CLAWDBOT, shouldWriteConfig };
+    return { cfg, path: snapshot.path ?? CONFIG_PATH_HEXOS, shouldWriteConfig };
 }

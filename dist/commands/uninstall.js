@@ -59,9 +59,9 @@ async function stopAndUninstallService(runtime) {
 async function removeMacApp(runtime, dryRun) {
     if (process.platform !== "darwin")
         return;
-    await removePath("/Applications/Clawdbot.app", runtime, {
+    await removePath("/Applications/HexOS.app", runtime, {
         dryRun,
-        label: "/Applications/Clawdbot.app",
+        label: "/Applications/HexOS.app",
     });
 }
 export async function uninstallCommand(runtime, opts) {
@@ -86,12 +86,12 @@ export async function uninstallCommand(runtime, opts) {
                     label: "Gateway service",
                     hint: "launchd / systemd / schtasks",
                 },
-                { value: "state", label: "State + config", hint: "~/.clawdbot" },
+                { value: "state", label: "State + config", hint: "~/.hexos" },
                 { value: "workspace", label: "Workspace", hint: "agent files" },
                 {
                     value: "app",
                     label: "macOS app",
-                    hint: "/Applications/Clawdbot.app",
+                    hint: "/Applications/HexOS.app",
                 },
             ],
             initialValues: ["service", "state", "workspace"],

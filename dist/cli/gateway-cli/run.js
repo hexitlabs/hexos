@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { CONFIG_PATH_CLAWDBOT, loadConfig, readConfigFileSnapshot, resolveGatewayPort, } from "../../config/config.js";
+import { CONFIG_PATH_HEXOS, loadConfig, readConfigFileSnapshot, resolveGatewayPort, } from "../../config/config.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { startGatewayServer } from "../../gateway/server.js";
 import { setGatewayWsLogStyle } from "../../gateway/ws-logging.js";
@@ -16,7 +16,7 @@ import { runGatewayLoop } from "./run-loop.js";
 import { describeUnknownError, extractGatewayMiskeys, maybeExplainGatewayServiceStop, parsePort, toOptionString, } from "./shared.js";
 const gatewayLog = createSubsystemLogger("gateway");
 async function runGatewayCommand(opts) {
-    const isDevProfile = process.env.CLAWDBOT_PROFILE?.trim().toLowerCase() === "dev";
+    const isDevProfile = process.env.HEXOS_PROFILE?.trim().toLowerCase() === "dev";
     const devMode = Boolean(opts.dev) || isDevProfile;
     if (opts.reset && !devMode) {
         defaultRuntime.error("Use --reset with --dev.");
@@ -27,7 +27,7 @@ async function runGatewayCommand(opts) {
     setVerbose(Boolean(opts.verbose));
     if (opts.claudeCliLogs) {
         setConsoleSubsystemFilter(["agent/claude-cli"]);
-        process.env.CLAWDBOT_CLAUDE_CLI_LOG_OUTPUT = "1";
+        process.env.HEXOS_CLAUDE_CLI_LOG_OUTPUT = "1";
     }
     const wsLogRaw = (opts.compact ? "compact" : opts.wsLog);
     const wsLogStyle = wsLogRaw === "compact" ? "compact" : wsLogRaw === "full" ? "full" : "auto";
@@ -40,11 +40,11 @@ async function runGatewayCommand(opts) {
     }
     setGatewayWsLogStyle(wsLogStyle);
     if (opts.rawStream) {
-        process.env.CLAWDBOT_RAW_STREAM = "1";
+        process.env.HEXOS_RAW_STREAM = "1";
     }
     const rawStreamPath = toOptionString(opts.rawStreamPath);
     if (rawStreamPath) {
-        process.env.CLAWDBOT_RAW_STREAM_PATH = rawStreamPath;
+        process.env.HEXOS_RAW_STREAM_PATH = rawStreamPath;
     }
     if (devMode) {
         await ensureDevGatewayConfig({ reset: Boolean(opts.reset) });
@@ -91,7 +91,7 @@ async function runGatewayCommand(opts) {
     if (opts.token) {
         const token = toOptionString(opts.token);
         if (token)
-            process.env.CLAWDBOT_GATEWAY_TOKEN = token;
+            process.env.HEXOS_GATEWAY_TOKEN = token;
     }
     const authModeRaw = toOptionString(opts.auth);
     const authMode = authModeRaw === "token" || authModeRaw === "password" ? authModeRaw : null;
@@ -111,11 +111,11 @@ async function runGatewayCommand(opts) {
     }
     const passwordRaw = toOptionString(opts.password);
     const tokenRaw = toOptionString(opts.token);
-    const configExists = fs.existsSync(CONFIG_PATH_CLAWDBOT);
+    const configExists = fs.existsSync(CONFIG_PATH_HEXOS);
     const mode = cfg.gateway?.mode;
     if (!opts.allowUnconfigured && mode !== "local") {
         if (!configExists) {
-            defaultRuntime.error(`Missing config. Run \`${formatCliCommand("clawdbot setup")}\` or set gateway.mode=local (or pass --allow-unconfigured).`);
+            defaultRuntime.error(`Missing config. Run \`${formatCliCommand("hexos setup")}\` or set gateway.mode=local (or pass --allow-unconfigured).`);
         }
         else {
             defaultRuntime.error(`Gateway start blocked: set gateway.mode=local (current: ${mode ?? "unset"}) or pass --allow-unconfigured.`);
@@ -162,7 +162,7 @@ async function runGatewayCommand(opts) {
     if (resolvedAuthMode === "token" && !tokenValue) {
         defaultRuntime.error([
             "Gateway auth is set to token, but no token is configured.",
-            "Set gateway.auth.token (or CLAWDBOT_GATEWAY_TOKEN), or pass --token.",
+            "Set gateway.auth.token (or HEXOS_GATEWAY_TOKEN), or pass --token.",
             ...authHints,
         ]
             .filter(Boolean)
@@ -173,7 +173,7 @@ async function runGatewayCommand(opts) {
     if (resolvedAuthMode === "password" && !passwordValue) {
         defaultRuntime.error([
             "Gateway auth is set to password, but no password is configured.",
-            "Set gateway.auth.password (or CLAWDBOT_GATEWAY_PASSWORD), or pass --password.",
+            "Set gateway.auth.password (or HEXOS_GATEWAY_PASSWORD), or pass --password.",
             ...authHints,
         ]
             .filter(Boolean)
@@ -184,7 +184,7 @@ async function runGatewayCommand(opts) {
     if (bind !== "loopback" && resolvedAuthMode === "none") {
         defaultRuntime.error([
             `Refusing to bind gateway to ${bind} without auth.`,
-            "Set gateway.auth.token (or CLAWDBOT_GATEWAY_TOKEN) or pass --token.",
+            "Set gateway.auth.token (or HEXOS_GATEWAY_TOKEN) or pass --token.",
             ...authHints,
         ]
             .filter(Boolean)
@@ -217,7 +217,7 @@ async function runGatewayCommand(opts) {
         if (err instanceof GatewayLockError ||
             (err && typeof err === "object" && err.name === "GatewayLockError")) {
             const errMessage = describeUnknownError(err);
-            defaultRuntime.error(`Gateway failed to start: ${errMessage}\nIf the gateway is supervised, stop it with: ${formatCliCommand("clawdbot gateway stop")}`);
+            defaultRuntime.error(`Gateway failed to start: ${errMessage}\nIf the gateway is supervised, stop it with: ${formatCliCommand("hexos gateway stop")}`);
             try {
                 const diagnostics = await inspectPortUsage(port);
                 if (diagnostics.status === "busy") {
@@ -241,7 +241,7 @@ export function addGatewayRunCommand(cmd) {
     return cmd
         .option("--port <port>", "Port for the gateway WebSocket")
         .option("--bind <mode>", 'Bind mode ("loopback"|"lan"|"tailnet"|"auto"|"custom"). Defaults to config gateway.bind (or loopback).')
-        .option("--token <token>", "Shared token required in connect.params.auth.token (default: CLAWDBOT_GATEWAY_TOKEN env if set)")
+        .option("--token <token>", "Shared token required in connect.params.auth.token (default: HEXOS_GATEWAY_TOKEN env if set)")
         .option("--auth <mode>", 'Gateway auth mode ("token"|"password")')
         .option("--password <password>", "Password for auth mode=password")
         .option("--tailscale <mode>", 'Tailscale exposure mode ("off"|"serve"|"funnel")')

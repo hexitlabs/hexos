@@ -36,7 +36,7 @@ export async function maybeMigrateLegacyGatewayService(cfg, mode, runtime, promp
         return;
     note(legacyServices.map((svc) => `- ${svc.label} (${svc.platform}, ${svc.detail})`).join("\n"), "Legacy gateway services detected");
     const migrate = await prompter.confirmSkipInNonInteractive({
-        message: "Migrate legacy gateway services to Clawdbot now?",
+        message: "Migrate legacy gateway services to HexOS now?",
         initialValue: true,
     });
     if (!migrate)
@@ -62,11 +62,11 @@ export async function maybeMigrateLegacyGatewayService(cfg, mode, runtime, promp
     const service = resolveGatewayService();
     const loaded = await service.isLoaded({ env: process.env });
     if (loaded) {
-        note(`Clawdbot ${service.label} already ${service.loadedText}.`, "Gateway");
+        note(`HexOS ${service.label} already ${service.loadedText}.`, "Gateway");
         return;
     }
     const install = await prompter.confirmSkipInNonInteractive({
-        message: "Install Clawdbot gateway service now?",
+        message: "Install HexOS gateway service now?",
         initialValue: true,
     });
     if (!install)
@@ -80,7 +80,7 @@ export async function maybeMigrateLegacyGatewayService(cfg, mode, runtime, promp
     const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
         env: process.env,
         port,
-        token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+        token: cfg.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN,
         runtime: daemonRuntime,
         warn: (message, title) => note(message, title),
         config: cfg,
@@ -138,7 +138,7 @@ export async function maybeRepairGatewayServiceConfig(cfg, mode, runtime, prompt
     const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
         env: process.env,
         port,
-        token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+        token: cfg.gateway?.auth?.token ?? process.env.HEXOS_GATEWAY_TOKEN,
         runtime: needsNodeRuntime && systemNodePath ? "node" : runtimeChoice,
         nodePath: systemNodePath ?? undefined,
         warn: (message, title) => note(message, title),

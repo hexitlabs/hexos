@@ -25,7 +25,7 @@ export class GatewayChatClient {
             token: resolved.token,
             password: resolved.password,
             clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
-            clientDisplayName: "clawdbot-tui",
+            clientDisplayName: "hexos-tui",
             clientVersion: VERSION,
             platform: process.platform,
             mode: GATEWAY_CLIENT_MODES.UI,
@@ -131,14 +131,14 @@ export function resolveGatewayConnection(opts) {
             ? typeof remote?.token === "string" && remote.token.trim().length > 0
                 ? remote.token.trim()
                 : undefined
-            : process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+            : process.env.HEXOS_GATEWAY_TOKEN?.trim() ||
                 (typeof authToken === "string" && authToken.trim().length > 0
                     ? authToken.trim()
                     : undefined));
     const password = (typeof opts.password === "string" && opts.password.trim().length > 0
         ? opts.password.trim()
         : undefined) ||
-        process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+        process.env.HEXOS_GATEWAY_PASSWORD?.trim() ||
         (typeof remote?.password === "string" && remote.password.trim().length > 0
             ? remote.password.trim()
             : undefined);

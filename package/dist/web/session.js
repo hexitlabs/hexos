@@ -80,7 +80,7 @@ export async function createWaSocket(printQr, verbose, opts = {}) {
         version,
         logger,
         printQRInTerminal: false,
-        browser: ["clawdbot", "cli", VERSION],
+        browser: ["hexos", "cli", VERSION],
         syncFullHistory: false,
         markOnlineOnConnect: false,
     });
@@ -98,7 +98,7 @@ export async function createWaSocket(printQr, verbose, opts = {}) {
             if (connection === "close") {
                 const status = getStatusCode(lastDisconnect?.error);
                 if (status === DisconnectReason.loggedOut) {
-                    console.error(danger(`WhatsApp session logged out. Run: ${formatCliCommand("clawdbot channels login")}`));
+                    console.error(danger(`WhatsApp session logged out. Run: ${formatCliCommand("hexos channels login")}`));
                 }
             }
             if (connection === "open" && verbose) {

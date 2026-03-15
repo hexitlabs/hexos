@@ -15,12 +15,12 @@ An **agent** is a fully scoped brain with its own:
 
 - **Workspace** (files, AGENTS.md/SOUL.md/USER.md, local notes, persona rules).
 - **State directory** (`agentDir`) for auth profiles, model registry, and per-agent config.
-- **Session store** (chat history + routing state) under `~/.clawdbot/agents/<agentId>/sessions`.
+- **Session store** (chat history + routing state) under `~/.hexos/agents/<agentId>/sessions`.
 
 Auth profiles are **per-agent**. Each agent reads from its own:
 
 ```
-~/.clawdbot/agents/<agentId>/agent/auth-profiles.json
+~/.hexos/agents/<agentId>/agent/auth-profiles.json
 ```
 
 Main agent credentials are **not** shared automatically. Never reuse `agentDir`
@@ -28,7 +28,7 @@ across agents (it causes auth/session collisions). If you want to share creds,
 copy `auth-profiles.json` into the other agent's `agentDir`.
 
 Skills are per-agent via each workspace’s `skills/` folder, with shared skills
-available from `~/.clawdbot/skills`. See [Skills: per-agent vs shared](/tools/skills#per-agent-vs-shared-skills).
+available from `~/.hexos/skills`. See [Skills: per-agent vs shared](/tools/skills#per-agent-vs-shared-skills).
 
 The Gateway can host **one agent** (default) or **many agents** side-by-side.
 
@@ -39,27 +39,27 @@ reach other host locations unless sandboxing is enabled. See
 
 ## Paths (quick map)
 
-- Config: `~/.clawdbot/clawdbot.json` (or `CLAWDBOT_CONFIG_PATH`)
-- State dir: `~/.clawdbot` (or `CLAWDBOT_STATE_DIR`)
+- Config: `~/.hexos/hexos.json` (or `HEXOS_CONFIG_PATH`)
+- State dir: `~/.hexos` (or `HEXOS_STATE_DIR`)
 - Workspace: `~/clawd` (or `~/clawd-<agentId>`)
-- Agent dir: `~/.clawdbot/agents/<agentId>/agent` (or `agents.list[].agentDir`)
-- Sessions: `~/.clawdbot/agents/<agentId>/sessions`
+- Agent dir: `~/.hexos/agents/<agentId>/agent` (or `agents.list[].agentDir`)
+- Sessions: `~/.hexos/agents/<agentId>/sessions`
 
 ### Single-agent mode (default)
 
-If you do nothing, Clawdbot runs a single agent:
+If you do nothing, HexOS runs a single agent:
 
 - `agentId` defaults to **`main`**.
 - Sessions are keyed as `agent:main:<mainKey>`.
-- Workspace defaults to `~/clawd` (or `~/clawd-<profile>` when `CLAWDBOT_PROFILE` is set).
-- State defaults to `~/.clawdbot/agents/main/agent`.
+- Workspace defaults to `~/clawd` (or `~/clawd-<profile>` when `HEXOS_PROFILE` is set).
+- State defaults to `~/.hexos/agents/main/agent`.
 
 ## Agent helper
 
 Use the agent wizard to add a new isolated agent:
 
 ```bash
-clawdbot agents add work
+hexos agents add work
 ```
 
 Then add `bindings` (or let the wizard do it) to route inbound messages.
@@ -67,7 +67,7 @@ Then add `bindings` (or let the wizard do it) to route inbound messages.
 Verify with:
 
 ```bash
-clawdbot agents list --bindings
+hexos agents list --bindings
 ```
 
 ## Multiple agents = multiple people, multiple personalities
@@ -139,7 +139,7 @@ multiple phone numbers without mixing sessions.
 
 ## Example: two WhatsApps → two agents
 
-`~/.clawdbot/clawdbot.json` (JSON5):
+`~/.hexos/hexos.json` (JSON5):
 
 ```js
 {
@@ -150,13 +150,13 @@ multiple phone numbers without mixing sessions.
         default: true,
         name: "Home",
         workspace: "~/clawd-home",
-        agentDir: "~/.clawdbot/agents/home/agent",
+        agentDir: "~/.hexos/agents/home/agent",
       },
       {
         id: "work",
         name: "Work",
         workspace: "~/clawd-work",
-        agentDir: "~/.clawdbot/agents/work/agent",
+        agentDir: "~/.hexos/agents/work/agent",
       },
     ],
   },
@@ -189,12 +189,12 @@ multiple phone numbers without mixing sessions.
     whatsapp: {
       accounts: {
         personal: {
-          // Optional override. Default: ~/.clawdbot/credentials/whatsapp/personal
-          // authDir: "~/.clawdbot/credentials/whatsapp/personal",
+          // Optional override. Default: ~/.hexos/credentials/whatsapp/personal
+          // authDir: "~/.hexos/credentials/whatsapp/personal",
         },
         biz: {
-          // Optional override. Default: ~/.clawdbot/credentials/whatsapp/biz
-          // authDir: "~/.clawdbot/credentials/whatsapp/biz",
+          // Optional override. Default: ~/.hexos/credentials/whatsapp/biz
+          // authDir: "~/.hexos/credentials/whatsapp/biz",
         },
       },
     },

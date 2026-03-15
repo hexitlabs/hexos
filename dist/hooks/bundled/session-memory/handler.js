@@ -88,8 +88,8 @@ const saveSessionToMemory = async (event) => {
                 // Dynamically import the LLM slug generator (avoids module caching issues)
                 // When compiled, handler is at dist/hooks/bundled/session-memory/handler.js
                 // Going up ../.. puts us at dist/hooks/, so just add llm-slug-generator.js
-                const clawdbotRoot = path.resolve(path.dirname(import.meta.url.replace("file://", "")), "../..");
-                const slugGenPath = path.join(clawdbotRoot, "llm-slug-generator.js");
+                const hexosRoot = path.resolve(path.dirname(import.meta.url.replace("file://", "")), "../..");
+                const slugGenPath = path.join(hexosRoot, "llm-slug-generator.js");
                 const { generateSlugViaLLM } = await import(slugGenPath);
                 // Use LLM to generate a descriptive slug
                 slug = await generateSlugViaLLM({ sessionContent, cfg });

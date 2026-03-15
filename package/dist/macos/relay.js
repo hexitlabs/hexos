@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import process from "node:process";
-const BUNDLED_VERSION = (typeof __CLAWDBOT_VERSION__ === "string" && __CLAWDBOT_VERSION__) ||
-    process.env.CLAWDBOT_BUNDLED_VERSION ||
+const BUNDLED_VERSION = (typeof __HEXOS_VERSION__ === "string" && __HEXOS_VERSION__) ||
+    process.env.HEXOS_BUNDLED_VERSION ||
     "0.0.0";
 function hasFlag(args, flag) {
     return args.includes(flag);
@@ -37,8 +37,8 @@ async function main() {
     await patchBunLongForProtobuf();
     const { loadDotEnv } = await import("../infra/dotenv.js");
     loadDotEnv({ quiet: true });
-    const { ensureClawdbotCliOnPath } = await import("../infra/path-env.js");
-    ensureClawdbotCliOnPath();
+    const { ensureHexOSCliOnPath } = await import("../infra/path-env.js");
+    ensureHexOSCliOnPath();
     const { enableConsoleCapture } = await import("../logging.js");
     enableConsoleCapture();
     const { assertSupportedRuntime } = await import("../infra/runtime-guard.js");
@@ -49,12 +49,12 @@ async function main() {
     const program = buildProgram();
     installUnhandledRejectionHandler();
     process.on("uncaughtException", (error) => {
-        console.error("[clawdbot] Uncaught exception:", formatUncaughtError(error));
+        console.error("[hexos] Uncaught exception:", formatUncaughtError(error));
         process.exit(1);
     });
     await program.parseAsync(process.argv);
 }
 void main().catch((err) => {
-    console.error("[clawdbot] Relay failed:", err instanceof Error ? (err.stack ?? err.message) : err);
+    console.error("[hexos] Relay failed:", err instanceof Error ? (err.stack ?? err.message) : err);
     process.exit(1);
 });

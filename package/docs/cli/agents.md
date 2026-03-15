@@ -1,10 +1,10 @@
 ---
-summary: "CLI reference for `clawdbot agents` (list/add/delete/set identity)"
+summary: "CLI reference for `hexos agents` (list/add/delete/set identity)"
 read_when:
   - You want multiple isolated agents (workspaces + routing + auth)
 ---
 
-# `clawdbot agents`
+# `hexos agents`
 
 Manage isolated agents (workspaces + auth + routing).
 
@@ -15,11 +15,11 @@ Related:
 ## Examples
 
 ```bash
-clawdbot agents list
-clawdbot agents add work --workspace ~/clawd-work
-clawdbot agents set-identity --workspace ~/clawd --from-identity
-clawdbot agents set-identity --agent main --avatar avatars/clawd.png
-clawdbot agents delete work
+hexos agents list
+hexos agents add work --workspace ~/clawd-work
+hexos agents set-identity --workspace ~/clawd --from-identity
+hexos agents set-identity --agent main --avatar avatars/clawd.png
+hexos agents delete work
 ```
 
 ## Identity files
@@ -41,13 +41,13 @@ Avatar paths resolve relative to the workspace root.
 Load from `IDENTITY.md`:
 
 ```bash
-clawdbot agents set-identity --workspace ~/clawd --from-identity
+hexos agents set-identity --workspace ~/clawd --from-identity
 ```
 
 Override fields explicitly:
 
 ```bash
-clawdbot agents set-identity --agent main --name "Clawd" --emoji "🦞" --avatar avatars/clawd.png
+hexos agents set-identity --agent main --name "Clawd" --emoji "🦞" --avatar avatars/clawd.png
 ```
 
 Config sample:

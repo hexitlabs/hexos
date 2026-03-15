@@ -1,12 +1,12 @@
-import type { ClawdbotConfig, WizardPrompter } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+import type { HexOSConfig, WizardPrompter } from "hexos/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "hexos/plugin-sdk";
 
 type PromptAccountIdParams = {
-  cfg: ClawdbotConfig;
+  cfg: HexOSConfig;
   prompter: WizardPrompter;
   label: string;
   currentId?: string;
-  listAccountIds: (cfg: ClawdbotConfig) => string[];
+  listAccountIds: (cfg: HexOSConfig) => string[];
   defaultAccountId: string;
 };
 

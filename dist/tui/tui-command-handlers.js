@@ -240,9 +240,10 @@ export function createCommandHandlers(context) {
                 await openModelSelector();
                 break;
             case "think":
+            case "effort":
                 if (!args) {
                     const levels = formatThinkingLevels(state.sessionInfo.modelProvider, state.sessionInfo.model, "|");
-                    chatLog.addSystem(`usage: /think <${levels}>`);
+                    chatLog.addSystem(`usage: /${cmd} <${levels}>`);
                     break;
                 }
                 try {

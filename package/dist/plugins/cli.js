@@ -1,7 +1,7 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadClawdbotPlugins } from "./loader.js";
+import { loadHexOSPlugins } from "./loader.js";
 const log = createSubsystemLogger("plugins");
 export function registerPluginCliCommands(program, cfg) {
     const config = cfg ?? loadConfig();
@@ -12,7 +12,7 @@ export function registerPluginCliCommands(program, cfg) {
         error: (msg) => log.error(msg),
         debug: (msg) => log.debug(msg),
     };
-    const registry = loadClawdbotPlugins({
+    const registry = loadHexOSPlugins({
         config,
         workspaceDir,
         logger,

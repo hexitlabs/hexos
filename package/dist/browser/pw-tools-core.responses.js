@@ -52,7 +52,7 @@ export async function responseBodyViaPlaywright(opts) {
                 return;
             done = true;
             cleanup();
-            reject(new Error(`Response not found for url pattern "${pattern}". Run '${formatCliCommand("clawdbot browser requests")}' to inspect recent network activity.`));
+            reject(new Error(`Response not found for url pattern "${pattern}". Run '${formatCliCommand("hexos browser requests")}' to inspect recent network activity.`));
         }, timeout);
     });
     const resp = (await promise);

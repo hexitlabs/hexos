@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/nostr",
+  "name": "@hexos/nostr",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Nostr channel plugin for NIP-04 encrypted DMs",
-  "clawdbot": {
+  "description": "HexOS Nostr channel plugin for NIP-04 encrypted DMs",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -18,13 +18,13 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@clawdbot/nostr",
+      "npmSpec": "@hexos/nostr",
       "localPath": "extensions/nostr",
       "defaultChoice": "npm"
     }
   },
   "dependencies": {
-    "clawdbot": "workspace:*",
+    "hexos": "workspace:*",
     "nostr-tools": "^2.20.0",
     "zod": "^4.3.6"
   }

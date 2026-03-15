@@ -6,7 +6,7 @@ import { bumpDialogArmId, bumpDownloadArmId, bumpUploadArmId, normalizeTimeoutMs
 function buildTempDownloadPath(fileName) {
     const id = crypto.randomUUID();
     const safeName = fileName.trim() ? fileName.trim() : "download.bin";
-    return path.join("/tmp/clawdbot/downloads", `${id}-${safeName}`);
+    return path.join("/tmp/hexos/downloads", `${id}-${safeName}`);
 }
 function createPageDownloadWaiter(page, timeoutMs) {
     let done = false;

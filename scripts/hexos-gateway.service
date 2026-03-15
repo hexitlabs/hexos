@@ -1,0 +1,16 @@
+[Unit]
+Description=HexOS Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=hexos
+WorkingDirectory=/opt/hexos/workspace
+ExecStart=/usr/bin/node /opt/hexos/dist/entry.js gateway start --foreground
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=HEXOS_HOME=/opt/hexos/workspace
+
+[Install]
+WantedBy=multi-user.target

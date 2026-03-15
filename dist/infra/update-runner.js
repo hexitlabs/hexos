@@ -114,7 +114,7 @@ async function findPackageRoot(candidates) {
             try {
                 const raw = await fs.readFile(pkgPath, "utf-8");
                 const parsed = JSON.parse(raw);
-                if (parsed?.name === "clawdbot")
+                if (parsed?.name === "hexos")
                     return current;
             }
             catch {
@@ -198,7 +198,7 @@ function normalizeTag(tag) {
     const trimmed = tag?.trim();
     if (!trimmed)
         return "latest";
-    return trimmed.startsWith("clawdbot@") ? trimmed.slice("clawdbot@".length) : trimmed;
+    return trimmed.startsWith("hexos@") ? trimmed.slice("hexos@".length) : trimmed;
 }
 export async function runGatewayUpdate(opts = {}) {
     const startedAt = Date.now();
@@ -238,7 +238,7 @@ export async function runGatewayUpdate(opts = {}) {
             status: "error",
             mode: "unknown",
             root: gitRoot,
-            reason: "not-clawdbot-root",
+            reason: "not-hexos-root",
             steps: [],
             durationMs: Date.now() - startedAt,
         };
@@ -351,7 +351,7 @@ export async function runGatewayUpdate(opts = {}) {
                 };
             }
             const manager = await detectPackageManager(gitRoot);
-            const preflightRoot = await fs.mkdtemp(path.join(os.tmpdir(), "clawdbot-update-preflight-"));
+            const preflightRoot = await fs.mkdtemp(path.join(os.tmpdir(), "hexos-update-preflight-"));
             const worktreeDir = path.join(preflightRoot, "worktree");
             const worktreeStep = await runStep(step("preflight worktree", ["git", "-C", gitRoot, "worktree", "add", "--detach", worktreeDir, upstreamSha], gitRoot));
             steps.push(worktreeStep);
@@ -485,7 +485,7 @@ export async function runGatewayUpdate(opts = {}) {
         steps.push(buildStep);
         const uiBuildStep = await runStep(step("ui:build", managerScriptArgs(manager, "ui:build"), gitRoot));
         steps.push(uiBuildStep);
-        const doctorStep = await runStep(step("clawdbot doctor", managerScriptArgs(manager, "clawdbot", ["doctor", "--non-interactive"]), gitRoot, { CLAWDBOT_UPDATE_IN_PROGRESS: "1" }));
+        const doctorStep = await runStep(step("hexos doctor", managerScriptArgs(manager, "hexos", ["doctor", "--non-interactive"]), gitRoot, { HEXOS_UPDATE_IN_PROGRESS: "1" }));
         steps.push(doctorStep);
         const failedStep = steps.find((s) => s.exitCode !== 0);
         const afterShaStep = await runStep(step("git rev-parse HEAD (after)", ["git", "-C", gitRoot, "rev-parse", "HEAD"], gitRoot));
@@ -517,7 +517,7 @@ export async function runGatewayUpdate(opts = {}) {
     const beforeVersion = await readPackageVersion(pkgRoot);
     const globalManager = await detectGlobalInstallManagerForRoot(runCommand, pkgRoot, timeoutMs);
     if (globalManager) {
-        const spec = `clawdbot@${normalizeTag(opts.tag)}`;
+        const spec = `hexos@${normalizeTag(opts.tag)}`;
         const updateStep = await runStep({
             runCommand,
             name: "global update",

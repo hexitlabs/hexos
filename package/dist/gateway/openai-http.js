@@ -134,7 +134,7 @@ export async function handleOpenAiHttpRequest(req, res, opts) {
         return true;
     const payload = coerceRequest(body);
     const stream = Boolean(payload.stream);
-    const model = typeof payload.model === "string" ? payload.model : "clawdbot";
+    const model = typeof payload.model === "string" ? payload.model : "hexos";
     const user = typeof payload.user === "string" ? payload.user : undefined;
     const agentId = resolveAgentIdForRequest({ req, model });
     const sessionKey = resolveOpenAiSessionKey({ req, agentId, user });
@@ -167,7 +167,7 @@ export async function handleOpenAiHttpRequest(req, res, opts) {
                     .map((p) => (typeof p.text === "string" ? p.text : ""))
                     .filter(Boolean)
                     .join("\n\n")
-                : "No response from Clawdbot.";
+                : "No response from HexOS.";
             sendJson(res, 200, {
                 id: runId,
                 object: "chat.completion",
@@ -275,7 +275,7 @@ export async function handleOpenAiHttpRequest(req, res, opts) {
                         .map((p) => (typeof p.text === "string" ? p.text : ""))
                         .filter(Boolean)
                         .join("\n\n")
-                    : "No response from Clawdbot.";
+                    : "No response from HexOS.";
                 sawAssistantDelta = true;
                 writeSse(res, {
                     id: runId,

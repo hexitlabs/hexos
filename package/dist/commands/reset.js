@@ -50,7 +50,7 @@ export async function resetCommand(runtime, opts) {
                 {
                     value: "config",
                     label: "Config only",
-                    hint: "clawdbot.json",
+                    hint: "hexos.json",
                 },
                 {
                     value: "config+creds+sessions",
@@ -114,7 +114,7 @@ export async function resetCommand(runtime, opts) {
         for (const dir of sessionDirs) {
             await removePath(dir, runtime, { dryRun, label: dir });
         }
-        runtime.log(`Next: ${formatCliCommand("clawdbot onboard --install-daemon")}`);
+        runtime.log(`Next: ${formatCliCommand("hexos onboard --install-daemon")}`);
         return;
     }
     if (scope === "full") {
@@ -128,7 +128,7 @@ export async function resetCommand(runtime, opts) {
         for (const workspace of workspaceDirs) {
             await removePath(workspace, runtime, { dryRun, label: workspace });
         }
-        runtime.log(`Next: ${formatCliCommand("clawdbot onboard --install-daemon")}`);
+        runtime.log(`Next: ${formatCliCommand("hexos onboard --install-daemon")}`);
         return;
     }
 }

@@ -1,10 +1,10 @@
 import os from "node:os";
 import path from "node:path";
 import { CHANNEL_IDS } from "../../channels/registry.js";
-import { STATE_DIR_CLAWDBOT } from "../../config/config.js";
-export const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(os.homedir(), ".clawdbot", "sandboxes");
-export const DEFAULT_SANDBOX_IMAGE = "clawdbot-sandbox:bookworm-slim";
-export const DEFAULT_SANDBOX_CONTAINER_PREFIX = "clawdbot-sbx-";
+import { STATE_DIR_HEXOS } from "../../config/config.js";
+export const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(os.homedir(), ".hexos", "sandboxes");
+export const DEFAULT_SANDBOX_IMAGE = "hexos-sandbox:bookworm-slim";
+export const DEFAULT_SANDBOX_CONTAINER_PREFIX = "hexos-sbx-";
 export const DEFAULT_SANDBOX_WORKDIR = "/workspace";
 export const DEFAULT_SANDBOX_IDLE_HOURS = 24;
 export const DEFAULT_SANDBOX_MAX_AGE_DAYS = 7;
@@ -31,15 +31,15 @@ export const DEFAULT_TOOL_DENY = [
     "gateway",
     ...CHANNEL_IDS,
 ];
-export const DEFAULT_SANDBOX_BROWSER_IMAGE = "clawdbot-sandbox-browser:bookworm-slim";
-export const DEFAULT_SANDBOX_COMMON_IMAGE = "clawdbot-sandbox-common:bookworm-slim";
-export const DEFAULT_SANDBOX_BROWSER_PREFIX = "clawdbot-sbx-browser-";
+export const DEFAULT_SANDBOX_BROWSER_IMAGE = "hexos-sandbox-browser:bookworm-slim";
+export const DEFAULT_SANDBOX_COMMON_IMAGE = "hexos-sandbox-common:bookworm-slim";
+export const DEFAULT_SANDBOX_BROWSER_PREFIX = "hexos-sbx-browser-";
 export const DEFAULT_SANDBOX_BROWSER_CDP_PORT = 9222;
 export const DEFAULT_SANDBOX_BROWSER_VNC_PORT = 5900;
 export const DEFAULT_SANDBOX_BROWSER_NOVNC_PORT = 6080;
 export const DEFAULT_SANDBOX_BROWSER_AUTOSTART_TIMEOUT_MS = 12_000;
 export const SANDBOX_AGENT_WORKSPACE_MOUNT = "/agent";
-const resolvedSandboxStateDir = STATE_DIR_CLAWDBOT ?? path.join(os.homedir(), ".clawdbot");
+const resolvedSandboxStateDir = STATE_DIR_HEXOS ?? path.join(os.homedir(), ".hexos");
 export const SANDBOX_STATE_DIR = path.join(resolvedSandboxStateDir, "sandbox");
 export const SANDBOX_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "containers.json");
 export const SANDBOX_BROWSER_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "browsers.json");

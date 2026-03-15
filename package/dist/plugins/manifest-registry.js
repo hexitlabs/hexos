@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import { resolveUserPath } from "../utils.js";
 import { normalizePluginsConfig } from "./config-state.js";
-import { discoverClawdbotPlugins } from "./discovery.js";
+import { discoverHexOSPlugins } from "./discovery.js";
 import { loadPluginManifest } from "./manifest.js";
 const registryCache = new Map();
 const DEFAULT_MANIFEST_CACHE_MS = 200;
 function resolveManifestCacheMs(env) {
-    const raw = env.CLAWDBOT_PLUGIN_MANIFEST_CACHE_MS?.trim();
+    const raw = env.HEXOS_PLUGIN_MANIFEST_CACHE_MS?.trim();
     if (raw === "" || raw === "0")
         return 0;
     if (!raw)
@@ -17,7 +17,7 @@ function resolveManifestCacheMs(env) {
     return Math.max(0, parsed);
 }
 function shouldUseManifestCache(env) {
-    const disabled = env.CLAWDBOT_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
+    const disabled = env.HEXOS_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
     if (disabled)
         return false;
     return resolveManifestCacheMs(env) > 0;
@@ -74,7 +74,7 @@ export function loadPluginManifestRegistry(params) {
             candidates: params.candidates,
             diagnostics: params.diagnostics ?? [],
         }
-        : discoverClawdbotPlugins({
+        : discoverHexOSPlugins({
             workspaceDir: params.workspaceDir,
             extraPaths: normalized.loadPaths,
         });

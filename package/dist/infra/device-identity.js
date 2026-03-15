@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-const DEFAULT_DIR = path.join(os.homedir(), ".clawdbot", "identity");
+const DEFAULT_DIR = path.join(os.homedir(), ".hexos", "identity");
 const DEFAULT_FILE = path.join(DEFAULT_DIR, "device.json");
 function ensureDir(filePath) {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });

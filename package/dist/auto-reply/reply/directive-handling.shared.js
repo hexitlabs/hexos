@@ -37,7 +37,7 @@ export function formatElevatedUnavailableText(params) {
         lines.push("Fix-it keys: tools.elevated.enabled, tools.elevated.allowFrom.<provider>, agents.list[].tools.elevated.*");
     }
     if (params.sessionKey) {
-        lines.push(`See: ${formatCliCommand(`clawdbot sandbox explain --session ${params.sessionKey}`)}`);
+        lines.push(`See: ${formatCliCommand(`hexos sandbox explain --session ${params.sessionKey}`)}`);
     }
     return lines.join("\n");
 }

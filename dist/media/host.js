@@ -18,12 +18,12 @@ export async function ensureMediaHosted(source, opts = {}) {
     const needsServerStart = await isPortFree(port);
     if (needsServerStart && !opts.startServer) {
         await fs.rm(saved.path).catch(() => { });
-        throw new Error(`Media hosting requires the webhook/Funnel server. Start \`${formatCliCommand("clawdbot webhook")}\`/\`${formatCliCommand("clawdbot up")}\` or re-run with --serve-media.`);
+        throw new Error(`Media hosting requires the webhook/Funnel server. Start \`${formatCliCommand("hexos webhook")}\`/\`${formatCliCommand("hexos up")}\` or re-run with --serve-media.`);
     }
     if (needsServerStart && opts.startServer) {
         if (!mediaServer) {
             mediaServer = await startMediaServer(port, TTL_MS, runtime);
-            logInfo(`🦞 Started temporary media host on http://localhost:${port}/media/:id (TTL ${TTL_MS / 1000}s)`, runtime);
+            logInfo(`🔷 Started temporary media host on http://localhost:${port}/media/:id (TTL ${TTL_MS / 1000}s)`, runtime);
             mediaServer.unref?.();
         }
     }

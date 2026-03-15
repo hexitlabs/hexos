@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { HexOSConfig } from "hexos/plugin-sdk";
 
 import { msteamsPlugin } from "./channel.js";
 
@@ -21,7 +21,7 @@ describe("msteams directory", () => {
           },
         },
       },
-    } as unknown as ClawdbotConfig;
+    } as unknown as HexOSConfig;
 
     expect(msteamsPlugin.directory).toBeTruthy();
     expect(msteamsPlugin.directory?.listPeers).toBeTruthy();

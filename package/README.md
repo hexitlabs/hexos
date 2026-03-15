@@ -1,7 +1,7 @@
-# 🦞 Clawdbot — Personal AI Assistant
+# 🦞 HexOS — Personal AI Assistant
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/clawdbot/clawdbot/main/docs/whatsapp-clawd.jpg" alt="Clawdbot" width="400">
+  <img src="https://raw.githubusercontent.com/hexos/hexos/main/docs/whatsapp-clawd.jpg" alt="HexOS" width="400">
 </p>
 
 <p align="center">
@@ -9,21 +9,21 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/clawdbot/clawdbot/actions/workflows/ci.yml?branch=main"><img src="https://img.shields.io/github/actions/workflow/status/clawdbot/clawdbot/ci.yml?branch=main&style=for-the-badge" alt="CI status"></a>
-  <a href="https://github.com/clawdbot/clawdbot/releases"><img src="https://img.shields.io/github/v/release/clawdbot/clawdbot?include_prereleases&style=for-the-badge" alt="GitHub release"></a>
-  <a href="https://deepwiki.com/clawdbot/clawdbot"><img src="https://img.shields.io/badge/DeepWiki-clawdbot-111111?style=for-the-badge" alt="DeepWiki"></a>
+  <a href="https://github.com/hexos/hexos/actions/workflows/ci.yml?branch=main"><img src="https://img.shields.io/github/actions/workflow/status/hexos/hexos/ci.yml?branch=main&style=for-the-badge" alt="CI status"></a>
+  <a href="https://github.com/hexos/hexos/releases"><img src="https://img.shields.io/github/v/release/hexos/hexos?include_prereleases&style=for-the-badge" alt="GitHub release"></a>
+  <a href="https://deepwiki.com/hexos/hexos"><img src="https://img.shields.io/badge/DeepWiki-hexos-111111?style=for-the-badge" alt="DeepWiki"></a>
   <a href="https://discord.gg/clawd"><img src="https://img.shields.io/discord/1456350064065904867?label=Discord&logo=discord&logoColor=white&color=5865F2&style=for-the-badge" alt="Discord"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
-**Clawdbot** is a *personal AI assistant* you run on your own devices.
+**HexOS** is a *personal AI assistant* you run on your own devices.
 It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
 
 If you want a personal, single-user assistant that feels local, fast, and always-on, this is it.
 
-[Website](https://clawdbot.com) · [Docs](https://docs.clawd.bot) · [Getting Started](https://docs.clawd.bot/start/getting-started) · [Updating](https://docs.clawd.bot/install/updating) · [Showcase](https://docs.clawd.bot/start/showcase) · [FAQ](https://docs.clawd.bot/start/faq) · [Wizard](https://docs.clawd.bot/start/wizard) · [Nix](https://github.com/clawdbot/nix-clawdbot) · [Docker](https://docs.clawd.bot/install/docker) · [Discord](https://discord.gg/clawd)
+[Website](https://hexos.com) · [Docs](https://docs.clawd.bot) · [Getting Started](https://docs.clawd.bot/start/getting-started) · [Updating](https://docs.clawd.bot/install/updating) · [Showcase](https://docs.clawd.bot/start/showcase) · [FAQ](https://docs.clawd.bot/start/faq) · [Wizard](https://docs.clawd.bot/start/wizard) · [Nix](https://github.com/hexos/nix-hexos) · [Docker](https://docs.clawd.bot/install/docker) · [Discord](https://discord.gg/clawd)
 
-Preferred setup: run the onboarding wizard (`clawdbot onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
+Preferred setup: run the onboarding wizard (`hexos onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
 Works with npm, pnpm, or bun.
 New install? Start here: [Getting started](https://docs.clawd.bot/start/getting-started)
 
@@ -43,10 +43,10 @@ Model note: while any model is supported, I strongly recommend **Anthropic Pro/M
 Runtime: **Node ≥22**.
 
 ```bash
-npm install -g clawdbot@latest
-# or: pnpm add -g clawdbot@latest
+npm install -g hexos@latest
+# or: pnpm add -g hexos@latest
 
-clawdbot onboard --install-daemon
+hexos onboard --install-daemon
 ```
 
 The wizard installs the Gateway daemon (launchd/systemd user service) so it stays running.
@@ -58,18 +58,18 @@ Runtime: **Node ≥22**.
 Full beginner guide (auth, pairing, channels): [Getting started](https://docs.clawd.bot/start/getting-started)
 
 ```bash
-clawdbot onboard --install-daemon
+hexos onboard --install-daemon
 
-clawdbot gateway --port 18789 --verbose
+hexos gateway --port 18789 --verbose
 
 # Send a message
-clawdbot message send --to +1234567890 --message "Hello from Clawdbot"
+hexos message send --to +1234567890 --message "Hello from HexOS"
 
 # Talk to the assistant (optionally deliver back to any connected channel: WhatsApp/Telegram/Slack/Discord/Google Chat/Signal/iMessage/BlueBubbles/Microsoft Teams/Matrix/Zalo/Zalo Personal/WebChat)
-clawdbot agent --message "Ship checklist" --thinking high
+hexos agent --message "Ship checklist" --thinking high
 ```
 
-Upgrading? [Updating guide](https://docs.clawd.bot/install/updating) (and run `clawdbot doctor`).
+Upgrading? [Updating guide](https://docs.clawd.bot/install/updating) (and run `hexos doctor`).
 
 ## Development channels
 
@@ -77,7 +77,7 @@ Upgrading? [Updating guide](https://docs.clawd.bot/install/updating) (and run `c
 - **beta**: prerelease tags (`vYYYY.M.D-beta.N`), npm dist-tag `beta` (macOS app may be missing).
 - **dev**: moving head of `main`, npm dist-tag `dev` (when published).
 
-Switch channels (git + npm): `clawdbot update --channel stable|beta|dev`.
+Switch channels (git + npm): `hexos update --channel stable|beta|dev`.
 Details: [Development channels](https://docs.clawd.bot/install/development-channels).
 
 ## From source (development)
@@ -85,33 +85,33 @@ Details: [Development channels](https://docs.clawd.bot/install/development-chann
 Prefer `pnpm` for builds from source. Bun is optional for running TypeScript directly.
 
 ```bash
-git clone https://github.com/clawdbot/clawdbot.git
-cd clawdbot
+git clone https://github.com/hexos/hexos.git
+cd hexos
 
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
 
-pnpm clawdbot onboard --install-daemon
+pnpm hexos onboard --install-daemon
 
 # Dev loop (auto-reload on TS changes)
 pnpm gateway:watch
 ```
 
-Note: `pnpm clawdbot ...` runs TypeScript directly (via `tsx`). `pnpm build` produces `dist/` for running via Node / the packaged `clawdbot` binary.
+Note: `pnpm hexos ...` runs TypeScript directly (via `tsx`). `pnpm build` produces `dist/` for running via Node / the packaged `hexos` binary.
 
 ## Security defaults (DM access)
 
-Clawdbot connects to real messaging surfaces. Treat inbound DMs as **untrusted input**.
+HexOS connects to real messaging surfaces. Treat inbound DMs as **untrusted input**.
 
 Full security guide: [Security](https://docs.clawd.bot/gateway/security)
 
 Default behavior on Telegram/WhatsApp/Signal/iMessage/Microsoft Teams/Discord/Google Chat/Slack:
 - **DM pairing** (`dmPolicy="pairing"` / `channels.discord.dm.policy="pairing"` / `channels.slack.dm.policy="pairing"`): unknown senders receive a short pairing code and the bot does not process their message.
-- Approve with: `clawdbot pairing approve <channel> <code>` (then the sender is added to a local allowlist store).
+- Approve with: `hexos pairing approve <channel> <code>` (then the sender is added to a local allowlist store).
 - Public inbound DMs require an explicit opt-in: set `dmPolicy="open"` and include `"*"` in the channel allowlist (`allowFrom` / `channels.discord.dm.allowFrom` / `channels.slack.dm.allowFrom`).
 
-Run `clawdbot doctor` to surface risky/misconfigured DM policies.
+Run `hexos doctor` to surface risky/misconfigured DM policies.
 
 ## Highlights
 
@@ -126,7 +126,7 @@ Run `clawdbot doctor` to surface risky/misconfigured DM policies.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=clawdbot/clawdbot&type=date&legend=top-left)](https://www.star-history.com/#clawdbot/clawdbot&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=hexos/hexos&type=date&legend=top-left)](https://www.star-history.com/#hexos/hexos&type=date&legend=top-left)
 
 ## Everything we built so far
 
@@ -179,7 +179,7 @@ WhatsApp / Telegram / Slack / Discord / Google Chat / Signal / iMessage / BlueBu
 └──────────────┬────────────────┘
                │
                ├─ Pi agent (RPC)
-               ├─ CLI (clawdbot …)
+               ├─ CLI (hexos …)
                ├─ WebChat UI
                ├─ macOS app
                └─ iOS / Android nodes
@@ -196,14 +196,14 @@ WhatsApp / Telegram / Slack / Discord / Google Chat / Signal / iMessage / BlueBu
 
 ## Tailscale access (Gateway dashboard)
 
-Clawdbot can auto-configure Tailscale **Serve** (tailnet-only) or **Funnel** (public) while the Gateway stays bound to loopback. Configure `gateway.tailscale.mode`:
+HexOS can auto-configure Tailscale **Serve** (tailnet-only) or **Funnel** (public) while the Gateway stays bound to loopback. Configure `gateway.tailscale.mode`:
 
 - `off`: no Tailscale automation (default).
 - `serve`: tailnet-only HTTPS via `tailscale serve` (uses Tailscale identity headers by default).
 - `funnel`: public HTTPS via `tailscale funnel` (requires shared password auth).
 
 Notes:
-- `gateway.bind` must stay `loopback` when Serve/Funnel is enabled (Clawdbot enforces this).
+- `gateway.bind` must stay `loopback` when Serve/Funnel is enabled (HexOS enforces this).
 - Serve can be forced to require a password by setting `gateway.auth.mode: "password"` or `gateway.auth.allowTailscale: false`.
 - Funnel refuses to start unless `gateway.auth.mode: "password"` is set.
 - Optional: `gateway.tailscale.resetOnExit` to undo Serve/Funnel on shutdown.
@@ -269,7 +269,7 @@ The Gateway alone delivers a great experience. All apps are optional and add ext
 
 If you plan to build/run companion apps, follow the platform runbooks below.
 
-### macOS (Clawdbot.app) (optional)
+### macOS (HexOS.app) (optional)
 
 - Menu bar control for the Gateway and health.
 - Voice Wake + push-to-talk overlay.
@@ -282,7 +282,7 @@ Note: signed builds required for macOS permissions to stick across rebuilds (see
 
 - Pairs as a node via the Bridge.
 - Voice trigger forwarding + Canvas surface.
-- Controlled via `clawdbot nodes …`.
+- Controlled via `hexos nodes …`.
 
 Runbook: [iOS connect](https://docs.clawd.bot/platforms/ios).
 
@@ -300,7 +300,7 @@ Runbook: [iOS connect](https://docs.clawd.bot/platforms/ios).
 
 ## Configuration
 
-Minimal `~/.clawdbot/clawdbot.json` (model + defaults):
+Minimal `~/.hexos/hexos.json` (model + defaults):
 
 ```json5
 {
@@ -322,7 +322,7 @@ Details: [Security guide](https://docs.clawd.bot/gateway/security) · [Docker + 
 
 ### [WhatsApp](https://docs.clawd.bot/channels/whatsapp)
 
-- Link the device: `pnpm clawdbot channels login` (stores creds in `~/.clawdbot/credentials`).
+- Link the device: `pnpm hexos channels login` (stores creds in `~/.hexos/credentials`).
 - Allowlist who can talk to the assistant via `channels.whatsapp.allowFrom`.
 - If `channels.whatsapp.groups` is set, it becomes a group allowlist; include `"*"` to allow all.
 
@@ -459,7 +459,7 @@ Use these when you’re past the onboarding flow and want the deeper reference.
 
 ## Clawd
 
-Clawdbot was built for **Clawd**, a space lobster AI assistant. 🦞
+HexOS was built for **Clawd**, a space lobster AI assistant. 🦞
 by Peter Steinberger and the community.
 
 - [clawd.me](https://clawd.me)

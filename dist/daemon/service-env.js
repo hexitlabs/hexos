@@ -90,23 +90,23 @@ export function buildMinimalServicePath(options = {}) {
 }
 export function buildServiceEnvironment(params) {
     const { env, port, token, launchdLabel } = params;
-    const profile = env.CLAWDBOT_PROFILE;
+    const profile = env.HEXOS_PROFILE;
     const resolvedLaunchdLabel = launchdLabel ||
         (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
     const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
     return {
         HOME: env.HOME,
         PATH: buildMinimalServicePath({ env }),
-        CLAWDBOT_PROFILE: profile,
-        CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
-        CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
-        CLAWDBOT_GATEWAY_PORT: String(port),
-        CLAWDBOT_GATEWAY_TOKEN: token,
-        CLAWDBOT_LAUNCHD_LABEL: resolvedLaunchdLabel,
-        CLAWDBOT_SYSTEMD_UNIT: systemdUnit,
-        CLAWDBOT_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
-        CLAWDBOT_SERVICE_KIND: GATEWAY_SERVICE_KIND,
-        CLAWDBOT_SERVICE_VERSION: VERSION,
+        HEXOS_PROFILE: profile,
+        HEXOS_STATE_DIR: env.HEXOS_STATE_DIR,
+        HEXOS_CONFIG_PATH: env.HEXOS_CONFIG_PATH,
+        HEXOS_GATEWAY_PORT: String(port),
+        HEXOS_GATEWAY_TOKEN: token,
+        HEXOS_LAUNCHD_LABEL: resolvedLaunchdLabel,
+        HEXOS_SYSTEMD_UNIT: systemdUnit,
+        HEXOS_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
+        HEXOS_SERVICE_KIND: GATEWAY_SERVICE_KIND,
+        HEXOS_SERVICE_VERSION: VERSION,
     };
 }
 export function buildNodeServiceEnvironment(params) {
@@ -114,15 +114,15 @@ export function buildNodeServiceEnvironment(params) {
     return {
         HOME: env.HOME,
         PATH: buildMinimalServicePath({ env }),
-        CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
-        CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
-        CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-        CLAWDBOT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-        CLAWDBOT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-        CLAWDBOT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-        CLAWDBOT_LOG_PREFIX: "node",
-        CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-        CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
-        CLAWDBOT_SERVICE_VERSION: VERSION,
+        HEXOS_STATE_DIR: env.HEXOS_STATE_DIR,
+        HEXOS_CONFIG_PATH: env.HEXOS_CONFIG_PATH,
+        HEXOS_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+        HEXOS_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+        HEXOS_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+        HEXOS_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+        HEXOS_LOG_PREFIX: "node",
+        HEXOS_SERVICE_MARKER: NODE_SERVICE_MARKER,
+        HEXOS_SERVICE_KIND: NODE_SERVICE_KIND,
+        HEXOS_SERVICE_VERSION: VERSION,
     };
 }

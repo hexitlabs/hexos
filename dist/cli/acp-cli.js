@@ -39,7 +39,7 @@ export function registerAcpCli(program) {
         .command("client")
         .description("Run an interactive ACP client against the local ACP bridge")
         .option("--cwd <dir>", "Working directory for the ACP session")
-        .option("--server <command>", "ACP server command (default: clawdbot)")
+        .option("--server <command>", "ACP server command (default: hexos)")
         .option("--server-args <args...>", "Extra arguments for the ACP server")
         .option("--server-verbose", "Enable verbose logging on the ACP server", false)
         .option("--verbose, -v", "Verbose client logging", false)

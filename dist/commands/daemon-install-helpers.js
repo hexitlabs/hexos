@@ -33,7 +33,7 @@ export async function buildGatewayInstallPlan(params) {
         port: params.port,
         token: params.token,
         launchdLabel: process.platform === "darwin"
-            ? resolveGatewayLaunchAgentLabel(params.env.CLAWDBOT_PROFILE)
+            ? resolveGatewayLaunchAgentLabel(params.env.HEXOS_PROFILE)
             : undefined,
     });
     // Merge config env vars into the service environment (vars + inline env keys).
@@ -47,5 +47,5 @@ export async function buildGatewayInstallPlan(params) {
 export function gatewayInstallErrorHint(platform = process.platform) {
     return platform === "win32"
         ? "Tip: rerun from an elevated PowerShell (Start → type PowerShell → right-click → Run as administrator) or skip service install."
-        : `Tip: rerun \`${formatCliCommand("clawdbot gateway install")}\` after fixing the error.`;
+        : `Tip: rerun \`${formatCliCommand("hexos gateway install")}\` after fixing the error.`;
 }

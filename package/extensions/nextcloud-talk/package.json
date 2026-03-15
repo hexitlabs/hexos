@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/nextcloud-talk",
+  "name": "@hexos/nextcloud-talk",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Nextcloud Talk channel plugin",
-  "clawdbot": {
+  "description": "HexOS Nextcloud Talk channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -22,7 +22,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@clawdbot/nextcloud-talk",
+      "npmSpec": "@hexos/nextcloud-talk",
       "localPath": "extensions/nextcloud-talk",
       "defaultChoice": "npm"
     }

@@ -1,7 +1,7 @@
 import { formatCliCommand } from "../cli/command-format.js";
 export function classifyPortListener(listener, port) {
     const raw = `${listener.commandLine ?? ""} ${listener.command ?? ""}`.trim().toLowerCase();
-    if (raw.includes("clawdbot"))
+    if (raw.includes("hexos"))
         return "gateway";
     if (raw.includes("ssh")) {
         const portToken = String(port);
@@ -18,7 +18,7 @@ export function buildPortHints(listeners, port) {
     const kinds = new Set(listeners.map((listener) => classifyPortListener(listener, port)));
     const hints = [];
     if (kinds.has("gateway")) {
-        hints.push(`Gateway already running locally. Stop it (${formatCliCommand("clawdbot gateway stop")}) or use a different port.`);
+        hints.push(`Gateway already running locally. Stop it (${formatCliCommand("hexos gateway stop")}) or use a different port.`);
     }
     if (kinds.has("ssh")) {
         hints.push("SSH tunnel already bound to this port. Close the tunnel or use a different local port in -L.");

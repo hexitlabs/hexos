@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/matrix",
+  "name": "@hexos/matrix",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Matrix channel plugin",
-  "clawdbot": {
+  "description": "HexOS Matrix channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ],
@@ -18,7 +18,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@clawdbot/matrix",
+      "npmSpec": "@hexos/matrix",
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
@@ -31,6 +31,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "clawdbot": "workspace:*"
+    "hexos": "workspace:*"
   }
 }

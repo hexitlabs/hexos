@@ -272,7 +272,7 @@ function buildChatCommands() {
         defineChatCommand({
             key: "restart",
             nativeName: "restart",
-            description: "Restart Clawdbot.",
+            description: "Restart HexOS.",
             textAlias: "/restart",
         }),
         defineChatCommand({

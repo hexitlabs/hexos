@@ -11,7 +11,7 @@ export async function requireValidConfig(runtime = defaultRuntime) {
                 .join("\n")
             : "Unknown validation issue.";
         runtime.error(`Config invalid:\n${issues}`);
-        runtime.error("Fix the config or run clawdbot doctor.");
+        runtime.error("Fix the config or run hexos doctor.");
         runtime.exit(1);
         return null;
     }

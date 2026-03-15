@@ -6,8 +6,8 @@ read_when:
 ---
 # Authentication
 
-Clawdbot supports OAuth and API keys for model providers. For Anthropic
-accounts, we recommend using an **API key**. Clawdbot can also reuse Claude Code
+HexOS supports OAuth and API keys for model providers. For Anthropic
+accounts, we recommend using an **API key**. HexOS can also reuse Claude Code
 credentials, including the long‑lived token created by `claude setup-token`.
 
 See [/concepts/oauth](/concepts/oauth) for the full OAuth flow and storage
@@ -18,18 +18,18 @@ layout.
 If you’re using Anthropic directly, use an API key.
 
 1) Create an API key in the Anthropic Console.
-2) Put it on the **gateway host** (the machine running `clawdbot gateway`).
+2) Put it on the **gateway host** (the machine running `hexos gateway`).
 
 ```bash
 export ANTHROPIC_API_KEY="..."
-clawdbot models status
+hexos models status
 ```
 
 3) If the Gateway runs under systemd/launchd, prefer putting the key in
-`~/.clawdbot/.env` so the daemon can read it:
+`~/.hexos/.env` so the daemon can read it:
 
 ```bash
-cat >> ~/.clawdbot/.env <<'EOF'
+cat >> ~/.hexos/.env <<'EOF'
 ANTHROPIC_API_KEY=...
 EOF
 ```
@@ -37,15 +37,15 @@ EOF
 Then restart the daemon (or restart your Gateway process) and re-check:
 
 ```bash
-clawdbot models status
-clawdbot doctor
+hexos models status
+hexos doctor
 ```
 
 If you’d rather not manage env vars yourself, the onboarding wizard can store
-API keys for daemon use: `clawdbot onboard`.
+API keys for daemon use: `hexos onboard`.
 
 See [Help](/help) for details on env inheritance (`env.shellEnv`,
-`~/.clawdbot/.env`, systemd/launchd).
+`~/.hexos/.env`, systemd/launchd).
 
 ## Anthropic: Claude Code CLI setup-token (supported)
 
@@ -57,17 +57,17 @@ Run it on the **gateway host**:
 claude setup-token
 ```
 
-Then verify and sync into Clawdbot:
+Then verify and sync into HexOS:
 
 ```bash
-clawdbot models status
-clawdbot doctor
+hexos models status
+hexos doctor
 ```
 
 This should create (or refresh) an auth profile like `anthropic:claude-cli` in
 the agent auth store.
 
-Clawdbot config sets `auth.profiles["anthropic:claude-cli"].mode` to `"oauth"` so
+HexOS config sets `auth.profiles["anthropic:claude-cli"].mode` to `"oauth"` so
 the profile accepts both OAuth and setup-token credentials. Older configs that
 used `"token"` are auto-migrated on load.
 
@@ -79,39 +79,39 @@ This credential is only authorized for use with Claude Code and cannot be used f
 
 …use an Anthropic API key instead.
 
-Alternative: run the wrapper (also updates Clawdbot config):
+Alternative: run the wrapper (also updates HexOS config):
 
 ```bash
-clawdbot models auth setup-token --provider anthropic
+hexos models auth setup-token --provider anthropic
 ```
 
 Manual token entry (any provider; writes `auth-profiles.json` + updates config):
 
 ```bash
-clawdbot models auth paste-token --provider anthropic
-clawdbot models auth paste-token --provider openrouter
+hexos models auth paste-token --provider anthropic
+hexos models auth paste-token --provider openrouter
 ```
 
 Automation-friendly check (exit `1` when expired/missing, `2` when expiring):
 
 ```bash
-clawdbot models status --check
+hexos models status --check
 ```
 
 Optional ops scripts (systemd/Termux) are documented here:
 [/automation/auth-monitoring](/automation/auth-monitoring)
 
-`clawdbot models status` loads Claude Code credentials into Clawdbot’s
+`hexos models status` loads Claude Code credentials into HexOS’s
 `auth-profiles.json` and shows expiry (warns within 24h by default).
-`clawdbot doctor` also performs the sync when it runs.
+`hexos doctor` also performs the sync when it runs.
 
 > `claude setup-token` requires an interactive TTY.
 
 ## Checking model auth status
 
 ```bash
-clawdbot models status
-clawdbot doctor
+hexos models status
+hexos doctor
 ```
 
 ## Controlling which credential is used
@@ -127,9 +127,9 @@ Use `/model` (or `/model list`) for a compact picker; use `/model status` for th
 Set an explicit auth profile order override for an agent (stored in that agent’s `auth-profiles.json`):
 
 ```bash
-clawdbot models auth order get --provider anthropic
-clawdbot models auth order set --provider anthropic anthropic:claude-cli
-clawdbot models auth order clear --provider anthropic
+hexos models auth order get --provider anthropic
+hexos models auth order set --provider anthropic anthropic:claude-cli
+hexos models auth order clear --provider anthropic
 ```
 
 Use `--agent <id>` to target a specific agent; omit it to use the configured default agent.
@@ -138,12 +138,12 @@ Use `--agent <id>` to target a specific agent; omit it to use the configured def
 
 1. **Claude Code** stores credentials in `~/.claude/.credentials.json` (or
    Keychain on macOS).
-2. **Clawdbot** syncs those into
-   `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json` when the auth store is
+2. **HexOS** syncs those into
+   `~/.hexos/agents/<agentId>/agent/auth-profiles.json` when the auth store is
    loaded.
 3. Refreshable OAuth profiles can be refreshed automatically on use. Static
    token profiles (including Claude Code CLI setup-token) are not refreshable by
-   Clawdbot.
+   HexOS.
 
 ## Troubleshooting
 
@@ -153,12 +153,12 @@ If the Anthropic token profile is missing, run `claude setup-token` on the
 **gateway host**, then re-check:
 
 ```bash
-clawdbot models status
+hexos models status
 ```
 
 ### Token expiring/expired
 
-Run `clawdbot models status` to confirm which profile is expiring. If the profile
+Run `hexos models status` to confirm which profile is expiring. If the profile
 is `anthropic:claude-cli`, rerun `claude setup-token`.
 
 ## Requirements

@@ -46,7 +46,7 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
     const existingLabel = existingAllowFrom.length > 0 ? existingAllowFrom.join(", ") : "unset";
     const existingResponsePrefix = cfg.messages?.responsePrefix;
     if (options?.forceAllowlist) {
-        await prompter.note("We need the sender/owner number so Clawdbot can allowlist you.", "WhatsApp number");
+        await prompter.note("We need the sender/owner number so HexOS can allowlist you.", "WhatsApp number");
         const entry = await prompter.text({
             message: "Your personal WhatsApp number (the phone you will message from)",
             placeholder: "+15555550123",
@@ -74,13 +74,13 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
         next = setWhatsAppDmPolicy(next, "allowlist");
         next = setWhatsAppAllowFrom(next, unique);
         if (existingResponsePrefix === undefined) {
-            next = setMessagesResponsePrefix(next, "[clawdbot]");
+            next = setMessagesResponsePrefix(next, "[hexos]");
         }
         await prompter.note([
             "Allowlist mode enabled.",
             `- allowFrom includes ${normalized}`,
             existingResponsePrefix === undefined
-                ? "- responsePrefix set to [clawdbot]"
+                ? "- responsePrefix set to [hexos]"
                 : "- responsePrefix left unchanged",
         ].join("\n"), "WhatsApp allowlist");
         return next;
@@ -99,11 +99,11 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
         message: "WhatsApp phone setup",
         options: [
             { value: "personal", label: "This is my personal phone number" },
-            { value: "separate", label: "Separate phone just for Clawdbot" },
+            { value: "separate", label: "Separate phone just for HexOS" },
         ],
     }));
     if (phoneMode === "personal") {
-        await prompter.note("We need the sender/owner number so Clawdbot can allowlist you.", "WhatsApp number");
+        await prompter.note("We need the sender/owner number so HexOS can allowlist you.", "WhatsApp number");
         const entry = await prompter.text({
             message: "Your personal WhatsApp number (the phone you will message from)",
             placeholder: "+15555550123",
@@ -131,14 +131,14 @@ async function promptWhatsAppAllowFrom(cfg, _runtime, prompter, options) {
         next = setWhatsAppDmPolicy(next, "allowlist");
         next = setWhatsAppAllowFrom(next, unique);
         if (existingResponsePrefix === undefined) {
-            next = setMessagesResponsePrefix(next, "[clawdbot]");
+            next = setMessagesResponsePrefix(next, "[hexos]");
         }
         await prompter.note([
             "Personal phone mode enabled.",
             "- dmPolicy set to allowlist (pairing skipped)",
             `- allowFrom includes ${normalized}`,
             existingResponsePrefix === undefined
-                ? "- responsePrefix set to [clawdbot]"
+                ? "- responsePrefix set to [hexos]"
                 : "- responsePrefix left unchanged",
         ].join("\n"), "WhatsApp personal phone");
         return next;
@@ -300,7 +300,7 @@ export const whatsappOnboardingAdapter = {
             }
         }
         else if (!linked) {
-            await prompter.note("Run `clawdbot providers login` later to link WhatsApp.", "WhatsApp");
+            await prompter.note("Run `hexos providers login` later to link WhatsApp.", "WhatsApp");
         }
         next = await promptWhatsAppAllowFrom(next, runtime, prompter, {
             forceAllowlist: forceAllowFrom,

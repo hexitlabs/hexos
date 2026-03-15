@@ -1,10 +1,10 @@
 import path from "node:path";
-import { STATE_DIR_CLAWDBOT } from "../config/paths.js";
+import { STATE_DIR_HEXOS } from "../config/paths.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 const REGISTRY_VERSION = 2;
 export function resolveSubagentRegistryPath() {
-    return path.join(STATE_DIR_CLAWDBOT, "subagents", "runs.json");
+    return path.join(STATE_DIR_HEXOS, "subagents", "runs.json");
 }
 export function loadSubagentRegistryFromDisk() {
     const pathname = resolveSubagentRegistryPath();

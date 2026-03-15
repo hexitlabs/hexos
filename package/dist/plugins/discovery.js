@@ -22,7 +22,7 @@ function readPackageManifest(dir) {
     }
 }
 function resolvePackageExtensions(manifest) {
-    const raw = manifest.clawdbot?.extensions;
+    const raw = manifest.hexos?.extensions;
     if (!Array.isArray(raw))
         return [];
     return raw.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
@@ -33,7 +33,7 @@ function deriveIdHint(params) {
     if (!rawPackageName)
         return base;
     // Prefer the unscoped name so config keys stay stable even when the npm
-    // package is scoped (example: @clawdbot/voice-call -> voice-call).
+    // package is scoped (example: @hexos/voice-call -> voice-call).
     const unscoped = rawPackageName.includes("/")
         ? (rawPackageName.split("/").pop() ?? rawPackageName)
         : rawPackageName;
@@ -57,7 +57,7 @@ function addCandidate(params) {
         packageVersion: manifest?.version?.trim() || undefined,
         packageDescription: manifest?.description?.trim() || undefined,
         packageDir: params.packageDir,
-        packageClawdbot: manifest?.clawdbot,
+        packageHexOS: manifest?.hexos,
     });
 }
 function discoverInDirectory(params) {
@@ -218,7 +218,7 @@ function discoverFromPath(params) {
         return;
     }
 }
-export function discoverClawdbotPlugins(params) {
+export function discoverHexOSPlugins(params) {
     const candidates = [];
     const diagnostics = [];
     const seen = new Set();
@@ -241,7 +241,7 @@ export function discoverClawdbotPlugins(params) {
     }
     if (workspaceDir) {
         const workspaceRoot = resolveUserPath(workspaceDir);
-        const workspaceExt = path.join(workspaceRoot, ".clawdbot", "extensions");
+        const workspaceExt = path.join(workspaceRoot, ".hexos", "extensions");
         discoverInDirectory({
             dir: workspaceExt,
             origin: "workspace",

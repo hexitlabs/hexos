@@ -1,6 +1,6 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getImageMetadata, resizeToJpeg } from "../media/image-ops.js";
-// Anthropic Messages API limitations (observed in Clawdbot sessions):
+// Anthropic Messages API limitations (observed in HexOS sessions):
 // - Images over ~2000px per side can fail in multi-image requests.
 // - Images over 5MB are rejected by the API.
 //

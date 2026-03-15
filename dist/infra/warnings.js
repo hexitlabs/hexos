@@ -1,4 +1,4 @@
-const warningFilterKey = Symbol.for("clawdbot.warning-filter");
+const warningFilterKey = Symbol.for("hexos.warning-filter");
 function shouldIgnoreWarning(warning) {
     if (warning.code === "DEP0040" && warning.message?.includes("punycode")) {
         return true;

@@ -6,7 +6,7 @@ const DEFAULT_LIMIT = 500;
 const DEFAULT_MAX_BYTES = 250_000;
 const MAX_LIMIT = 5000;
 const MAX_BYTES = 1_000_000;
-const ROLLING_LOG_RE = /^clawdbot-\d{4}-\d{2}-\d{2}\.log$/;
+const ROLLING_LOG_RE = /^hexos-\d{4}-\d{2}-\d{2}\.log$/;
 function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }

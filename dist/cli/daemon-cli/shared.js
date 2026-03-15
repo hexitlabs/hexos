@@ -45,11 +45,11 @@ export function pickProbeHostForBind(bindMode, tailnetIPv4, customBindHost) {
     return "127.0.0.1";
 }
 const SAFE_DAEMON_ENV_KEYS = [
-    "CLAWDBOT_PROFILE",
-    "CLAWDBOT_STATE_DIR",
-    "CLAWDBOT_CONFIG_PATH",
-    "CLAWDBOT_GATEWAY_PORT",
-    "CLAWDBOT_NIX_MODE",
+    "HEXOS_PROFILE",
+    "HEXOS_STATE_DIR",
+    "HEXOS_CONFIG_PATH",
+    "HEXOS_GATEWAY_PORT",
+    "HEXOS_NIX_MODE",
 ];
 export function filterDaemonEnv(env) {
     if (!env)
@@ -113,7 +113,7 @@ export function renderRuntimeHints(runtime, env = process.env) {
         }
     })();
     if (runtime.missingUnit) {
-        hints.push(`Service not installed. Run: ${formatCliCommand("clawdbot gateway install", env)}`);
+        hints.push(`Service not installed. Run: ${formatCliCommand("hexos gateway install", env)}`);
         if (fileLog)
             hints.push(`File logs: ${fileLog}`);
         return hints;
@@ -127,11 +127,11 @@ export function renderRuntimeHints(runtime, env = process.env) {
             hints.push(`Launchd stderr (if installed): ${logs.stderrPath}`);
         }
         else if (process.platform === "linux") {
-            const unit = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+            const unit = resolveGatewaySystemdServiceName(env.HEXOS_PROFILE);
             hints.push(`Logs: journalctl --user -u ${unit}.service -n 200 --no-pager`);
         }
         else if (process.platform === "win32") {
-            const task = resolveGatewayWindowsTaskName(env.CLAWDBOT_PROFILE);
+            const task = resolveGatewayWindowsTaskName(env.HEXOS_PROFILE);
             hints.push(`Logs: schtasks /Query /TN "${task}" /V /FO LIST`);
         }
     }
@@ -139,10 +139,10 @@ export function renderRuntimeHints(runtime, env = process.env) {
 }
 export function renderGatewayServiceStartHints(env = process.env) {
     const base = [
-        formatCliCommand("clawdbot gateway install", env),
-        formatCliCommand("clawdbot gateway", env),
+        formatCliCommand("hexos gateway install", env),
+        formatCliCommand("hexos gateway", env),
     ];
-    const profile = env.CLAWDBOT_PROFILE;
+    const profile = env.HEXOS_PROFILE;
     switch (process.platform) {
         case "darwin": {
             const label = resolveGatewayLaunchAgentLabel(profile);

@@ -1,4 +1,4 @@
-const DEFAULT_TAGLINE = "All your chats, one Clawdbot.";
+const DEFAULT_TAGLINE = "All your chats, one HexOS.";
 const HOLIDAY_TAGLINES = {
     newYear: "New Year's Day: New year, new config—same old EADDRINUSE, but this time we resolve it like grown-ups.",
     lunarNewYear: "Lunar New Year: May your builds be lucky, your branches prosperous, and your merge conflicts chased away with fireworks.",
@@ -49,13 +49,13 @@ const TAGLINES = [
     "I don't just autocomplete—I auto-commit (emotionally), then ask you to review (logically).",
     'Less clicking, more shipping, fewer "where did that file go" moments.',
     "Claws out, commit in—let's ship something mildly responsible.",
-    "I'll butter your workflow like a lobster roll: messy, delicious, effective.",
+    "Deploy once, automate forever. That's the HexOS way.",
     "Shell yeah—I'm here to pinch the toil and leave you the glory.",
     "If it's repetitive, I'll automate it; if it's hard, I'll bring jokes and a rollback plan.",
     "Because texting yourself reminders is so 2024.",
     "WhatsApp, but make it ✨engineering✨.",
     'Turning "I\'ll reply later" into "my bot replied instantly".',
-    "The only crab in your contacts you actually want to hear from. 🦞",
+    "The only crab in your contacts you actually want to hear from. 🔷",
     "Chat automation for people who peaked at IRC.",
     "Because Siri wasn't answering at 3AM.",
     "IPC, but it's your phone.",
@@ -192,7 +192,7 @@ export function activeTaglines(options = {}) {
 }
 export function pickTagline(options = {}) {
     const env = options.env ?? process.env;
-    const override = env?.CLAWDBOT_TAGLINE_INDEX;
+    const override = env?.HEXOS_TAGLINE_INDEX;
     if (override !== undefined) {
         const parsed = Number.parseInt(override, 10);
         if (!Number.isNaN(parsed) && parsed >= 0) {

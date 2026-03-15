@@ -20,11 +20,11 @@ export function serveAcpGateway(opts = {}) {
     const auth = resolveGatewayAuth({ authConfig: cfg.gateway?.auth, env: process.env });
     const token = opts.gatewayToken ??
         (isRemoteMode ? remote?.token?.trim() : undefined) ??
-        process.env.CLAWDBOT_GATEWAY_TOKEN ??
+        process.env.HEXOS_GATEWAY_TOKEN ??
         auth.token;
     const password = opts.gatewayPassword ??
         (isRemoteMode ? remote?.password?.trim() : undefined) ??
-        process.env.CLAWDBOT_GATEWAY_PASSWORD ??
+        process.env.HEXOS_GATEWAY_PASSWORD ??
         auth.password;
     let agent = null;
     const gateway = new GatewayClient({
@@ -108,7 +108,7 @@ function parseArgs(args) {
     return opts;
 }
 function printHelp() {
-    console.log(`Usage: clawdbot acp [options]
+    console.log(`Usage: hexos acp [options]
 
 Gateway-backed ACP server for IDE integration.
 

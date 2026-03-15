@@ -64,11 +64,11 @@ export function createPluginRegistry(registryParams) {
                     ...entry.hook,
                     name,
                     description,
-                    source: "clawdbot-plugin",
+                    source: "hexos-plugin",
                     pluginId: record.id,
                 },
-                clawdbot: {
-                    ...entry.clawdbot,
+                hexos: {
+                    ...entry.hexos,
                     events: normalizedEvents,
                 },
             }
@@ -76,14 +76,14 @@ export function createPluginRegistry(registryParams) {
                 hook: {
                     name,
                     description,
-                    source: "clawdbot-plugin",
+                    source: "hexos-plugin",
                     pluginId: record.id,
                     filePath: record.source,
                     baseDir: path.dirname(record.source),
                     handlerPath: record.source,
                 },
                 frontmatter: {},
-                clawdbot: { events: normalizedEvents },
+                hexos: { events: normalizedEvents },
                 invocation: { enabled: true },
             };
         record.hookNames.push(name);

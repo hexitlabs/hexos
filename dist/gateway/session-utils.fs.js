@@ -36,7 +36,7 @@ export function resolveSessionTranscriptCandidates(sessionId, storePath, session
     if (agentId) {
         candidates.push(resolveSessionTranscriptPath(sessionId, agentId));
     }
-    candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
+    candidates.push(path.join(os.homedir(), ".hexos", "sessions", `${sessionId}.jsonl`));
     return candidates;
 }
 export function archiveFileOnDisk(filePath, reason) {

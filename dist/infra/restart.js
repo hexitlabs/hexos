@@ -71,14 +71,14 @@ function normalizeSystemdUnit(raw, profile) {
     }
     return unit.endsWith(".service") ? unit : `${unit}.service`;
 }
-export function triggerClawdbotRestart() {
+export function triggerHexOSRestart() {
     if (process.env.VITEST || process.env.NODE_ENV === "test") {
         return { ok: true, method: "supervisor", detail: "test mode" };
     }
     const tried = [];
     if (process.platform !== "darwin") {
         if (process.platform === "linux") {
-            const unit = normalizeSystemdUnit(process.env.CLAWDBOT_SYSTEMD_UNIT, process.env.CLAWDBOT_PROFILE);
+            const unit = normalizeSystemdUnit(process.env.HEXOS_SYSTEMD_UNIT, process.env.HEXOS_PROFILE);
             const userArgs = ["--user", "restart", unit];
             tried.push(`systemctl ${userArgs.join(" ")}`);
             const userRestart = spawnSync("systemctl", userArgs, {
@@ -109,8 +109,8 @@ export function triggerClawdbotRestart() {
             detail: "unsupported platform restart",
         };
     }
-    const label = process.env.CLAWDBOT_LAUNCHD_LABEL ||
-        resolveGatewayLaunchAgentLabel(process.env.CLAWDBOT_PROFILE);
+    const label = process.env.HEXOS_LAUNCHD_LABEL ||
+        resolveGatewayLaunchAgentLabel(process.env.HEXOS_PROFILE);
     const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
     const target = uid !== undefined ? `gui/${uid}/${label}` : label;
     const args = ["kickstart", "-k", target];

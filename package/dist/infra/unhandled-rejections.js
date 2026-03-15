@@ -14,7 +14,7 @@ export function isUnhandledRejectionHandled(reason) {
                 return true;
         }
         catch (err) {
-            console.error("[clawdbot] Unhandled rejection handler failed:", err instanceof Error ? (err.stack ?? err.message) : err);
+            console.error("[hexos] Unhandled rejection handler failed:", err instanceof Error ? (err.stack ?? err.message) : err);
         }
     }
     return false;
@@ -23,7 +23,7 @@ export function installUnhandledRejectionHandler() {
     process.on("unhandledRejection", (reason, _promise) => {
         if (isUnhandledRejectionHandled(reason))
             return;
-        console.error("[clawdbot] Unhandled promise rejection:", formatUncaughtError(reason));
+        console.error("[hexos] Unhandled promise rejection:", formatUncaughtError(reason));
         process.exit(1);
     });
 }

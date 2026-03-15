@@ -1,6 +1,6 @@
-import { loadClawdbotPlugins } from "../plugins/loader.js";
+import { loadHexOSPlugins } from "../plugins/loader.js";
 export function loadGatewayPlugins(params) {
-    const pluginRegistry = loadClawdbotPlugins({
+    const pluginRegistry = loadHexOSPlugins({
         config: params.cfg,
         workspaceDir: params.workspaceDir,
         logger: {

@@ -4,7 +4,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { resolveBrowserConfig } from "./config.js";
 let cachedConfigToken = undefined;
 function getBrowserControlToken() {
-    const env = process.env.CLAWDBOT_BROWSER_CONTROL_TOKEN?.trim();
+    const env = process.env.HEXOS_BROWSER_CONTROL_TOKEN?.trim();
     if (env)
         return env;
     if (cachedConfigToken !== undefined)
@@ -29,7 +29,7 @@ function unwrapCause(err) {
 function enhanceBrowserFetchError(url, err, timeoutMs) {
     const cause = unwrapCause(err);
     const code = extractErrorCode(cause) ?? extractErrorCode(err) ?? "";
-    const hint = `Start (or restart) the Clawdbot gateway (Clawdbot.app menubar, or \`${formatCliCommand("clawdbot gateway")}\`) and try again.`;
+    const hint = `Start (or restart) the HexOS gateway (HexOS.app menubar, or \`${formatCliCommand("hexos gateway")}\`) and try again.`;
     if (code === "ECONNREFUSED") {
         return new Error(`Can't reach the clawd browser control server at ${url} (connection refused). ${hint}`);
     }

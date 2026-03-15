@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { discoverClawdbotPlugins } from "../../plugins/discovery.js";
+import { discoverHexOSPlugins } from "../../plugins/discovery.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 const ORIGIN_PRIORITY = {
     config: 0,
@@ -13,7 +13,7 @@ const DEFAULT_CATALOG_PATHS = [
     path.join(CONFIG_DIR, "mpm", "catalog.json"),
     path.join(CONFIG_DIR, "plugins", "catalog.json"),
 ];
-const ENV_CATALOG_PATHS = ["CLAWDBOT_PLUGIN_CATALOG_PATHS", "CLAWDBOT_MPM_CATALOG_PATHS"];
+const ENV_CATALOG_PATHS = ["HEXOS_PLUGIN_CATALOG_PATHS", "HEXOS_MPM_CATALOG_PATHS"];
 function isRecord(value) {
     return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -127,7 +127,7 @@ function resolveInstallInfo(params) {
     };
 }
 function buildCatalogEntry(candidate) {
-    const manifest = candidate.packageClawdbot;
+    const manifest = candidate.packageHexOS;
     if (!manifest?.channel)
         return null;
     const id = manifest.channel.id?.trim();
@@ -149,7 +149,7 @@ function buildCatalogEntry(candidate) {
 function buildExternalCatalogEntry(entry) {
     return buildCatalogEntry({
         packageName: entry.name,
-        packageClawdbot: entry.clawdbot,
+        packageHexOS: entry.hexos,
     });
 }
 export function buildChannelUiCatalog(plugins) {
@@ -178,7 +178,7 @@ export function buildChannelUiCatalog(plugins) {
     return { entries, order, labels, detailLabels, systemImages, byId };
 }
 export function listChannelPluginCatalogEntries(options = {}) {
-    const discovery = discoverClawdbotPlugins({ workspaceDir: options.workspaceDir });
+    const discovery = discoverHexOSPlugins({ workspaceDir: options.workspaceDir });
     const resolved = new Map();
     for (const candidate of discovery.candidates) {
         const entry = buildCatalogEntry(candidate);

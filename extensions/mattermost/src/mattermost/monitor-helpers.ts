@@ -2,7 +2,7 @@ import { Buffer } from "node:buffer";
 
 import type WebSocket from "ws";
 
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { HexOSConfig } from "hexos/plugin-sdk";
 
 export type ResponsePrefixContext = {
   model?: string;
@@ -114,20 +114,20 @@ function normalizeAgentId(value: string | undefined | null): string {
   );
 }
 
-type AgentEntry = NonNullable<NonNullable<ClawdbotConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<HexOSConfig["agents"]>["list"]>[number];
 
-function listAgents(cfg: ClawdbotConfig): AgentEntry[] {
+function listAgents(cfg: HexOSConfig): AgentEntry[] {
   const list = cfg.agents?.list;
   if (!Array.isArray(list)) return [];
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
-function resolveAgentEntry(cfg: ClawdbotConfig, agentId: string): AgentEntry | undefined {
+function resolveAgentEntry(cfg: HexOSConfig, agentId: string): AgentEntry | undefined {
   const id = normalizeAgentId(agentId);
   return listAgents(cfg).find((entry) => normalizeAgentId(entry.id) === id);
 }
 
-export function resolveIdentityName(cfg: ClawdbotConfig, agentId: string): string | undefined {
+export function resolveIdentityName(cfg: HexOSConfig, agentId: string): string | undefined {
   const entry = resolveAgentEntry(cfg, agentId);
   return entry?.identity?.name?.trim() || undefined;
 }

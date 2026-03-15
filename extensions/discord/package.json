@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/discord",
+  "name": "@hexos/discord",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Discord channel plugin",
-  "clawdbot": {
+  "description": "HexOS Discord channel plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]

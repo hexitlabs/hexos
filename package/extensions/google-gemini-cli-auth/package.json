@@ -1,9 +1,9 @@
 {
-  "name": "@clawdbot/google-gemini-cli-auth",
+  "name": "@hexos/google-gemini-cli-auth",
   "version": "2026.1.24",
   "type": "module",
-  "description": "Clawdbot Gemini CLI OAuth provider plugin",
-  "clawdbot": {
+  "description": "HexOS Gemini CLI OAuth provider plugin",
+  "hexos": {
     "extensions": [
       "./index.ts"
     ]

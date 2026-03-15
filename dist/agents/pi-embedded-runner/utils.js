@@ -1,5 +1,5 @@
 export function mapThinkingLevel(level) {
-    // pi-agent-core supports "xhigh"; Clawdbot enables it for specific models.
+    // pi-agent-core supports "xhigh"; HexOS enables it for specific models.
     if (!level)
         return "off";
     return level;

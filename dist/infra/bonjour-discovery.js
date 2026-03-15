@@ -139,11 +139,11 @@ function parseDnsSdBrowse(stdout) {
     const instances = new Set();
     for (const raw of stdout.split("\n")) {
         const line = raw.trim();
-        if (!line || !line.includes("_clawdbot-gw._tcp"))
+        if (!line || !line.includes("_hexos-gw._tcp"))
             continue;
         if (!line.includes("Add"))
             continue;
-        const match = line.match(/_clawdbot-gw\._tcp\.?\s+(.+)$/);
+        const match = line.match(/_hexos-gw\._tcp\.?\s+(.+)$/);
         if (match?.[1]) {
             instances.add(decodeDnsSdEscapes(match[1].trim()));
         }
@@ -199,13 +199,13 @@ function parseDnsSdResolve(stdout, instanceName) {
     return beacon;
 }
 async function discoverViaDnsSd(domain, timeoutMs, run) {
-    const browse = await run(["dns-sd", "-B", "_clawdbot-gw._tcp", domain], {
+    const browse = await run(["dns-sd", "-B", "_hexos-gw._tcp", domain], {
         timeoutMs,
     });
     const instances = parseDnsSdBrowse(browse.stdout);
     const results = [];
     for (const instance of instances) {
-        const resolved = await run(["dns-sd", "-L", instance, "_clawdbot-gw._tcp", domain], {
+        const resolved = await run(["dns-sd", "-L", instance, "_hexos-gw._tcp", domain], {
             timeoutMs,
         });
         const parsed = parseDnsSdResolve(resolved.stdout, instance);
@@ -240,7 +240,7 @@ async function discoverWideAreaViaTailnetDns(domain, timeoutMs, run) {
         return [];
     // Keep scans bounded: this is a fallback and should not block long.
     ips = ips.slice(0, 40);
-    const probeName = `_clawdbot-gw._tcp.${domain.replace(/\.$/, "")}`;
+    const probeName = `_hexos-gw._tcp.${domain.replace(/\.$/, "")}`;
     const concurrency = 6;
     let nextIndex = 0;
     let nameserver = null;
@@ -285,7 +285,7 @@ async function discoverWideAreaViaTailnetDns(domain, timeoutMs, run) {
         const ptrName = ptr.trim().replace(/\.$/, "");
         if (!ptrName)
             continue;
-        const instanceName = ptrName.replace(/\.?_clawdbot-gw\._tcp\..*$/, "");
+        const instanceName = ptrName.replace(/\.?_hexos-gw\._tcp\..*$/, "");
         const srv = await run(["dig", "+short", "+time=1", "+tries=1", nameserverArg, ptrName, "SRV"], {
             timeoutMs: Math.max(1, Math.min(350, budget)),
         }).catch(() => null);
@@ -341,10 +341,10 @@ function parseAvahiBrowse(stdout) {
         const line = raw.trimEnd();
         if (!line)
             continue;
-        if (line.startsWith("=") && line.includes("_clawdbot-gw._tcp")) {
+        if (line.startsWith("=") && line.includes("_hexos-gw._tcp")) {
             if (current)
                 results.push(current);
-            const marker = " _clawdbot-gw._tcp";
+            const marker = " _hexos-gw._tcp";
             const idx = line.indexOf(marker);
             const left = idx >= 0 ? line.slice(0, idx).trim() : line;
             const parts = left.split(/\s+/);
@@ -401,7 +401,7 @@ function parseAvahiBrowse(stdout) {
     return results;
 }
 async function discoverViaAvahi(domain, timeoutMs, run) {
-    const args = ["avahi-browse", "-rt", "_clawdbot-gw._tcp"];
+    const args = ["avahi-browse", "-rt", "_hexos-gw._tcp"];
     if (domain && domain !== "local.") {
         // avahi-browse wants a plain domain (no trailing dot)
         args.push("-d", domain.replace(/\.$/, ""));

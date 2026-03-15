@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { STATE_DIR_CLAWDBOT } from "../config/paths.js";
+import { STATE_DIR_HEXOS } from "../config/paths.js";
 import { danger, info } from "../globals.js";
 import { copyToClipboard } from "../infra/clipboard.js";
 import { defaultRuntime } from "../runtime.js";
@@ -15,7 +15,7 @@ function bundledExtensionRootDir() {
     return path.resolve(here, "../../assets/chrome-extension");
 }
 function installedExtensionRootDir() {
-    return path.join(STATE_DIR_CLAWDBOT, "browser", "chrome-extension");
+    return path.join(STATE_DIR_HEXOS, "browser", "chrome-extension");
 }
 function hasManifest(dir) {
     return fs.existsSync(path.join(dir, "manifest.json"));
@@ -23,9 +23,9 @@ function hasManifest(dir) {
 export async function installChromeExtension(opts) {
     const src = opts?.sourceDir ?? bundledExtensionRootDir();
     if (!hasManifest(src)) {
-        throw new Error("Bundled Chrome extension is missing. Reinstall Clawdbot and try again.");
+        throw new Error("Bundled Chrome extension is missing. Reinstall HexOS and try again.");
     }
-    const stateDir = opts?.stateDir ?? STATE_DIR_CLAWDBOT;
+    const stateDir = opts?.stateDir ?? STATE_DIR_HEXOS;
     const dest = path.join(stateDir, "browser", "chrome-extension");
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     if (fs.existsSync(dest)) {
@@ -67,7 +67,7 @@ export function registerBrowserExtensionCommands(browser, parentOpts) {
             "Next:",
             `- Chrome → chrome://extensions → enable “Developer mode”`,
             `- “Load unpacked” → select: ${displayPath}`,
-            `- Pin “Clawdbot Browser Relay”, then click it on the tab (badge shows ON)`,
+            `- Pin “HexOS Browser Relay”, then click it on the tab (badge shows ON)`,
             "",
             `${theme.muted("Docs:")} ${formatDocsLink("/tools/chrome-extension", "docs.clawd.bot/tools/chrome-extension")}`,
         ].join("\n")));
@@ -80,7 +80,7 @@ export function registerBrowserExtensionCommands(browser, parentOpts) {
         const dir = installedExtensionRootDir();
         if (!hasManifest(dir)) {
             defaultRuntime.error(danger([
-                `Chrome extension is not installed. Run: "${formatCliCommand("clawdbot browser extension install")}"`,
+                `Chrome extension is not installed. Run: "${formatCliCommand("hexos browser extension install")}"`,
                 `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.clawd.bot/tools/chrome-extension")}`,
             ].join("\n")));
             defaultRuntime.exit(1);

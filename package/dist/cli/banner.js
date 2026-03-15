@@ -23,8 +23,8 @@ export function formatCliBannerLine(version, options = {}) {
     const commitLabel = commit ?? "unknown";
     const tagline = pickTagline(options);
     const rich = options.richTty ?? isRich();
-    const title = "🦞 Clawdbot";
-    const prefix = "🦞 ";
+    const title = "🔷 HexOS";
+    const prefix = "🔷 ";
     const columns = options.columns ?? process.stdout.columns ?? 120;
     const plainFullLine = `${title} ${version} (${commitLabel}) — ${tagline}`;
     const fitsOnOneLine = visibleWidth(plainFullLine) <= columns;
@@ -44,12 +44,12 @@ export function formatCliBannerLine(version, options = {}) {
     return `${line1}\n${line2}`;
 }
 const LOBSTER_ASCII = [
-    "░████░█░░░░░█████░█░░░█░███░░████░░████░░▀█▀",
-    "█░░░░░█░░░░░█░░░█░█░█░█░█░░█░█░░░█░█░░░█░░█░",
-    "█░░░░░█░░░░░█████░█░█░█░█░░█░████░░█░░░█░░█░",
-    "█░░░░░█░░░░░█░░░█░█░█░█░█░░█░█░░█░░█░░░█░░█░",
-    "░████░█████░█░░░█░░█░█░░███░░████░░░███░░░█░",
-    "              🦞 FRESH DAILY 🦞",
+    "░█░░█░█████░█░░░█░░████░░████",
+    "░█░░█░█░░░░░░░█░░░░█░░░█░█░░░░",
+    "░████░████░░░░█░░░░█░░░█░░████░",
+    "░█░░█░█░░░░░░░█░░░░█░░░█░░░░░█░",
+    "░█░░█░█████░█░░░█░░████░░████░",
+    "            ⬡ HexOS ⬡",
 ];
 export function formatCliBannerArt(options = {}) {
     const rich = options.richTty ?? isRich();
@@ -67,9 +67,9 @@ export function formatCliBannerArt(options = {}) {
     const colored = LOBSTER_ASCII.map((line) => {
         if (line.includes("FRESH DAILY")) {
             return (theme.muted("              ") +
-                theme.accent("🦞") +
+                theme.accent("🔷") +
                 theme.info(" FRESH DAILY ") +
-                theme.accent("🦞"));
+                theme.accent("🔷"));
         }
         return splitGraphemes(line).map(colorChar).join("");
     });

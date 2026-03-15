@@ -1,7 +1,7 @@
 ---
 name: voice-call
-description: Start voice calls via the Clawdbot voice-call plugin.
-metadata: {"clawdbot":{"emoji":"📞","skillKey":"voice-call","requires":{"config":["plugins.entries.voice-call.enabled"]}}}
+description: Start voice calls via the HexOS voice-call plugin.
+metadata: {"hexos":{"emoji":"📞","skillKey":"voice-call","requires":{"config":["plugins.entries.voice-call.enabled"]}}}
 ---
 
 # Voice Call
@@ -11,8 +11,8 @@ Use the voice-call plugin to start or inspect calls (Twilio, Telnyx, Plivo, or m
 ## CLI
 
 ```bash
-clawdbot voicecall call --to "+15555550123" --message "Hello from Clawdbot"
-clawdbot voicecall status --call-id <id>
+hexos voicecall call --to "+15555550123" --message "Hello from HexOS"
+hexos voicecall status --call-id <id>
 ```
 
 ## Tool

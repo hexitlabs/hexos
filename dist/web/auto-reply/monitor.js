@@ -312,7 +312,7 @@ export async function monitorWebChannel(verbose, listenerFactory = monitorWebInb
             sessionKey: connectRoute.sessionKey,
         });
         if (loggedOut) {
-            runtime.error(`WhatsApp session logged out. Run \`${formatCliCommand("clawdbot channels login --channel web")}\` to relink.`);
+            runtime.error(`WhatsApp session logged out. Run \`${formatCliCommand("hexos channels login --channel web")}\` to relink.`);
             await closeListener();
             break;
         }

@@ -45,11 +45,11 @@ export function registerSecurityCli(program) {
         const heading = (text) => (rich ? theme.heading(text) : text);
         const muted = (text) => (rich ? theme.muted(text) : text);
         const lines = [];
-        lines.push(heading("Clawdbot security audit"));
+        lines.push(heading("HexOS security audit"));
         lines.push(muted(`Summary: ${formatSummary(report.summary)}`));
-        lines.push(muted(`Run deeper: ${formatCliCommand("clawdbot security audit --deep")}`));
+        lines.push(muted(`Run deeper: ${formatCliCommand("hexos security audit --deep")}`));
         if (opts.fix) {
-            lines.push(muted(`Fix: ${formatCliCommand("clawdbot security audit --fix")}`));
+            lines.push(muted(`Fix: ${formatCliCommand("hexos security audit --fix")}`));
             if (!fixResult) {
                 lines.push(muted("Fixes: failed to apply (unexpected error)"));
             }

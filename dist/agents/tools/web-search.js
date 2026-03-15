@@ -62,7 +62,7 @@ function missingSearchKeyPayload(provider) {
     }
     return {
         error: "missing_brave_api_key",
-        message: `web_search needs a Brave Search API key. Run \`${formatCliCommand("clawdbot configure --section web")}\` to store it, or set BRAVE_API_KEY in the Gateway environment.`,
+        message: `web_search needs a Brave Search API key. Run \`${formatCliCommand("hexos configure --section web")}\` to store it, or set BRAVE_API_KEY in the Gateway environment.`,
         docs: "https://docs.clawd.bot/tools/web",
     };
 }
@@ -189,8 +189,8 @@ async function runPerplexitySearch(params) {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${params.apiKey}`,
-            "HTTP-Referer": "https://clawdbot.com",
-            "X-Title": "Clawdbot Web Search",
+            "HTTP-Referer": "https://hexos.com",
+            "X-Title": "HexOS Web Search",
         },
         body: JSON.stringify({
             model: params.model,

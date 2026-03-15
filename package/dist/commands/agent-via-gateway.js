@@ -42,7 +42,7 @@ export async function agentViaGatewayCommand(opts, runtime) {
     if (agentId) {
         const knownAgents = listAgentIds(cfg);
         if (!knownAgents.includes(agentId)) {
-            throw new Error(`Unknown agent id "${agentIdRaw}". Use "${formatCliCommand("clawdbot agents list")}" to see configured agents.`);
+            throw new Error(`Unknown agent id "${agentIdRaw}". Use "${formatCliCommand("hexos agents list")}" to see configured agents.`);
         }
     }
     const timeoutSeconds = parseTimeoutSeconds({ cfg, timeout: opts.timeout });

@@ -26,8 +26,8 @@ export const TOOL_GROUPS = {
     "group:messaging": ["message"],
     // Nodes + device tools
     "group:nodes": ["nodes"],
-    // All Clawdbot native tools (excludes provider plugins).
-    "group:clawdbot": [
+    // All HexOS native tools (excludes provider plugins).
+    "group:hexos": [
         "browser",
         "canvas",
         "nodes",
