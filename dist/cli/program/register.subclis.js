@@ -187,6 +187,14 @@ const entries = [
         },
     },
     {
+        name: "secure",
+        description: "Server security hardening wizard",
+        register: async (program) => {
+            const mod = await import("../secure-cli.js");
+            mod.registerSecureCli(program);
+        },
+    },
+    {
         name: "security",
         description: "Security helpers",
         register: async (program) => {
