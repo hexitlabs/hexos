@@ -9,6 +9,14 @@ export const SYNTHETIC_DEFAULT_COST = {
 };
 export const SYNTHETIC_MODEL_CATALOG = [
     {
+        id: "nvidia/nemotron-3-super-120b-a12b:free",
+        name: "Nemotron 3 Super (Free)",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 262000,
+        maxTokens: 32768,
+    },
+    {
         id: SYNTHETIC_DEFAULT_MODEL_ID,
         name: "MiniMax M2.1",
         reasoning: false,
@@ -172,3 +180,20 @@ export function buildSyntheticModelDefinition(entry) {
         maxTokens: entry.maxTokens,
     };
 }
+
+// Nemotron-3 Super (NVIDIA) — free on OpenRouter, built for AI agents
+export const NEMOTRON_MODEL = {
+    id: "nvidia/nemotron-3-super-120b-a12b:free",
+    name: "Nemotron 3 Super (Free)",
+    reasoning: true,
+    input: ["text"],
+    contextWindow: 262000,
+    maxTokens: 32768,
+};
+
+export const NEMOTRON_COST = {
+    input: 0,
+    output: 0,
+    cacheRead: 0,
+    cacheWrite: 0,
+};
