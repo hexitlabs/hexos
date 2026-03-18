@@ -152,7 +152,7 @@ export async function promptDefaultModel(params) {
         options.push({ value: MANUAL_VALUE, label: "Enter model manually" });
     }
     const seen = new Set();
-    const addModelOption = (entry) => {
+    const addModelOption = (entry, extraHint) => {
         const key = modelKey(entry.provider, entry.id);
         if (seen.has(key))
             return;
@@ -160,6 +160,8 @@ export async function promptDefaultModel(params) {
         if (HIDDEN_ROUTER_MODELS.has(key))
             return;
         const hints = [];
+        if (extraHint)
+            hints.push(extraHint);
         if (entry.name && entry.name !== entry.id)
             hints.push(entry.name);
         if (entry.contextWindow)
@@ -178,6 +180,14 @@ export async function promptDefaultModel(params) {
         });
         seen.add(key);
     };
+    // HexOS: prioritize recommended free models at the top
+    const RECOMMENDED_MODELS = [
+        "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    ];
+    for (const recKey of RECOMMENDED_MODELS) {
+        const entry = models.find((m) => modelKey(m.provider, m.id) === recKey);
+        if (entry) addModelOption(entry, "⭐ recommended · free");
+    }
     for (const entry of models)
         addModelOption(entry);
     if (configuredKey && !seen.has(configuredKey)) {
