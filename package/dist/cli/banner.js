@@ -43,35 +43,26 @@ export function formatCliBannerLine(version, options = {}) {
     const line2 = `${" ".repeat(prefix.length)}${tagline}`;
     return `${line1}\n${line2}`;
 }
-const LOBSTER_ASCII = [
-    "░█░░█░█████░█░░░█░░████░░████",
-    "░█░░█░█░░░░░░░█░░░░█░░░█░█░░░░",
-    "░████░████░░░░█░░░░█░░░█░░████░",
-    "░█░░█░█░░░░░░░█░░░░█░░░█░░░░░█░",
-    "░█░░█░█████░█░░░█░░████░░████░",
-    "            ⬡ HexOS ⬡",
+const HEXOS_ASCII = [
+    "",
+    "  ██╗  ██╗███████╗██╗  ██╗ ██████╗ ███████╗",
+    "  ██║  ██║██╔════╝╚██╗██╔╝██╔═══██╗██╔════╝",
+    "  ███████║█████╗   ╚███╔╝ ██║   ██║███████╗",
+    "  ██╔══██║██╔══╝   ██╔██╗ ██║   ██║╚════██║",
+    "  ██║  ██║███████╗██╔╝ ██╗╚██████╔╝███████║",
+    "  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝",
+    "",
+    "  The OS for AI Agents — by HexIT Labs",
+    "",
 ];
 export function formatCliBannerArt(options = {}) {
     const rich = options.richTty ?? isRich();
     if (!rich)
-        return LOBSTER_ASCII.join("\n");
-    const colorChar = (ch) => {
-        if (ch === "█")
-            return theme.accentBright(ch);
-        if (ch === "░")
-            return theme.accentDim(ch);
-        if (ch === "▀")
-            return theme.accent(ch);
-        return theme.muted(ch);
-    };
-    const colored = LOBSTER_ASCII.map((line) => {
-        if (line.includes("FRESH DAILY")) {
-            return (theme.muted("              ") +
-                theme.accent("🔷") +
-                theme.info(" FRESH DAILY ") +
-                theme.accent("🔷"));
-        }
-        return splitGraphemes(line).map(colorChar).join("");
+        return HEXOS_ASCII.join("\n");
+    const colored = HEXOS_ASCII.map((line, i) => {
+        if (i === 0)
+            return theme.accentBright(line);
+        return theme.accentDim(line);
     });
     return colored.join("\n");
 }
