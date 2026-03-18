@@ -62,8 +62,9 @@ export async function markAuthProfileUsed(params) {
 }
 export function calculateAuthProfileCooldownMs(errorCount) {
     const normalized = Math.max(1, errorCount);
-    return Math.min(60 * 60 * 1000, // 1 hour max
-    60 * 1000 * 5 ** Math.min(normalized - 1, 3));
+    // HexOS: reduced cooldowns (OAuth tokens don't need aggressive backoff)
+    return Math.min(30 * 1000, // 30 seconds max
+    5 * 1000 * 2 ** Math.min(normalized - 1, 3)); // 5s base, 2x growth
 }
 function resolveAuthCooldownConfig(params) {
     const defaults = {
