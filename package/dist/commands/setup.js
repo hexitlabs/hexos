@@ -29,13 +29,13 @@ export async function setupCommand(opts, runtime = defaultRuntime) {
     const workspace = desiredWorkspace ?? defaults.workspace ?? DEFAULT_AGENT_WORKSPACE_DIR;
     // HexOS: bundle recommended free model so it always appears in catalog
     const bundledModels = cfg.models?.providers ?? {};
-    if (!bundledModels["openrouter"]) {
-        bundledModels["openrouter"] = {
-            baseUrl: "https://openrouter.ai/api/v1",
+    if (!bundledModels["nvidia-nim"]) {
+        bundledModels["nvidia-nim"] = {
+            baseUrl: "https://integrate.api.nvidia.com/v1",
             api: "openai-completions",
             models: [
                 {
-                    id: "nvidia/nemotron-3-super-120b-a12b:free",
+                    id: "nvidia/nemotron-3-super-120b-a12b",
                     name: "Nemotron 3 Super 120B (Free)",
                     reasoning: true,
                     input: ["text"],

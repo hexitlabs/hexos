@@ -500,3 +500,81 @@ export async function applyAuthChoiceApiProviders(params) {
     }
     return null;
 }
+
+// HexOS: NVIDIA NIM provider handler (appended)
+export async function applyNvidiaNimAuthChoice(params) {
+    const { authChoice, prompter, agentDir } = params;
+    if (authChoice !== "nvidia-nim-api-key") return null;
+    
+    let nextConfig = { ...params.config };
+    let agentModelOverride;
+    
+    await prompter.note([
+        "Get your free NVIDIA NIM API key:",
+        "1. Go to build.nvidia.com",
+        "2. Sign in (free account)",  
+        "3. Click any model → 'Get API Key'",
+        "4. Copy the key (starts with nvapi-)",
+    ].join("\n"), "NVIDIA NIM Setup");
+    
+    const key = await prompter.text({
+        message: "Enter NVIDIA NIM API key",
+        placeholder: "nvapi-...",
+        validate: (value) => {
+            if (!value?.trim()) return "API key is required";
+            if (!value.trim().startsWith("nvapi-")) return "NIM keys start with nvapi-";
+        },
+    });
+    
+    if (key && key.trim()) {
+        const { upsertAuthProfile } = await import("../agents/auth-profiles.js");
+        upsertAuthProfile({
+            profileId: "nvidia-nim:default",
+            credential: {
+                type: "api_key",
+                provider: "nvidia-nim",
+                key: key.trim(),
+            },
+            agentDir,
+        });
+        
+        // Auto-set model to Nemotron 3 Super
+        const nimModel = "nvidia-nim/nvidia/nemotron-3-super-120b-a12b";
+        nextConfig = {
+            ...nextConfig,
+            models: {
+                ...nextConfig.models,
+                providers: {
+                    ...nextConfig.models?.providers,
+                    "nvidia-nim": {
+                        baseUrl: "https://integrate.api.nvidia.com/v1",
+                        api: "openai-completions",
+                        models: [{
+                            id: "nvidia/nemotron-3-super-120b-a12b",
+                            name: "Nemotron 3 Super 120B (Free)",
+                            reasoning: true,
+                            input: ["text"],
+                            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+                            contextWindow: 262000,
+                            maxTokens: 32768,
+                        }],
+                    },
+                },
+            },
+            agents: {
+                ...nextConfig.agents,
+                defaults: {
+                    ...nextConfig.agents?.defaults,
+                    model: {
+                        ...nextConfig.agents?.defaults?.model,
+                        primary: nimModel,
+                    },
+                },
+            },
+        };
+        
+        await prompter.note("Default model set to " + nimModel, "Model configured");
+    }
+    
+    return { config: nextConfig, agentModelOverride };
+}

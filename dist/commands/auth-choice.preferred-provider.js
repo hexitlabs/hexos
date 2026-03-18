@@ -9,6 +9,7 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE = {
     chutes: "chutes",
     "openai-api-key": "openai",
     "openrouter-api-key": "openrouter",
+    "nvidia-nim-api-key": "nvidia-nim",
     "ai-gateway-api-key": "vercel-ai-gateway",
     "moonshot-api-key": "moonshot",
     "kimi-code-api-key": "kimi-code",

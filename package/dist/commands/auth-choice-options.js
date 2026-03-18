@@ -4,8 +4,8 @@ const AUTH_CHOICE_GROUP_DEFS = [
     {
         value: "hexos-default",
         label: "⭐ HexOS Default (Free)",
-        hint: "Nemotron 3 Super via OpenRouter — no cost, instant setup",
-        choices: ["openrouter-api-key"],
+        hint: "Nemotron 3 Super via NVIDIA NIM — free, no credit card needed",
+        choices: ["nvidia-nim-api-key"],
     },
     {
         value: "openai",
@@ -148,6 +148,7 @@ export function buildAuthChoiceOptions(params) {
     });
     options.push({ value: "chutes", label: "Chutes (OAuth)" });
     options.push({ value: "openai-api-key", label: "OpenAI API key" });
+    options.push({ value: "nvidia-nim-api-key", label: "NVIDIA NIM API key", hint: "Free — get key at build.nvidia.com" });
     options.push({ value: "openrouter-api-key", label: "OpenRouter API key" });
     options.push({
         value: "ai-gateway-api-key",

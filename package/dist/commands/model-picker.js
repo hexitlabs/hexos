@@ -182,7 +182,7 @@ export async function promptDefaultModel(params) {
     };
     // HexOS: prioritize recommended free models at the top
     const RECOMMENDED_MODELS = [
-        "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+        "nvidia-nim/nvidia/nemotron-3-super-120b-a12b",
     ];
     for (const recKey of RECOMMENDED_MODELS) {
         const entry = models.find((m) => modelKey(m.provider, m.id) === recKey);
