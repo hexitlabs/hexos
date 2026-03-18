@@ -48,6 +48,10 @@ export async function setupCommand(opts, runtime = defaultRuntime) {
     }
     const next = {
         ...cfg,
+        gateway: {
+            ...cfg.gateway,
+            mode: cfg.gateway?.mode ?? "local",
+        },
         models: {
             ...cfg.models,
             providers: bundledModels,

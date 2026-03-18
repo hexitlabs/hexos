@@ -27,5 +27,5 @@ export async function applyAuthChoice(params) {
         if (result)
             return result;
     }
-    return { config: params.config };
+    return { config: params.config, skipModelPicker: false };
 }

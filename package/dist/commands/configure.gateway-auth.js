@@ -30,6 +30,7 @@ export async function promptAuthConfig(cfg, runtime, prompter) {
         includeClaudeCliIfMissing: true,
     });
     let next = cfg;
+    let skipModelPicker = false;
     if (authChoice !== "skip") {
         const applied = await applyAuthChoice({
             authChoice,
@@ -39,6 +40,7 @@ export async function promptAuthConfig(cfg, runtime, prompter) {
             setDefaultModel: true,
         });
         next = applied.config;
+        skipModelPicker = applied.skipModelPicker ?? false;
     }
     else {
         const modelSelection = await promptDefaultModel({
@@ -52,20 +54,23 @@ export async function promptAuthConfig(cfg, runtime, prompter) {
             next = applyPrimaryModel(next, modelSelection.model);
         }
     }
-    const anthropicOAuth = authChoice === "claude-cli" ||
-        authChoice === "setup-token" ||
-        authChoice === "token" ||
-        authChoice === "oauth";
-    const allowlistSelection = await promptModelAllowlist({
-        config: next,
-        prompter,
-        allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-        initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-5"] : undefined,
-        message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
-    });
-    if (allowlistSelection.models) {
-        next = applyModelAllowlist(next, allowlistSelection.models);
-        next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
+    // Skip model picker for providers that auto-configure everything (e.g. HexOS Default / NIM)
+    if (!skipModelPicker) {
+        const anthropicOAuth = authChoice === "claude-cli" ||
+            authChoice === "setup-token" ||
+            authChoice === "token" ||
+            authChoice === "oauth";
+        const allowlistSelection = await promptModelAllowlist({
+            config: next,
+            prompter,
+            allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
+            initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-5"] : undefined,
+            message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
+        });
+        if (allowlistSelection.models) {
+            next = applyModelAllowlist(next, allowlistSelection.models);
+            next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
+        }
     }
     return next;
 }

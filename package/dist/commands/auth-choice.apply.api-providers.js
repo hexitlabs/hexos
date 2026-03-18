@@ -576,5 +576,5 @@ export async function applyNvidiaNimAuthChoice(params) {
         await prompter.note("Default model set to " + nimModel, "Model configured");
     }
     
-    return { config: nextConfig, agentModelOverride };
+    return { config: nextConfig, agentModelOverride, skipModelPicker: true };
 }
