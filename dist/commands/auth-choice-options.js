@@ -2,6 +2,12 @@ import { CLAUDE_CLI_PROFILE_ID, CODEX_CLI_PROFILE_ID } from "../agents/auth-prof
 import { colorize, isRich, theme } from "../terminal/theme.js";
 const AUTH_CHOICE_GROUP_DEFS = [
     {
+        value: "hexos-default",
+        label: "⭐ HexOS Default (Free)",
+        hint: "Nemotron 3 Super via OpenRouter — no cost, instant setup",
+        choices: ["openrouter-api-key"],
+    },
+    {
         value: "openai",
         label: "OpenAI",
         hint: "Codex OAuth + API key",
