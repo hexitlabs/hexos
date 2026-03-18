@@ -8,9 +8,9 @@ import { resolveUserPath } from "../utils.js";
 export function resolveDefaultAgentWorkspaceDir(env = process.env, homedir = os.homedir) {
     const profile = env.HEXOS_PROFILE?.trim();
     if (profile && profile.toLowerCase() !== "default") {
-        return path.join(homedir(), `clawd-${profile}`);
+        return path.join(homedir(), `hexos-${profile}`);
     }
-    return path.join(homedir(), "clawd");
+    return path.join(homedir(), "hexos");
 }
 export const DEFAULT_AGENT_WORKSPACE_DIR = resolveDefaultAgentWorkspaceDir();
 export const DEFAULT_AGENTS_FILENAME = "AGENTS.md";

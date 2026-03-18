@@ -106,7 +106,7 @@ export function resolveAgentWorkspaceDir(cfg, agentId) {
             return resolveUserPath(fallback);
         return DEFAULT_AGENT_WORKSPACE_DIR;
     }
-    return path.join(os.homedir(), `clawd-${id}`);
+    return path.join(os.homedir(), `hexos-${id}`);
 }
 export function resolveAgentDir(cfg, agentId) {
     const id = normalizeAgentId(agentId);
