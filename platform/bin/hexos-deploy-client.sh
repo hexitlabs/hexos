@@ -174,14 +174,69 @@ if [[ -x "${NETWORK_DIR}/egress-apply.sh" ]]; then
 fi
 echo ""
 
-# ── Step 4: Summary ────────────────────────────────────────────────────
-echo "━━━ Step 4/4: Summary ━━━"
+# ── Step 4: Initialize Audit Trail ──────────────────────────────────
+echo "━━━ Step 4/5: Audit Trail ━━━"
+
+# Create audit directories
+mkdir -p "${CLIENT_HOME}/audit"
+mkdir -p "${CLIENT_HOME}/config"
+
+# Initialize audit config with defaults
+cat > "${CLIENT_HOME}/config/audit.yaml" <<AUDIT_EOF
+# HexOS Audit Configuration for ${CLIENT_NAME}
+# Generated: $(date -Iseconds)
+audit:
+  enabled: true
+  retention_days: 90
+  sanitize_credentials: true
+  hash_chain: true
+
+  # Custom sanitization patterns (optional)
+  # sanitize_patterns:
+  #   - "CUSTOM_SECRET_[A-Z0-9]{20,}"
+
+  # Approval settings
+  approval:
+    enabled: true
+    timeout_seconds: 300
+    auto_approve_rules: []
+
+  # Alert rules
+  alerts:
+    api_spike_threshold: 100
+    failure_threshold: 10
+    check_new_endpoints: true
+AUDIT_EOF
+
+# Set permissions
+if id "hexos-${CLIENT_NAME}" &>/dev/null; then
+    chown -R "hexos-${CLIENT_NAME}:hexos-${CLIENT_NAME}" "${CLIENT_HOME}/audit/"
+    chown "hexos-${CLIENT_NAME}:hexos-${CLIENT_NAME}" "${CLIENT_HOME}/config/audit.yaml"
+fi
+
+# Log initial audit event
+AUDIT_SCRIPT="/hexos/platform/audit/logger.sh"
+if [[ -f "$AUDIT_SCRIPT" ]]; then
+    source "$AUDIT_SCRIPT"
+    audit_log "$CLIENT_NAME" "system_event" "deploy" \
+        "event=client_created" \
+        "details=Client ${CLIENT_NAME} deployed with presets: ${PRESETS}"
+fi
+
+echo "  ✓ Audit trail initialized"
+echo "  ✓ Audit config: ${CLIENT_HOME}/config/audit.yaml"
+echo "  ✓ Logs: ${CLIENT_HOME}/audit/"
+echo ""
+
+# ── Step 5: Summary ────────────────────────────────────────────────────
+echo "━━━ Step 5/5: Summary ━━━"
 echo ""
 echo "  ✅ Client '${CLIENT_NAME}' fully deployed with:"
 echo "     • Workspace jail at ${CLIENT_HOME}/"
 echo "     • System user: hexos-${CLIENT_NAME}"
 echo "     • Security scanner: strict mode"
 echo "     • Egress control: ${PRESETS}"
+echo "     • Audit trail: enabled (90-day retention)"
 echo ""
 echo "  Next steps:"
 echo "     1. Place gateway config at ${CLIENT_HOME}/config/gateway.yaml"
@@ -193,4 +248,6 @@ echo "  Management:"
 echo "     hexos client status ${CLIENT_NAME}   — check status"
 echo "     hexos egress status ${CLIENT_NAME}   — check egress rules"
 echo "     hexos egress allow ${CLIENT_NAME} <host:port> — add endpoint"
+echo "     hexos audit log ${CLIENT_NAME}       — view audit log"
+echo "     hexos audit stats ${CLIENT_NAME}     — audit statistics"
 echo "     hexos client remove ${CLIENT_NAME} --confirm  — tear down"
