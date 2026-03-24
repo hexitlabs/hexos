@@ -3,6 +3,24 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.3.0] - 2026-03-24
+
+### Features
+- **Pre-Runtime Security Scanner** — scans skills, commands, and workspaces before execution
+- Scanner abstraction layer with pluggable backends (builtin + DefenseClaw stub)
+- 7 threat pattern categories: dangerous commands, secrets, obfuscation, exfiltration, malware, privilege escalation, path traversal (60+ patterns)
+- Skill install gate — scans skill directories before installation, blocks malicious skills
+- Exec pre-check — scans commands before execution (14ms fast path, 100ms deep scan)
+- Workspace audit — drift detection with baseline comparison, threat classification (293ms for 50 files)
+- Policy engine — YAML-based per-client scan policies, strict/permissive modes
+- Alert foundation — log-based alerting with deduplication (Telegram integration in Phase 6)
+- `hexos security scan/policy/report` CLI commands
+- Full test suite: 60/60 tests pass
+
+### Bug Fixes
+- Fixed bash subshell scoping in scanner pipeline (FINDINGS array invisible in parent shell)
+- Fixed alert.sh argument order (severity, client, type, msg)
+
 ## [v0.2.0] - 2026-03-24
 
 ### Features
