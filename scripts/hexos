@@ -3,12 +3,14 @@
 # Phase 1: Workspace Jail management
 # Phase 1.5: Security scanning
 # Phase 2: Network Egress Control
+# Phase 6: Audit Trail + Credential Sanitization
 set -euo pipefail
 
 PLATFORM_BIN="/hexos/platform/bin"
 PLATFORM_SECURITY="/hexos/platform/security"
 PLATFORM_NETWORK="/hexos/platform/network"
-VERSION="0.4.0"
+PLATFORM_AUDIT="/hexos/platform/audit"
+VERSION="0.5.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"
@@ -44,6 +46,17 @@ show_help() {
     echo "  security policy resolve <client>    Show resolved policy for a client"
     echo "  security policy get <client> <key>  Get a policy value"
     echo "  security report [client]            Show recent scan reports"
+    echo ""
+    echo "  audit log <client> [options]         View audit log entries"
+    echo "  audit search <client> <query>       Search audit entries"
+    echo "  audit stats <client> [--period P]   Usage statistics"
+    echo "  audit export <client> [options]     Export CSV/JSON"
+    echo "  audit cleanup [--dry-run]           Retention cleanup"
+    echo "  audit approve <request-id>          Approve pending request"
+    echo "  audit reject <request-id>           Reject pending request"
+    echo "  audit pending [client]              List pending approvals"
+    echo "  audit verify <client> [date]        Verify hash chain integrity"
+    echo "  audit alerts <client>               Run alert checks"
     echo ""
     echo "  setup [operator|managed]             Configure deployment profile"
     echo "  mode                                Show current profile + security status"
@@ -226,6 +239,53 @@ case "${1:-help}" in
                 ;;
             *)
                 echo "Usage: hexos egress {apply|remove|status|test|reload|lockdown|unlock|allow|presets|dns}"
+                exit 1
+                ;;
+        esac
+        ;;
+    audit)
+        case "${2:-}" in
+            log)
+                shift 2
+                "${PLATFORM_AUDIT}/viewer.sh" log "$@"
+                ;;
+            search)
+                shift 2
+                "${PLATFORM_AUDIT}/viewer.sh" search "$@"
+                ;;
+            stats)
+                shift 2
+                "${PLATFORM_AUDIT}/viewer.sh" stats "$@"
+                ;;
+            export)
+                shift 2
+                "${PLATFORM_AUDIT}/export.sh" "$@"
+                ;;
+            cleanup)
+                "${PLATFORM_AUDIT}/alerts.sh" cleanup "${3:-}"
+                ;;
+            approve)
+                [[ -z "${3:-}" ]] && echo "Error: request ID required" && exit 1
+                "${PLATFORM_AUDIT}/approve.sh" approve "$3" "${4:-}"
+                ;;
+            reject)
+                [[ -z "${3:-}" ]] && echo "Error: request ID required" && exit 1
+                "${PLATFORM_AUDIT}/approve.sh" reject "$3" "${4:-}"
+                ;;
+            pending)
+                "${PLATFORM_AUDIT}/approve.sh" pending "${3:-}"
+                ;;
+            verify)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                source "${PLATFORM_AUDIT}/logger.sh"
+                audit_verify_chain "$3" "${4:-}"
+                ;;
+            alerts)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_AUDIT}/alerts.sh" check "$3"
+                ;;
+            *)
+                echo "Usage: hexos audit {log|search|stats|export|cleanup|approve|reject|pending|verify|alerts}"
                 exit 1
                 ;;
         esac
