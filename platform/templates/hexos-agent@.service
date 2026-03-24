@@ -1,0 +1,95 @@
+[Unit]
+Description=HexOS Agent Gateway for %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hexos-%i
+Group=hexos-%i
+
+# Working directory
+WorkingDirectory=/hexos/%i/workspace
+
+# Environment
+Environment=HOME=/hexos/%i
+Environment=HEXOS_CLIENT=%i
+Environment=NODE_ENV=production
+Environment=TMPDIR=/hexos/%i/tmp
+
+# Process execution
+ExecStart=/usr/local/bin/node /hexos/shared/bin/gateway.js --config /hexos/%i/config/gateway.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart policy
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# ─── Filesystem Hardening ───
+# Prevent access to /home, /root
+ProtectHome=yes
+
+# Make /usr, /boot, /efi read-only; disallow /etc write
+ProtectSystem=strict
+
+# Explicitly allow writes only to client workspace
+ReadWritePaths=/hexos/%i
+
+# Block access to platform internals (other clients blocked via override)
+InaccessiblePaths=/hexos/platform
+
+# Prevent access to kernel internals
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+
+# Prevent clock manipulation
+ProtectClock=yes
+
+# Prevent control groups manipulation
+ProtectControlGroups=yes
+
+# Disable hostname changes
+ProtectHostname=yes
+
+# ─── Process Isolation ───
+# Private /tmp (agent uses /hexos/<client>/tmp instead)
+PrivateTmp=yes
+
+# Private /dev (only pseudo-devices)
+PrivateDevices=yes
+
+# Private PID namespace — can't see other processes
+# Requires Linux 5.3+
+ProtectProc=invisible
+ProcSubset=pid
+
+# ─── Capability Restrictions ───
+# Drop ALL capabilities, grant none
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+# No new privileges via setuid/setgid
+NoNewPrivileges=yes
+
+# ─── System Call Filtering ───
+# Allow only common syscalls needed for Node.js + agent operation
+SystemCallFilter=@system-service @basic-io @file-system @network-io @process @signal
+SystemCallFilter=~@mount @reboot @swap @raw-io @clock @cpu-emulation @debug @module @obsolete @privileged
+SystemCallArchitectures=native
+
+# ─── Resource Limits ───
+MemoryMax=1G
+MemoryHigh=768M
+CPUQuota=100%
+TasksMax=256
+LimitNOFILE=4096
+
+# Logging
+StandardOutput=append:/hexos/%i/logs/gateway.out.log
+StandardError=append:/hexos/%i/logs/gateway.err.log
+
+[Install]
+WantedBy=multi-user.target
