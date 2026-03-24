@@ -11,6 +11,219 @@ const DEFAULT_AUTO_ALLOW_SKILLS = false;
 const DEFAULT_SOCKET = "~/.hexos/exec-approvals.sock";
 const DEFAULT_FILE = "~/.hexos/exec-approvals.json";
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
+// ── Dispatch Wrapper Unwrapping (upstream 2026.3.22 security fix) ──
+// Commands like `time`, `nice`, `env`, `nohup`, `timeout` are transparent
+// wrappers that dispatch to an inner command. The allowlist must check the
+// inner command, not the wrapper binary.
+function stripWindowsExecutableSuffix(name) {
+    if (process.platform !== "win32")
+        return name;
+    const lower = name.toLowerCase();
+    for (const ext of [".exe", ".cmd", ".bat", ".com"]) {
+        if (lower.endsWith(ext))
+            return name.slice(0, -ext.length);
+    }
+    return name;
+}
+function basenameLower(token) {
+    const win = path.win32.basename(token);
+    const posix = path.posix.basename(token);
+    return (win.length < posix.length ? win : posix).trim().toLowerCase();
+}
+function normalizeExecutableToken(token) {
+    return stripWindowsExecutableSuffix(basenameLower(token));
+}
+const ENV_OPTIONS_WITH_VALUE = new Set(["-u", "--unset", "-c", "--chdir", "-s", "--split-string", "--default-signal", "--ignore-signal", "--block-signal"]);
+const ENV_INLINE_VALUE_PREFIXES = ["-u", "-c", "-s", "--unset=", "--chdir=", "--split-string=", "--default-signal=", "--ignore-signal=", "--block-signal="];
+const ENV_FLAG_OPTIONS = new Set(["-i", "--ignore-environment", "-0", "--null"]);
+const NICE_OPTIONS_WITH_VALUE = new Set(["-n", "--adjustment", "--priority"]);
+const STDBUF_OPTIONS_WITH_VALUE = new Set(["-i", "--input", "-o", "--output", "-e", "--error"]);
+const TIME_FLAG_OPTIONS = new Set(["-a", "--append", "-h", "--help", "-l", "-p", "-q", "--quiet", "-v", "--verbose", "-V", "--version"]);
+const TIME_OPTIONS_WITH_VALUE = new Set(["-f", "--format", "-o", "--output"]);
+const TIMEOUT_FLAG_OPTIONS = new Set(["--foreground", "--preserve-status", "-v", "--verbose"]);
+const TIMEOUT_OPTIONS_WITH_VALUE = new Set(["-k", "--kill-after", "-s", "--signal"]);
+function isEnvAssignment(token) {
+    return /^[A-Za-z_][A-Za-z0-9_]*=.*/.test(token);
+}
+function hasEnvInlineValuePrefix(lower) {
+    for (const prefix of ENV_INLINE_VALUE_PREFIXES)
+        if (lower.startsWith(prefix))
+            return true;
+    return false;
+}
+function scanWrapperInvocation(argv, params) {
+    let idx = 1;
+    let expectsOptionValue = false;
+    while (idx < argv.length) {
+        const token = argv[idx]?.trim() ?? "";
+        if (!token) { idx += 1; continue; }
+        if (expectsOptionValue) { expectsOptionValue = false; idx += 1; continue; }
+        if (params.separators?.has(token)) { idx += 1; break; }
+        const directive = params.onToken(token, token.toLowerCase());
+        if (directive === "stop") break;
+        if (directive === "invalid") return null;
+        if (directive === "consume-next") expectsOptionValue = true;
+        idx += 1;
+    }
+    if (expectsOptionValue) return null;
+    const commandIndex = params.adjustCommandIndex ? params.adjustCommandIndex(idx, argv) : idx;
+    if (commandIndex === null || commandIndex >= argv.length) return null;
+    return argv.slice(commandIndex);
+}
+function unwrapEnvInvocation(argv) {
+    return scanWrapperInvocation(argv, {
+        separators: new Set(["--", "-"]),
+        onToken: (token, lower) => {
+            if (isEnvAssignment(token)) return "continue";
+            if (!token.startsWith("-") || token === "-") return "stop";
+            const [flag] = lower.split("=", 2);
+            if (ENV_FLAG_OPTIONS.has(flag)) return "continue";
+            if (ENV_OPTIONS_WITH_VALUE.has(flag)) return lower.includes("=") ? "continue" : "consume-next";
+            if (hasEnvInlineValuePrefix(lower)) return "continue";
+            return "invalid";
+        },
+    });
+}
+function envInvocationUsesModifiers(argv) {
+    let idx = 1;
+    let expectsOptionValue = false;
+    while (idx < argv.length) {
+        const token = argv[idx]?.trim() ?? "";
+        if (!token) { idx += 1; continue; }
+        if (expectsOptionValue) return true;
+        if (token === "--" || token === "-") { idx += 1; break; }
+        if (isEnvAssignment(token)) return true;
+        if (!token.startsWith("-") || token === "-") break;
+        const lower = token.toLowerCase();
+        const [flag] = lower.split("=", 2);
+        if (ENV_FLAG_OPTIONS.has(flag)) return true;
+        if (ENV_OPTIONS_WITH_VALUE.has(flag)) {
+            if (lower.includes("=")) return true;
+            expectsOptionValue = true;
+            idx += 1;
+            continue;
+        }
+        if (hasEnvInlineValuePrefix(lower)) return true;
+        return true;
+    }
+    return false;
+}
+function unwrapDashOptionInvocation(argv, params) {
+    return scanWrapperInvocation(argv, {
+        separators: new Set(["--"]),
+        onToken: (token, lower) => {
+            if (!token.startsWith("-") || token === "-") return "stop";
+            const [flag] = lower.split("=", 2);
+            return params.onFlag(flag, lower);
+        },
+        adjustCommandIndex: params.adjustCommandIndex,
+    });
+}
+function unwrapNiceInvocation(argv) {
+    return unwrapDashOptionInvocation(argv, { onFlag: (flag, lower) => {
+        if (/^-\d+$/.test(lower)) return "continue";
+        if (NICE_OPTIONS_WITH_VALUE.has(flag)) return lower.includes("=") || lower !== flag ? "continue" : "consume-next";
+        if (lower.startsWith("-n") && lower.length > 2) return "continue";
+        return "invalid";
+    } });
+}
+function unwrapNohupInvocation(argv) {
+    return scanWrapperInvocation(argv, {
+        separators: new Set(["--"]),
+        onToken: (token, lower) => {
+            if (!token.startsWith("-") || token === "-") return "stop";
+            return lower === "--help" || lower === "--version" ? "continue" : "invalid";
+        },
+    });
+}
+function unwrapStdbufInvocation(argv) {
+    return unwrapDashOptionInvocation(argv, { onFlag: (flag, lower) => {
+        if (!STDBUF_OPTIONS_WITH_VALUE.has(flag)) return "invalid";
+        return lower.includes("=") ? "continue" : "consume-next";
+    } });
+}
+function unwrapTimeInvocation(argv) {
+    return unwrapDashOptionInvocation(argv, { onFlag: (flag, lower) => {
+        if (TIME_FLAG_OPTIONS.has(flag)) return "continue";
+        if (TIME_OPTIONS_WITH_VALUE.has(flag)) return lower.includes("=") ? "continue" : "consume-next";
+        return "invalid";
+    } });
+}
+function unwrapTimeoutInvocation(argv) {
+    return unwrapDashOptionInvocation(argv, {
+        onFlag: (flag, lower) => {
+            if (TIMEOUT_FLAG_OPTIONS.has(flag)) return "continue";
+            if (TIMEOUT_OPTIONS_WITH_VALUE.has(flag)) return lower.includes("=") ? "continue" : "consume-next";
+            return "invalid";
+        },
+        adjustCommandIndex: (commandIndex, currentArgv) => {
+            // timeout has a positional DURATION arg before the command
+            const wrappedCommandIndex = commandIndex + 1;
+            return wrappedCommandIndex < currentArgv.length ? wrappedCommandIndex : null;
+        },
+    });
+}
+const DISPATCH_WRAPPER_SPECS = [
+    { name: "chrt" },
+    { name: "doas" },
+    { name: "env", unwrap: unwrapEnvInvocation, transparentUsage: (argv) => !envInvocationUsesModifiers(argv) },
+    { name: "ionice" },
+    { name: "nice", unwrap: unwrapNiceInvocation, transparentUsage: true },
+    { name: "nohup", unwrap: unwrapNohupInvocation, transparentUsage: true },
+    { name: "setsid" },
+    { name: "stdbuf", unwrap: unwrapStdbufInvocation, transparentUsage: true },
+    { name: "sudo" },
+    { name: "taskset" },
+    { name: "time", unwrap: unwrapTimeInvocation, transparentUsage: true },
+    { name: "timeout", unwrap: unwrapTimeoutInvocation, transparentUsage: true },
+];
+const DISPATCH_WRAPPER_SPEC_BY_NAME = new Map(DISPATCH_WRAPPER_SPECS.map((spec) => [spec.name, spec]));
+function blockDispatchWrapper(wrapper) {
+    return { kind: "blocked", wrapper };
+}
+function unwrapKnownDispatchWrapperInvocation(argv) {
+    const token0 = argv[0]?.trim();
+    if (!token0) return { kind: "not-wrapper" };
+    const wrapper = normalizeExecutableToken(token0);
+    const spec = DISPATCH_WRAPPER_SPEC_BY_NAME.get(wrapper);
+    if (!spec) return { kind: "not-wrapper" };
+    if (!spec.unwrap) return blockDispatchWrapper(wrapper);
+    const unwrapped = spec.unwrap(argv);
+    return unwrapped ? { kind: "unwrapped", wrapper, argv: unwrapped } : blockDispatchWrapper(wrapper);
+}
+function isSemanticDispatchWrapperUsage(wrapper, argv) {
+    const spec = DISPATCH_WRAPPER_SPEC_BY_NAME.get(wrapper);
+    if (!spec?.unwrap) return true;
+    const transparentUsage = spec.transparentUsage;
+    if (typeof transparentUsage === "function") return !transparentUsage(argv);
+    return transparentUsage !== true;
+}
+/**
+ * Recursively unwrap dispatch wrappers (time, nice, env, etc.) to find the
+ * actual command being executed. Returns policyBlocked=true if any wrapper in
+ * the chain is dangerous (sudo, doas, etc.) or used with semantic options.
+ */
+export function resolveExecWrapperTrustPlan(argv, maxDepth = 4) {
+    let current = argv;
+    const wrappers = [];
+    for (let depth = 0; depth < maxDepth; depth += 1) {
+        const unwrap = unwrapKnownDispatchWrapperInvocation(current);
+        if (unwrap.kind === "blocked")
+            return { argv: current, wrappers, policyBlocked: true, blockedWrapper: unwrap.wrapper };
+        if (unwrap.kind !== "unwrapped" || unwrap.argv.length === 0)
+            break;
+        wrappers.push(unwrap.wrapper);
+        if (isSemanticDispatchWrapperUsage(unwrap.wrapper, current))
+            return { argv: current, wrappers, policyBlocked: true, blockedWrapper: unwrap.wrapper };
+        current = unwrap.argv;
+    }
+    if (wrappers.length >= maxDepth) {
+        const overflow = unwrapKnownDispatchWrapperInvocation(current);
+        if (overflow.kind === "blocked" || overflow.kind === "unwrapped")
+            return { argv: current, wrappers, policyBlocked: true, blockedWrapper: overflow.wrapper };
+    }
+    return { argv: current, wrappers, policyBlocked: false };
+}
 function hashExecApprovalsRaw(raw) {
     return crypto
         .createHash("sha256")
@@ -315,7 +528,20 @@ export function resolveCommandResolutionFromArgv(argv, cwd, env) {
         return null;
     const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
     const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
-    return { rawExecutable, resolvedPath, executableName };
+    // Apply dispatch wrapper trust plan to find the effective command
+    const plan = resolveExecWrapperTrustPlan(argv);
+    const effectiveArgv = plan.argv;
+    const effectiveRawExec = effectiveArgv[0]?.trim();
+    const effectiveResolvedPath = effectiveRawExec && effectiveArgv !== argv
+        ? resolveExecutablePath(effectiveRawExec, cwd, env)
+        : resolvedPath;
+    return {
+        rawExecutable,
+        resolvedPath: effectiveResolvedPath ?? resolvedPath,
+        executableName: effectiveResolvedPath ? path.basename(effectiveResolvedPath) : (resolvedPath ? path.basename(resolvedPath) : rawExecutable),
+        effectiveArgv: plan.wrappers.length > 0 ? effectiveArgv : undefined,
+        policyBlocked: plan.policyBlocked,
+    };
 }
 function normalizeMatchTarget(value) {
     if (process.platform === "win32") {
@@ -722,7 +948,16 @@ function evaluateSegments(segments, params) {
     const matches = [];
     const allowSkills = params.autoAllowSkills === true && (params.skillBins?.size ?? 0) > 0;
     const satisfied = segments.every((segment) => {
-        const candidatePath = resolveAllowlistCandidatePath(segment.resolution, params.cwd);
+        // Block segments where the wrapper trust plan determined policy violation
+        if (segment.resolution?.policyBlocked === true) {
+            return false;
+        }
+        // Use effectiveArgv (unwrapped inner command) when available
+        const effectiveArgv = segment.resolution?.effectiveArgv && segment.resolution.effectiveArgv.length > 0
+            ? segment.resolution.effectiveArgv
+            : segment.argv;
+        const allowlistSegment = effectiveArgv === segment.argv ? segment : { ...segment, argv: effectiveArgv };
+        const candidatePath = resolveAllowlistCandidatePath(allowlistSegment.resolution ?? segment.resolution, params.cwd);
         const candidateResolution = candidatePath && segment.resolution
             ? { ...segment.resolution, resolvedPath: candidatePath }
             : segment.resolution;
@@ -730,7 +965,7 @@ function evaluateSegments(segments, params) {
         if (match)
             matches.push(match);
         const safe = isSafeBinUsage({
-            argv: segment.argv,
+            argv: effectiveArgv,
             resolution: segment.resolution,
             safeBins: params.safeBins,
             cwd: params.cwd,
