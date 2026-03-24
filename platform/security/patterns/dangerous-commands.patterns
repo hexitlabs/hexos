@@ -1,0 +1,15 @@
+# HexOS Security — Dangerous Commands Pattern Database
+# Category: dangerous_commands
+# Risk Level: critical/high
+# Format: RISK_LEVEL|PATTERN_NAME|REGEX
+# Lines starting with # are comments
+
+critical|destructive_rm|rm\s+(-[a-zA-Z]*f[a-zA-Z]*\s+)?(-[a-zA-Z]*r[a-zA-Z]*\s+|--recursive\s+).*(/|/\*|/etc|/var|/usr|/home|/boot|/dev|/sys|/proc)
+critical|destructive_rm_alt|rm\s+(-[a-zA-Z]*r[a-zA-Z]*\s+)?(-[a-zA-Z]*f[a-zA-Z]*\s+).*(/|/\*|/etc|/var|/usr|/home|/boot|/dev|/sys|/proc)
+critical|disk_overwrite|dd\s+if=.*of=/dev/[a-z]
+critical|mkfs_format|mkfs(\.[a-z0-9]+)?\s+/dev/
+high|dangerous_shred|shred\s+(-[a-zA-Z]*)?.*(/dev/|/etc/|/var/|/boot/)
+high|fork_bomb|:\(\)\{[^}]*\|[^}]*\};:
+high|kill_all|kill\s+-9\s+-1
+high|destroy_partition|fdisk\s+/dev/|parted\s+/dev/|wipefs\s+
+high|truncate_important|>\s*/etc/|>\s*/var/|truncate\s+.*(/etc/|/var/)

@@ -1,0 +1,12 @@
+# HexOS Security — Path Traversal Pattern Database
+# Category: path_traversal
+# Risk Level: high/medium
+# Format: RISK_LEVEL|PATTERN_NAME|REGEX
+
+high|traversal_etc|\.\./(\.\./)*(etc|boot|root|sys|proc)/
+high|traversal_sensitive|\.\./.*\.\./.*\.\./.*/(passwd|shadow|authorized_keys)
+high|symlink_attack|ln\s+-s[a-zA-Z]*\s+/(etc|var|root|home|boot|dev)/
+high|symlink_force|ln\s+-s[a-zA-Z]*f\s+
+medium|traversal_generic|\.\./\.\./
+medium|readlink_sensitive|readlink\s+.*/(etc|var|root)/
+medium|realpath_abuse|realpath\s+.*\.\./

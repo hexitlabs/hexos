@@ -1,0 +1,16 @@
+# HexOS Security — Obfuscation Pattern Database
+# Category: obfuscation
+# Risk Level: high/medium
+# Format: RISK_LEVEL|PATTERN_NAME|REGEX
+
+high|base64_decode_exec|base64\s+(-d|--decode)\s*\|\s*(bash|sh|eval|exec|source|python|perl|ruby|node)
+high|base64_pipe_bash|base64\s+(-d|--decode).*\|\s*(bash|sh)
+high|eval_variable|eval\s+["']\$[A-Za-z_]
+high|eval_payload|eval\s+["'].*['"]
+high|hex_escape_exec|\\x[0-9a-fA-F]{2}.*\\x[0-9a-fA-F]{2}.*\|\s*(bash|sh)
+high|python_exec|python[23]?\s+-c\s+.*exec\(
+high|perl_exec|perl\s+-e\s+.*system\(
+medium|encoded_string_long|[A-Za-z0-9+/]{60,}={0,2}
+medium|hex_string_long|\\x[0-9a-fA-F]{2}(\\x[0-9a-fA-F]{2}){10,}
+medium|rot13|tr\s+['"]A-Za-z['"]\s+['"]N-ZA-Mn-za-m['"]
+medium|reversed_command|rev\s*<<<?\s*['"]
