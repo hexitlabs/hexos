@@ -3,6 +3,28 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.2.0] - 2026-03-24
+
+### Features
+- **Workspace Jail** — Multi-tenant filesystem isolation for client deployments
+- Per-client system users (`hexos-<client>`) with no login shell
+- Isolated workspaces at `/hexos/<client>/` with full directory structure
+- `hexos client create <name>` — automated client onboarding
+- `hexos client remove <name>` — graceful teardown with optional archive
+- `hexos security verify <name>` — 34+ automated security penetration tests
+- `hexos client stats <name>` — per-client resource monitoring
+- Cross-client isolation via systemd InaccessiblePaths (auto-refreshed)
+- CLI dispatcher (`scripts/hexos`)
+
+### Security
+- Systemd hardening template: ProtectHome, ProtectSystem=strict, PID namespace isolation
+- Capability dropping (CapabilityBoundingSet=), NoNewPrivileges
+- System call filtering (@system-service whitelist, dangerous calls blocked)
+- Resource limits per client (MemoryMax=1G, CPUQuota=100%, TasksMax=256)
+- Cleanup on partial failure (trap handler rolls back orphaned state)
+- Input validation on all management scripts (path traversal protection)
+- `/hexos/shared/` set to root:root read-only (no cross-client skill injection)
+
 ## [v0.1.1] - 2026-03-24
 
 ### Security
