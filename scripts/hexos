@@ -1,0 +1,73 @@
+#!/bin/bash
+# HexOS CLI — Management interface for HexOS platform
+# Phase 1: Workspace Jail management
+set -euo pipefail
+
+PLATFORM_BIN="/hexos/platform/bin"
+VERSION="0.1.0"
+
+show_help() {
+    echo "HexOS CLI v${VERSION}"
+    echo ""
+    echo "Usage: hexos <command> <subcommand> [args]"
+    echo ""
+    echo "Commands:"
+    echo "  client create <name>                Create a new client workspace jail"
+    echo "  client remove <name> [--confirm]    Remove a client workspace jail"
+    echo "  client status <name>                Show client status and stats"
+    echo "  client list                         List all clients"
+    echo ""
+    echo "  security verify <name>              Run security verification checks"
+    echo ""
+    echo "  version                             Show version"
+    echo "  help                                Show this help"
+}
+
+case "${1:-help}" in
+    client)
+        case "${2:-}" in
+            create)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_BIN}/hexos-client-create.sh" "$3"
+                ;;
+            remove)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_BIN}/hexos-client-remove.sh" "${@:3}"
+                ;;
+            status)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_BIN}/hexos-client-stats.sh" "$3"
+                ;;
+            list)
+                "${PLATFORM_BIN}/hexos-client-stats.sh" --all
+                ;;
+            *)
+                echo "Usage: hexos client {create|remove|status|list}"
+                exit 1
+                ;;
+        esac
+        ;;
+    security)
+        case "${2:-}" in
+            verify)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_BIN}/hexos-security-verify.sh" "$3"
+                ;;
+            *)
+                echo "Usage: hexos security {verify}"
+                exit 1
+                ;;
+        esac
+        ;;
+    version)
+        echo "HexOS CLI v${VERSION}"
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        echo "Unknown command: $1"
+        show_help
+        exit 1
+        ;;
+esac
