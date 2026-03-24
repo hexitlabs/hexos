@@ -5,6 +5,85 @@ import { resolveStateDir } from "../config/paths.js";
 import { parseBooleanValue } from "../utils/boolean.js";
 import { resolveUserPath } from "../utils.js";
 const writers = new Map();
+const REDACTED_IMAGE_DATA = "<redacted>";
+const NON_CREDENTIAL_FIELD_NAMES = new Set([
+    "passwordfile",
+    "tokenbudget",
+    "tokencount",
+    "tokenfield",
+    "tokenlimit",
+    "tokens",
+]);
+function toLowerTrimmed(value) {
+    return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+function normalizeFieldName(value) {
+    return value.replaceAll(/[^a-z0-9]/gi, "").toLowerCase();
+}
+function isCredentialFieldName(key) {
+    const normalized = normalizeFieldName(key);
+    if (!normalized || NON_CREDENTIAL_FIELD_NAMES.has(normalized))
+        return false;
+    if (normalized === "authorization" || normalized === "proxyauthorization")
+        return true;
+    return (normalized.endsWith("apikey") ||
+        normalized.endsWith("password") ||
+        normalized.endsWith("passwd") ||
+        normalized.endsWith("passphrase") ||
+        normalized.endsWith("secret") ||
+        normalized.endsWith("secretkey") ||
+        normalized.endsWith("token"));
+}
+function hasImageMime(record) {
+    return [
+        toLowerTrimmed(record.mimeType),
+        toLowerTrimmed(record.media_type),
+        toLowerTrimmed(record.mime_type),
+    ].some((value) => value.startsWith("image/"));
+}
+function shouldRedactImageData(record) {
+    if (typeof record.data !== "string")
+        return false;
+    return toLowerTrimmed(record.type) === "image" || hasImageMime(record);
+}
+function digestBase64Payload(data) {
+    return crypto.createHash("sha256").update(data).digest("hex");
+}
+function estimateBase64DecodedBytes(data) {
+    if (typeof data !== "string")
+        return 0;
+    return Math.floor((data.length * 3) / 4);
+}
+/**
+ * Removes credential-like fields and image/base64 payload data from diagnostic
+ * objects before persistence.
+ */
+function sanitizeDiagnosticPayload(value) {
+    const seen = new WeakSet();
+    const visit = (input) => {
+        if (Array.isArray(input))
+            return input.map((entry) => visit(entry));
+        if (!input || typeof input !== "object")
+            return input;
+        if (seen.has(input))
+            return "[Circular]";
+        seen.add(input);
+        const record = input;
+        const out = {};
+        for (const [key, val] of Object.entries(record)) {
+            if (isCredentialFieldName(key))
+                continue;
+            out[key] = visit(val);
+        }
+        if (shouldRedactImageData(record)) {
+            out.data = REDACTED_IMAGE_DATA;
+            out.bytes = estimateBase64DecodedBytes(record.data);
+            out.sha256 = digestBase64Payload(record.data);
+        }
+        return out;
+    };
+    return visit(value);
+}
 function resolveCacheTraceConfig(params) {
     const env = params.env ?? process.env;
     const config = params.cfg?.diagnostics?.cacheTrace;
@@ -133,13 +212,13 @@ export function createCacheTrace(params) {
             event.prompt = payload.prompt;
         }
         if (payload.system !== undefined && cfg.includeSystem) {
-            event.system = payload.system;
+            event.system = sanitizeDiagnosticPayload(payload.system);
             event.systemDigest = digest(payload.system);
         }
         if (payload.options)
-            event.options = payload.options;
+            event.options = sanitizeDiagnosticPayload(payload.options);
         if (payload.model)
-            event.model = payload.model;
+            event.model = sanitizeDiagnosticPayload(payload.model);
         const messages = payload.messages;
         if (Array.isArray(messages)) {
             const summary = summarizeMessages(messages);
@@ -148,7 +227,7 @@ export function createCacheTrace(params) {
             event.messageFingerprints = summary.messageFingerprints;
             event.messagesDigest = summary.messagesDigest;
             if (cfg.includeMessages) {
-                event.messages = messages;
+                event.messages = sanitizeDiagnosticPayload(messages);
             }
         }
         if (payload.note)
