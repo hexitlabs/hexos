@@ -188,6 +188,33 @@ fi
 # Success — disable the rollback trap
 trap - EXIT
 
+# 9. Create default egress policy
+EGRESS_DEFAULT="/hexos/platform/config/egress-default.yaml"
+EGRESS_CLIENT="${CLIENT_HOME}/config/egress.yaml"
+if [[ -f "$EGRESS_DEFAULT" && ! -f "$EGRESS_CLIENT" ]]; then
+    cp "$EGRESS_DEFAULT" "$EGRESS_CLIENT"
+    chown "${CLIENT_USER}:hexos" "$EGRESS_CLIENT" 2>/dev/null || true
+    chmod 640 "$EGRESS_CLIENT"
+    echo "  ✓ Default egress policy created at ${EGRESS_CLIENT}"
+fi
+
+# 10. Apply egress rules (dry-run first, then check-only if nft available)
+EGRESS_APPLY="/hexos/platform/network/egress-apply.sh"
+if [[ -f "$EGRESS_APPLY" && -f "$EGRESS_CLIENT" ]]; then
+    echo "  Applying egress rules..."
+    if "$EGRESS_APPLY" "$CLIENT_NAME" --check-only 2>/dev/null; then
+        echo "  ✓ Egress rules validated"
+        # Apply for real (only if not in a test/build environment)
+        if command -v nft &>/dev/null && nft list tables &>/dev/null 2>&1; then
+            "$EGRESS_APPLY" "$CLIENT_NAME" 2>/dev/null || echo "  ⚠ Egress rules not applied (nftables may need setup)"
+        else
+            echo "  ⚠ nftables not available — egress rules generated but not applied"
+        fi
+    else
+        echo "  ⚠ Egress rules validation failed — apply manually with: hexos egress apply ${CLIENT_NAME}"
+    fi
+fi
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Workspace jail created for '${CLIENT_NAME}'"
@@ -198,5 +225,7 @@ echo "  Service:   hexos-agent@${CLIENT_NAME}.service"
 echo ""
 echo "Next steps:"
 echo "  1. Place gateway config at ${CLIENT_HOME}/config/gateway.yaml"
-echo "  2. Start with: systemctl start hexos-agent@${CLIENT_NAME}"
-echo "  3. Verify with: hexos security verify ${CLIENT_NAME}"
+echo "  2. Edit egress policy: ${CLIENT_HOME}/config/egress.yaml"
+echo "  3. Apply egress rules: hexos egress apply ${CLIENT_NAME}"
+echo "  4. Start with: systemctl start hexos-agent@${CLIENT_NAME}"
+echo "  5. Verify with: hexos security verify ${CLIENT_NAME}"
