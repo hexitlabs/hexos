@@ -1,0 +1,8 @@
+# Preset: OpenAI API
+# Used by agents that need GPT, embeddings, or other OpenAI services
+name: openai
+description: "OpenAI API access"
+allow:
+  - host: api.openai.com
+    ports: [443]
+    comment: "OpenAI API endpoint"

@@ -2,11 +2,13 @@
 # HexOS CLI — Management interface for HexOS platform
 # Phase 1: Workspace Jail management
 # Phase 1.5: Security scanning
+# Phase 2: Network Egress Control
 set -euo pipefail
 
 PLATFORM_BIN="/hexos/platform/bin"
 PLATFORM_SECURITY="/hexos/platform/security"
-VERSION="0.2.0"
+PLATFORM_NETWORK="/hexos/platform/network"
+VERSION="0.3.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"
@@ -18,6 +20,19 @@ show_help() {
     echo "  client remove <name> [--confirm]    Remove a client workspace jail"
     echo "  client status <name>                Show client status and stats"
     echo "  client list                         List all clients"
+    echo ""
+    echo "  egress apply <client> [--dry-run|--check-only]"
+    echo "                                      Apply egress policy from YAML"
+    echo "  egress remove <client>              Remove all egress rules"
+    echo "  egress status <client>              Show rules + violation stats"
+    echo "  egress test <client> <host> [port]  Test connectivity"
+    echo "  egress reload <client>              Hot-reload rules"
+    echo "  egress lockdown <client>            Emergency: block ALL egress"
+    echo "  egress unlock <client>              Restore normal policy after lockdown"
+    echo "  egress allow <client> <host[:port]> Quick-add endpoint to allowlist"
+    echo "  egress presets                      List available egress presets"
+    echo "  egress dns verify <client>          Verify DNS control is active"
+    echo "  egress dns test <client>            Test DNS resolution"
     echo ""
     echo "  security verify <name>              Run security verification checks"
     echo "  security scan <type> <target> [policy]  Run security scan"
@@ -129,6 +144,84 @@ case "${1:-help}" in
                 ;;
             *)
                 echo "Usage: hexos security {verify|scan|policy|report}"
+                exit 1
+                ;;
+        esac
+        ;;
+    egress)
+        case "${2:-}" in
+            apply)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-apply.sh" "${@:3}"
+                ;;
+            remove)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-remove.sh" "$3"
+                ;;
+            status)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-status.sh" "$3"
+                ;;
+            test)
+                [[ -z "${3:-}" || -z "${4:-}" ]] && echo "Error: client name and host required" && exit 1
+                "${PLATFORM_NETWORK}/egress-test.sh" "$3" "$4" "${5:-443}"
+                ;;
+            reload)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-reload.sh" "$3"
+                ;;
+            lockdown)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-lockdown.sh" "$3"
+                ;;
+            unlock)
+                [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
+                "${PLATFORM_NETWORK}/egress-unlock.sh" "$3"
+                ;;
+            allow)
+                [[ -z "${3:-}" || -z "${4:-}" ]] && echo "Error: client name and host[:port] required" && exit 1
+                "${PLATFORM_NETWORK}/egress-allow.sh" "$3" "$4"
+                ;;
+            presets)
+                echo "Available egress presets:"
+                echo ""
+                PRESETS_DIR="/hexos/platform/config/egress-presets"
+                if [[ -d "$PRESETS_DIR" ]]; then
+                    for f in "${PRESETS_DIR}"/*.yaml; do
+                        [[ -f "$f" ]] || continue
+                        name=$(basename "$f" .yaml)
+                        desc=$(yq -r '.description // "No description"' "$f" 2>/dev/null || echo "No description")
+                        hosts=$(yq -r '.allow[]?.host // empty' "$f" 2>/dev/null | tr '\n' ', ' | sed 's/,$//')
+                        printf "  %-16s %s\n" "$name" "$desc"
+                        [[ -n "$hosts" ]] && printf "  %-16s Hosts: %s\n" "" "$hosts"
+                    done
+                else
+                    echo "  No presets directory found"
+                fi
+                ;;
+            dns)
+                DNS_ACTION="${3:-}"
+                case "$DNS_ACTION" in
+                    verify)
+                        [[ -z "${4:-}" ]] && echo "Error: client name required" && exit 1
+                        "${PLATFORM_NETWORK}/dns-control.sh" verify "$4"
+                        ;;
+                    show)
+                        [[ -z "${4:-}" ]] && echo "Error: client name required" && exit 1
+                        "${PLATFORM_NETWORK}/dns-control.sh" show "$4"
+                        ;;
+                    test)
+                        [[ -z "${4:-}" ]] && echo "Error: client name required" && exit 1
+                        "${PLATFORM_NETWORK}/dns-control.sh" test "$4"
+                        ;;
+                    *)
+                        echo "Usage: hexos egress dns {verify|show|test} <client>"
+                        exit 1
+                        ;;
+                esac
+                ;;
+            *)
+                echo "Usage: hexos egress {apply|remove|status|test|reload|lockdown|unlock|allow|presets|dns}"
                 exit 1
                 ;;
         esac

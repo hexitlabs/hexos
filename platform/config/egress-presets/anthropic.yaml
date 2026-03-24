@@ -1,0 +1,11 @@
+# Preset: Anthropic Claude API
+# Used by agents that need to call the Anthropic API
+name: anthropic
+description: "Anthropic Claude API access"
+allow:
+  - host: api.anthropic.com
+    ports: [443]
+    comment: "Claude API endpoint"
+  - host: anthropic.com
+    ports: [443]
+    comment: "API docs and model downloads"

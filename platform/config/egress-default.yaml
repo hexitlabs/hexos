@@ -1,0 +1,47 @@
+# Default egress policy template for new HexOS clients
+# This file is copied to /hexos/<client>/config/egress.yaml during onboarding
+# Edit the client-specific copy to customize
+
+# Version for change tracking
+version: 1
+
+egress:
+  # Compose from preset integration policies
+  # Available presets: anthropic, openai, telegram, github, stripe,
+  #   salesmanago, brave-search, firecrawl, google-search, web-general
+  presets: []
+
+  # Custom endpoints (in addition to presets)
+  custom: []
+  # Example:
+  #   - host: api.custom-service.com
+  #     port: 443
+  #     protocol: tcp
+  #   - host: "*.example.com"
+  #     port: 443
+
+  # DNS configuration
+  dns:
+    # Platform resolver — all client DNS goes through this
+    resolver: "127.0.0.53"
+    # Whether client can specify custom DNS resolvers (not recommended)
+    allow_custom: false
+
+  # Logging configuration
+  logging:
+    # Log blocked (denied) connections to syslog
+    log_blocked: true
+    # Log allowed connections (verbose — only enable for debugging)
+    log_allowed: false
+    # Rate limit: max log entries per minute per client
+    rate_limit: 100
+
+# Alert configuration
+alerts:
+  enabled: true
+  channel: telegram
+  quiet_hours:
+    start: "23:00"
+    end: "07:00"
+    timezone: "UTC"
+    suppress_levels: [info]

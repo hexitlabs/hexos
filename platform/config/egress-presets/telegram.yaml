@@ -1,0 +1,14 @@
+# Preset: Telegram Bot API + CDN
+# Used by agents that interact via Telegram
+name: telegram
+description: "Telegram Bot API and file CDN"
+allow:
+  - host: api.telegram.org
+    ports: [443]
+    comment: "Telegram Bot API"
+  - host: "*.telegram.org"
+    ports: [443]
+    comment: "File upload/download CDN"
+  - host: "*.t.me"
+    ports: [443]
+    comment: "Telegram link resolution"

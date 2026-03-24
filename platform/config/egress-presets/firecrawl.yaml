@@ -1,0 +1,8 @@
+# Preset: Firecrawl Web Scraping API
+# Used by agents that need web scraping capabilities
+name: firecrawl
+description: "Firecrawl web scraping API"
+allow:
+  - host: api.firecrawl.dev
+    ports: [443]
+    comment: "Firecrawl API endpoint"
