@@ -1,0 +1,21 @@
+# HexOS Deployment Profile: Operator
+# For internal use — full access, no restrictions, maximum speed
+# Use this when running your own agent fleet
+
+hexos:
+  mode: operator
+  version: "0.4.0"
+
+security:
+  # Phase 0 patches are always active (core runtime fixes)
+  workspace_jail: false
+  pre_scan: false
+  egress_control: false
+  docker_sandbox: false
+  inference_policy: false
+  audit_trail: false
+
+# Scanner available as opt-in tool (not automatic)
+scanner:
+  auto: false
+  # Manual usage: hexos security scan <path>
