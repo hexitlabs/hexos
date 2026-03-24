@@ -1,0 +1,30 @@
+# HexOS Deployment Profile: Managed
+# For client deployments — full security stack active
+# Use this when hosting agents for clients
+
+hexos:
+  mode: managed
+  version: "0.4.0"
+
+security:
+  # Phase 0 patches are always active (core runtime fixes)
+  workspace_jail: true      # Phase 1: per-client users + filesystem isolation
+  pre_scan: true            # Phase 1.5: scan skills, exec, workspace before execution
+  egress_control: true      # Phase 2: default-deny outbound + YAML allowlists
+  docker_sandbox: false     # Phase 3: not yet implemented
+  inference_policy: false   # Phase 5: not yet implemented
+  audit_trail: false        # Phase 6: not yet implemented
+
+scanner:
+  auto: true
+  mode: strict              # strict = block threats, permissive = log only
+  scan_skills: true         # Scan on skill install
+  scan_exec: true           # Scan before exec commands
+  scan_workspace: true      # Periodic workspace audit
+
+egress:
+  default_presets:
+    - anthropic
+    - telegram
+  dns_resolver: "1.1.1.1"
+  log_blocked: true

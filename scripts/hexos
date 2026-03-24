@@ -8,7 +8,7 @@ set -euo pipefail
 PLATFORM_BIN="/hexos/platform/bin"
 PLATFORM_SECURITY="/hexos/platform/security"
 PLATFORM_NETWORK="/hexos/platform/network"
-VERSION="0.3.0"
+VERSION="0.4.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"
@@ -44,6 +44,10 @@ show_help() {
     echo "  security policy resolve <client>    Show resolved policy for a client"
     echo "  security policy get <client> <key>  Get a policy value"
     echo "  security report [client]            Show recent scan reports"
+    echo ""
+    echo "  setup [operator|managed]             Configure deployment profile"
+    echo "  mode                                Show current profile + security status"
+    echo "  deploy <client> [--presets p1,p2]   Full client deploy (managed mode only)"
     echo ""
     echo "  version                             Show version"
     echo "  help                                Show this help"
@@ -225,6 +229,16 @@ case "${1:-help}" in
                 exit 1
                 ;;
         esac
+        ;;
+    setup)
+        "${PLATFORM_BIN}/hexos-setup.sh" "${2:-}"
+        ;;
+    mode)
+        "${PLATFORM_BIN}/hexos-mode.sh"
+        ;;
+    deploy)
+        shift
+        "${PLATFORM_BIN}/hexos-deploy-client.sh" "$@"
         ;;
     version)
         echo "HexOS CLI v${VERSION}"
