@@ -1,0 +1,11 @@
+# Preset: Stripe Payment API
+# Used by agents that process payments
+name: stripe
+description: "Stripe payment processing API"
+allow:
+  - host: api.stripe.com
+    ports: [443]
+    comment: "Stripe API endpoint"
+  - host: "*.stripe.com"
+    ports: [443]
+    comment: "Stripe subdomains (dashboard, webhooks, etc.)"

@@ -1,0 +1,8 @@
+# Preset: Brave Search API
+# Used by agents that perform web searches
+name: brave-search
+description: "Brave Search API"
+allow:
+  - host: api.search.brave.com
+    ports: [443]
+    comment: "Brave Search API endpoint"

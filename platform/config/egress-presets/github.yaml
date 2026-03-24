@@ -1,0 +1,17 @@
+# Preset: GitHub API + CDN
+# Used by agents that access GitHub repos, skills, etc.
+name: github
+description: "GitHub API, web, and content CDN"
+allow:
+  - host: api.github.com
+    ports: [443]
+    comment: "GitHub REST/GraphQL API"
+  - host: github.com
+    ports: [443]
+    comment: "GitHub web (git clone over HTTPS)"
+  - host: "*.githubusercontent.com"
+    ports: [443]
+    comment: "Raw content and release downloads"
+  - host: objects.githubusercontent.com
+    ports: [443]
+    comment: "GitHub release artifacts"
