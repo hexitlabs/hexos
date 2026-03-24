@@ -1,0 +1,114 @@
+# HexOS Security Scanner — Default Policy
+# Applied to all clients unless overridden
+# Override: /hexos/<client>/security/policies/scan-policy.yaml
+
+scan:
+  # strict = block threats, permissive = log only
+  mode: strict
+
+  # File extensions to scan
+  extensions:
+    - .md
+    - .js
+    - .ts
+    - .py
+    - .sh
+    - .yaml
+    - .yml
+    - .json
+    - .txt
+    - .mjs
+    - .cjs
+    - .jsx
+    - .tsx
+    - .toml
+    - .cfg
+    - .conf
+    - .ini
+    - .env
+
+  # Directories to exclude
+  exclude:
+    - node_modules/
+    - .git/
+    - logs/
+    - reports/
+    - .cache/
+    - __pycache__/
+
+  # Risk level → action mapping
+  risk_levels:
+    critical: fail
+    high: fail
+    medium: warn
+    low: pass
+
+  # Safe commands for exec fast-path (bypass deep scan)
+  safe_commands:
+    - ls
+    - cat
+    - echo
+    - pwd
+    - whoami
+    - node
+    - npm
+    - npx
+    - git
+    - date
+    - head
+    - tail
+    - wc
+    - grep
+    - find
+    - sort
+    - uniq
+    - tee
+    - cut
+    - tr
+    - sed
+    - awk
+    - jq
+    - yq
+    - diff
+    - file
+    - stat
+    - basename
+    - dirname
+    - realpath
+    - readlink
+    - which
+    - env
+    - true
+    - false
+    - test
+    - id
+    - uname
+    - hostname
+    - mkdir
+    - touch
+    - cp
+    - mv
+    - python3
+    - python
+
+  # Pattern categories to enable
+  rule_categories:
+    - dangerous_commands
+    - secrets
+    - obfuscation
+    - exfiltration
+    - malware
+    - privilege_escalation
+    - path_traversal
+
+  # Workspace audit settings
+  audit:
+    schedule: "0 3 * * *"
+    retention_days: 90
+    alert_on_drift: true
+
+  # Scanner behavior
+  behavior:
+    timeout: 30
+    max_file_size: 1048576
+    fail_open: true

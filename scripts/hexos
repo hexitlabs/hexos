@@ -1,10 +1,12 @@
 #!/bin/bash
 # HexOS CLI — Management interface for HexOS platform
 # Phase 1: Workspace Jail management
+# Phase 1.5: Security scanning
 set -euo pipefail
 
 PLATFORM_BIN="/hexos/platform/bin"
-VERSION="0.1.0"
+PLATFORM_SECURITY="/hexos/platform/security"
+VERSION="0.2.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"
@@ -18,6 +20,15 @@ show_help() {
     echo "  client list                         List all clients"
     echo ""
     echo "  security verify <name>              Run security verification checks"
+    echo "  security scan <type> <target> [policy]  Run security scan"
+    echo "    scan skill <dir>                  Scan a skill directory"
+    echo "    scan exec <command>               Scan a command before execution"
+    echo "    scan workspace <dir> <client>     Scan a workspace directory"
+    echo "    scan file <path>                  Scan a single file"
+    echo "  security policy validate <file>     Validate a policy file"
+    echo "  security policy resolve <client>    Show resolved policy for a client"
+    echo "  security policy get <client> <key>  Get a policy value"
+    echo "  security report [client]            Show recent scan reports"
     echo ""
     echo "  version                             Show version"
     echo "  help                                Show this help"
@@ -53,8 +64,71 @@ case "${1:-help}" in
                 [[ -z "${3:-}" ]] && echo "Error: client name required" && exit 1
                 "${PLATFORM_BIN}/hexos-security-verify.sh" "$3"
                 ;;
+            scan)
+                SCAN_TYPE="${3:-}"
+                case "$SCAN_TYPE" in
+                    skill)
+                        [[ -z "${4:-}" ]] && echo "Error: skill directory required" && exit 1
+                        "${PLATFORM_SECURITY}/scan-skill.sh" "$4" "${5:-}"
+                        ;;
+                    exec)
+                        [[ -z "${4:-}" ]] && echo "Error: command required" && exit 1
+                        "${PLATFORM_SECURITY}/scan-exec.sh" "$4" "${5:-}"
+                        ;;
+                    workspace)
+                        [[ -z "${4:-}" || -z "${5:-}" ]] && echo "Error: workspace path and client-id required" && exit 1
+                        "${PLATFORM_SECURITY}/scan-workspace.sh" "$4" "$5" "${6:-}"
+                        ;;
+                    file)
+                        [[ -z "${4:-}" ]] && echo "Error: file path required" && exit 1
+                        "${PLATFORM_SECURITY}/scanner.sh" "file" "$4" "${5:-}"
+                        ;;
+                    *)
+                        echo "Usage: hexos security scan {skill|exec|workspace|file} <target> [policy]"
+                        exit 1
+                        ;;
+                esac
+                ;;
+            policy)
+                POLICY_ACTION="${3:-}"
+                case "$POLICY_ACTION" in
+                    validate)
+                        [[ -z "${4:-}" ]] && echo "Error: policy file required" && exit 1
+                        "${PLATFORM_SECURITY}/policy-loader.sh" validate "$4"
+                        ;;
+                    resolve)
+                        [[ -z "${4:-}" ]] && echo "Error: client-id required" && exit 1
+                        "${PLATFORM_SECURITY}/policy-loader.sh" resolve "$4"
+                        ;;
+                    get)
+                        [[ -z "${4:-}" || -z "${5:-}" ]] && echo "Error: client-id and key required" && exit 1
+                        "${PLATFORM_SECURITY}/policy-loader.sh" get "$4" "$5"
+                        ;;
+                    *)
+                        echo "Usage: hexos security policy {validate|resolve|get} <args>"
+                        exit 1
+                        ;;
+                esac
+                ;;
+            report)
+                REPORTS_DIR="${REPORTS_DIR:-/tmp/hexos-security-reports}"
+                CLIENT_FILTER="${3:-}"
+                echo "╔══════════════════════════════════════════════════╗"
+                echo "║  HexOS Security Reports                          ║"
+                echo "╚══════════════════════════════════════════════════╝"
+                echo ""
+                if [[ ! -d "$REPORTS_DIR" ]]; then
+                    echo "No reports found."
+                    exit 0
+                fi
+                if [[ -n "$CLIENT_FILTER" ]]; then
+                    ls -lt "$REPORTS_DIR"/*"${CLIENT_FILTER}"* 2>/dev/null | head -20 || echo "No reports for client: $CLIENT_FILTER"
+                else
+                    ls -lt "$REPORTS_DIR"/*.json 2>/dev/null | head -20 || echo "No reports found."
+                fi
+                ;;
             *)
-                echo "Usage: hexos security {verify}"
+                echo "Usage: hexos security {verify|scan|policy|report}"
                 exit 1
                 ;;
         esac

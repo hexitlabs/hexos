@@ -1,0 +1,16 @@
+# HexOS Security — Privilege Escalation Pattern Database
+# Category: privilege_escalation
+# Risk Level: high/critical
+# Format: RISK_LEVEL|PATTERN_NAME|REGEX
+
+critical|sudo_destructive|sudo\s+(rm|dd|mkfs|fdisk|shred|kill|halt|reboot|shutdown|init)
+high|sudo_sensitive|sudo\s+(cat|less|more|head|tail|vi|vim|nano)\s+.*(shadow|passwd|sudoers|authorized_keys)
+high|chmod_world_write|chmod\s+([0-7]?7[0-7]{2}|[augo]*\+w[rxw]*)\s+.*(etc|var|usr|boot)
+high|chmod_setuid|chmod\s+[0-7]*[4-7][0-7]{3}\s|chmod\s+[ugo]*\+s
+high|chown_root|chown\s+(root|0)[\s:]
+high|su_root|su\s+(-\s+)?root
+high|visudo_modify|visudo|echo.*>>\s*/etc/sudoers
+high|crontab_modify|crontab\s+-[erl]|echo.*>>\s*/etc/cron
+high|sshd_config|sed\s.*sshd_config|echo.*>>\s*/etc/ssh/
+high|capability_set|setcap\s|getcap\s
+high|ld_preload|LD_PRELOAD=|LD_LIBRARY_PATH=.*\.\./
