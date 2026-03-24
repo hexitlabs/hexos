@@ -101,18 +101,21 @@ if [[ -z "$UNIQUE_IPS" ]]; then
     exit 0
 fi
 
-# Atomic set replacement
+# Atomic set replacement — single nft -f command to avoid race condition
+# (flush + add in one transaction, never leaves the set empty)
 echo "Updating DNS resolution for ${CLIENT}: ${#IP_MAP[@]} IPs"
 
-# Flush and repopulate the set
-nft flush set inet "${TABLE_NAME}" "${SET_NAME}" 2>/dev/null || {
-    echo "Warning: Could not flush set ${SET_NAME} — table may not exist yet"
+NFT_SCRIPT=$(mktemp /tmp/hexos-nft-XXXXXX.nft)
+cat > "$NFT_SCRIPT" <<EOF
+flush set inet ${TABLE_NAME} ${SET_NAME}
+add element inet ${TABLE_NAME} ${SET_NAME} { ${UNIQUE_IPS} }
+EOF
+
+nft -f "$NFT_SCRIPT" 2>/dev/null || {
+    rm -f "$NFT_SCRIPT"
+    echo "Warning: Could not update set ${SET_NAME} — table may not exist yet"
     exit 0
 }
-
-nft add element inet "${TABLE_NAME}" "${SET_NAME}" "{ ${UNIQUE_IPS} }" 2>/dev/null || {
-    echo "Warning: Could not update set ${SET_NAME}"
-    exit 1
-}
+rm -f "$NFT_SCRIPT"
 
 echo "✓ DNS updated for ${CLIENT}: ${#IP_MAP[@]} IPs in set ${SET_NAME}"

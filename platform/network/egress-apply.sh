@@ -94,8 +94,12 @@ echo "Generating egress rules for client: ${CLIENT}"
 
 # ── Parse egress config ──────────────────────────────────────────────────
 
-# Get DNS resolver
+# Get DNS resolver (validate it's a valid IPv4 address)
 DNS_RESOLVER=$(yq -r '.egress.dns.resolver // "127.0.0.53"' "$CONFIG_FILE")
+if [[ ! "$DNS_RESOLVER" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: Invalid DNS resolver address '${DNS_RESOLVER}' — must be IPv4"
+    exit 1
+fi
 
 # Get logging config
 LOG_BLOCKED=$(yq -r '.egress.logging.log_blocked // true' "$CONFIG_FILE")
@@ -286,6 +290,10 @@ table inet ${TABLE_NAME} {
 
         # Allow ICMP echo (ping) for diagnostics — limited
         ip protocol icmp icmp type { echo-request, echo-reply } limit rate 10/second accept
+
+        # Block IPv6 by default (prevents curl -6 bypass)
+        # IPv6 allowlist support can be added per-client if needed
+        meta nfproto ipv6 counter drop
 EOF
 
     # Add wildcard port rules (if unrestricted)

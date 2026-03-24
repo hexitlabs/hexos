@@ -39,9 +39,9 @@ else
     PORT="443"
 fi
 
-# Validate host (basic check)
-if [[ -z "$HOST" || "$HOST" =~ [[:space:]] ]]; then
-    echo "Error: Invalid hostname '${HOST}'"
+# Validate host (strict check — alphanumeric, dots, hyphens, wildcards only)
+if [[ -z "$HOST" ]] || [[ ! "$HOST" =~ ^[a-zA-Z0-9.*-]+$ ]]; then
+    echo "Error: Invalid hostname '${HOST}' — only alphanumeric, dots, hyphens, and wildcards allowed"
     exit 1
 fi
 
