@@ -3,6 +3,26 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.4.0] - 2026-03-24
+
+### Features
+- **Network Egress Control** — default-deny outbound firewall per client via nftables
+- 10 preset egress policies: Anthropic, OpenAI, Telegram, GitHub, Stripe, SALESmanago, Brave Search, Firecrawl, Google Search, web-general
+- YAML allowlists with wildcard subdomain support (`*.example.com`)
+- DNS control — force platform resolver, block DNS exfiltration
+- Emergency lockdown/unlock (`hexos egress lockdown/unlock`)
+- Hot-reload without dropping connections (`hexos egress reload`)
+- Violation logging with rate-limited syslog + alert integration
+- Hostname resolution caching with 5-minute refresh
+- Endpoint connectivity testing (`hexos egress test`)
+- Full CLI: `hexos egress apply/remove/status/test/reload/presets`
+
+### Security
+- IPv6 bypass prevention — `meta nfproto ipv6 counter drop` blocks `curl -6` bypass
+- Atomic DNS set updates — single nft transaction prevents race condition during refresh
+- Hostname validation — strict alphanumeric + dots + hyphens only (prevents injection)
+- DNS resolver validation — must be valid IPv4 before nftables insertion
+
 ## [v0.3.0] - 2026-03-24
 
 ### Features
