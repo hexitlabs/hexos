@@ -3,11 +3,11 @@
 # Foundation for security event notifications
 # Current: writes to log file. Phase 6: Telegram, email, webhook
 #
-# Usage: alert.sh <client> <severity> <scan-type> <message>
+# Usage: alert.sh <severity> <client> <scan-type> <message>
 set -uo pipefail
 
-CLIENT="${1:-unknown}"
-SEVERITY="${2:-INFO}"
+SEVERITY="${1:-INFO}"
+CLIENT="${2:-unknown}"
 SCAN_TYPE="${3:-unknown}"
 MESSAGE="${4:-No message provided}"
 
