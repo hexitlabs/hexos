@@ -1,0 +1,20 @@
+# HexOS Security — Network Exfiltration Pattern Database
+# Category: exfiltration
+# Risk Level: critical/high
+# Format: RISK_LEVEL|PATTERN_NAME|REGEX
+
+critical|reverse_shell_tcp|/dev/tcp/[0-9]
+critical|reverse_shell_bash|bash\s+-i\s+>&?\s*/dev/(tcp|udp)/
+critical|nc_reverse|nc\s+(-[a-zA-Z]*e[a-zA-Z]*)\s
+critical|nc_exec|nc\s.*-e\s+/bin/(ba)?sh
+critical|ncat_exec|ncat\s.*(-e|--exec)\s
+critical|socat_exec|socat\s.*exec:
+critical|curl_upload|curl\s+.*--upload-file\s+.*(etc|shadow|passwd|authorized_keys|\.ssh|\.env|\.git)
+critical|curl_data_file|curl\s+.*(-d|--data).*@/.*(etc|shadow|passwd)
+high|wget_pipe|wget\s+.*-O\s*-\s*\|\s*(bash|sh)
+high|curl_pipe|curl\s+.*\|\s*(bash|sh|eval|exec|source)
+high|data_to_external|curl\s+.*(-F|--form|--data|-d)\s.*http
+high|nc_listen|nc\s+.*-l
+high|telnet_connect|telnet\s+[0-9]
+high|dns_exfil|dig\s+.*@|nslookup\s+.*\..*\.
+high|scp_out|scp\s+.*(etc|shadow|passwd|\.ssh|\.env)\s+[a-zA-Z0-9_]+@

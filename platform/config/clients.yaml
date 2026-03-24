@@ -1,0 +1,7 @@
+# HexOS Client Registry
+clients:
+  - name: test-client  # REMOVED 2026-03-24T20:06:55+07:00
+    created: 2026-03-24T20:06:18+07:00
+    status: active
+    user: hexos-test-client
+    uid: 999

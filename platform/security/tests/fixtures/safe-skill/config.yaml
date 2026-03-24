@@ -1,0 +1,10 @@
+# Safe skill configuration
+name: data-processor
+version: 1.0.0
+description: Processes and formats data files
+author: hexitlabs
+
+settings:
+  output_format: json
+  max_lines: 10000
+  encoding: utf-8
