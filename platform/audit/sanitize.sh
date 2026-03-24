@@ -26,8 +26,12 @@ _build_sanitize_script() {
     # AWS Access Keys (AKIA followed by 16 alphanumeric)
     patterns+=('s/AKIA[0-9A-Z]\{16\}/[REDACTED:aws_key]/g')
 
-    # GitHub tokens (ghp_, gho_, ghu_, ghs_, ghr_ followed by 36 chars)
-    patterns+=('s/\(ghp_\|gho_\|ghu_\|ghs_\|ghr_\)[a-zA-Z0-9]\{36\}/[REDACTED:github_token]/g')
+    # GitHub tokens (ghp_, gho_, ghu_, ghs_, ghr_ followed by 20+ chars)
+    patterns+=('s/ghp_[a-zA-Z0-9]\{20,\}/[REDACTED:github_token]/g')
+    patterns+=('s/gho_[a-zA-Z0-9]\{20,\}/[REDACTED:github_token]/g')
+    patterns+=('s/ghu_[a-zA-Z0-9]\{20,\}/[REDACTED:github_token]/g')
+    patterns+=('s/ghs_[a-zA-Z0-9]\{20,\}/[REDACTED:github_token]/g')
+    patterns+=('s/ghr_[a-zA-Z0-9]\{20,\}/[REDACTED:github_token]/g')
 
     # OpenAI / Anthropic API keys (sk-... with 20+ chars)
     patterns+=('s/sk-[a-zA-Z0-9_-]\{20,\}/[REDACTED:api_key]/g')
@@ -35,11 +39,11 @@ _build_sanitize_script() {
     # Generic API key patterns: key-*, token-* with 20+ chars
     patterns+=('s/\(key-\|token-\)[a-zA-Z0-9_-]\{20,\}/[REDACTED:api_key]/g')
 
-    # Bearer tokens
-    patterns+=('s/Bearer [a-zA-Z0-9_\.\-]\{20,\}/Bearer [REDACTED:bearer_token]/g')
+    # Authorization headers (before standalone Bearer so it matches first)
+    patterns+=('s/\(Authorization:\s*\)\(Basic\|Bearer\|Token\)\s\+[^ ]*/\1[REDACTED:auth_header]/gI')
 
-    # Authorization headers
-    patterns+=('s/\(Authorization:\s*\)\(Basic\|Bearer\|Token\)\s\+[^ ]*/\1\2 [REDACTED:auth_header]/gI')
+    # Bearer tokens (standalone, not in Authorization header)
+    patterns+=('s/Bearer [a-zA-Z0-9_\.\-]\{20,\}/Bearer [REDACTED:bearer_token]/g')
 
     # Password patterns: password=..., passwd=..., pwd=...
     patterns+=('s/\(password\|passwd\|pwd\)\(=\|: *\|:\)\([^ "&'\'']\{1,\}\)/\1\2[REDACTED:password]/gI')

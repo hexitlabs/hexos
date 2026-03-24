@@ -82,7 +82,7 @@ fi
 # ── Collect Log Files ────────────────────────────────────────────────
 collect_entries() {
     local current="$FROM_DATE"
-    while [[ "$current" < "$TO_DATE" ]] || [[ "$current" == "$TO_DATE" ]]; do
+    while [[ ! "$current" > "$TO_DATE" ]]; do
         local log_file="${AUDIT_DIR}/${current}.jsonl"
         if [[ -f "$log_file" ]]; then
             if [[ -n "$EVENT_TYPE" ]]; then
@@ -98,20 +98,26 @@ collect_entries() {
         # Safety: break if we're stuck
         [[ "$current" > "2099-12-31" ]] && break
     done
+    return 0
 }
 
 # ── JSON Export ──────────────────────────────────────────────────────
 export_json() {
+    local entries
+    entries="$(collect_entries)"
     echo "["
-    local first=true
-    collect_entries | while IFS= read -r line; do
-        if [[ "$first" == "true" ]]; then
-            first=false
-        else
-            echo ","
-        fi
-        printf "%s" "$line"
-    done
+    if [[ -n "$entries" ]]; then
+        local first=true
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            if [[ "$first" == "true" ]]; then
+                first=false
+            else
+                echo ","
+            fi
+            printf "%s" "$line"
+        done <<< "$entries"
+    fi
     echo ""
     echo "]"
 }
@@ -121,7 +127,12 @@ export_csv() {
     # CSV header
     echo "id,timestamp,client,agent,type,tool,input_summary,status,duration_ms,session"
 
-    collect_entries | while IFS= read -r line; do
+    local entries
+    entries="$(collect_entries)"
+    [[ -z "$entries" ]] && return 0
+
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
         # Extract fields using grep -oP (fast)
         local id ts client agent type tool input status duration session
         id=$(echo "$line" | grep -oP '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
@@ -143,7 +154,7 @@ export_csv() {
         input="${input//\"/\"\"}"
 
         echo "${id},${ts},${client},${agent},${type},${tool},\"${input}\",${status},${duration},${session}"
-    done
+    done <<< "$entries"
 }
 
 # ── Execute Export ───────────────────────────────────────────────────

@@ -21,8 +21,8 @@ assert_redacted() {
     local expected_marker="$3"
     local result
     result="$(sanitize_text "$input")"
-    if echo "$result" | grep -q '\[REDACTED'; then
-        if [[ -n "$expected_marker" ]] && echo "$result" | grep -q "$expected_marker"; then
+    if echo "$result" | grep -qF '[REDACTED'; then
+        if [[ -n "$expected_marker" ]] && echo "$result" | grep -qF "$expected_marker"; then
             pass "$desc"
         elif [[ -z "$expected_marker" ]]; then
             pass "$desc"
@@ -88,9 +88,13 @@ assert_redacted "GitHub OAuth (gho_)" \
 # ── Bearer Tokens ────────────────────────────────────────────────────
 echo ""
 echo "Bearer Tokens:"
-assert_redacted "Bearer token" \
+assert_redacted "Bearer token in header" \
     "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abcdef" \
-    "[REDACTED"
+    "[REDACTED:auth_header]"
+
+assert_redacted "Standalone Bearer token" \
+    "Token is Bearer abcdef1234567890abcdef1234567890.xyz" \
+    "[REDACTED:bearer_token]"
 
 # ── Passwords ────────────────────────────────────────────────────────
 echo ""

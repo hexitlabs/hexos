@@ -83,8 +83,8 @@ fi
 echo ""
 echo "Test 3: Type filter"
 filtered=$("${AUDIT_DIR}/export.sh" "$TEST_CLIENT" --from "$TODAY" --to "$TODAY" --format json --type tool_call 2>/dev/null)
-filtered_count=$(echo "$filtered" | grep -c '"type":"tool_call"' || echo 0)
-non_tool=$(echo "$filtered" | grep -c '"type":"api_call"' || echo 0)
+filtered_count=$(echo "$filtered" | grep -c '"type":"tool_call"' || true)
+non_tool=$(echo "$filtered" | grep -c '"type":"api_call"' || true)
 
 if [[ "$filtered_count" -ge 2 ]]; then
     pass "Type filter returns tool_call entries (${filtered_count})"
