@@ -34,10 +34,6 @@ echo "  Created 3 test log files (2 old, 1 current)"
 # ── Test 1: Dry run doesn't delete ──────────────────────────────────
 echo ""
 echo "Test 1: Dry run"
-source "${AUDIT_DIR}/alerts.sh" 2>/dev/null || true
-
-# Run cleanup in dry-run mode (call function directly)
-# Note: the alerts.sh cleanup function needs to be called
 dry_output=$("${AUDIT_DIR}/alerts.sh" cleanup --dry-run 2>&1 || true)
 
 if [[ -f "${CLIENT_AUDIT}/2024-01-15.jsonl" ]]; then

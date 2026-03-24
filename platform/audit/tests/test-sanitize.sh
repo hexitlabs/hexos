@@ -39,7 +39,7 @@ assert_clean() {
     local input="$2"
     local result
     result="$(sanitize_text "$input")"
-    if echo "$result" | grep -q '\[REDACTED'; then
+    if echo "$result" | grep -qF '[REDACTED'; then
         fail "$desc — false positive" "$result"
     else
         pass "$desc"
