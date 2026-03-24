@@ -30,13 +30,36 @@ const execHostEnforced = process.env.HEXOS_NODE_EXEC_HOST?.trim().toLowerCase() 
 const execHostFallbackAllowed = process.env.HEXOS_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
 const blockedEnvKeys = new Set([
     "NODE_OPTIONS",
+    "NODE_PATH",
     "PYTHONHOME",
     "PYTHONPATH",
     "PERL5LIB",
     "PERL5OPT",
+    "RUBYLIB",
     "RUBYOPT",
+    "BASH_ENV",
+    "ENV",
+    "GIT_EXTERNAL_DIFF",
+    "GIT_EXEC_PATH",
+    "SHELL",
+    "SHELLOPTS",
+    "PS4",
+    "GCONV_PATH",
+    "IFS",
+    "SSLKEYLOGFILE",
+    "JAVA_TOOL_OPTIONS",
+    "_JAVA_OPTIONS",
+    "JDK_JAVA_OPTIONS",
+    "PYTHONBREAKPOINT",
+    "DOTNET_STARTUP_HOOKS",
+    "DOTNET_ADDITIONAL_DEPS",
+    "GLIBC_TUNABLES",
+    "MAVEN_OPTS",
+    "SBT_OPTS",
+    "GRADLE_OPTS",
+    "ANT_OPTS",
 ]);
-const blockedEnvPrefixes = ["DYLD_", "LD_"];
+const blockedEnvPrefixes = ["DYLD_", "LD_", "BASH_FUNC_"];
 class SkillBinsCache {
     bins = new Set();
     lastRefresh = 0;
