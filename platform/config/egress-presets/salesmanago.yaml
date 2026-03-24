@@ -1,0 +1,11 @@
+# Preset: SALESmanago CRM
+# Used by agents that interact with SALESmanago marketing automation
+name: salesmanago
+description: "SALESmanago CRM/marketing automation"
+allow:
+  - host: "*.salesmanago.com"
+    ports: [443]
+    comment: "SALESmanago API and dashboard"
+  - host: "*.salesmanago.pl"
+    ports: [443]
+    comment: "SALESmanago Polish domain endpoints"

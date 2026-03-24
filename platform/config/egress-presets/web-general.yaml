@@ -1,0 +1,11 @@
+# Preset: Unrestricted Web Access
+# WARNING: This preset allows all HTTP/HTTPS traffic.
+# Only use for agents that genuinely need unrestricted web browsing.
+# Prefer specific presets when possible.
+name: web-general
+description: "Unrestricted HTTP/HTTPS access (use with caution)"
+unrestricted_ports: [80, 443]
+allow:
+  - host: "*"
+    ports: [443, 80]
+    comment: "All HTTP/HTTPS traffic — unrestricted"

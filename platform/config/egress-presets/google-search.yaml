@@ -1,0 +1,11 @@
+# Preset: Google Custom Search API
+# Used by agents that need Google search capabilities
+name: google-search
+description: "Google Custom Search API"
+allow:
+  - host: www.googleapis.com
+    ports: [443]
+    comment: "Google APIs gateway"
+  - host: customsearch.googleapis.com
+    ports: [443]
+    comment: "Google Custom Search API"

@@ -154,24 +154,31 @@ elif [[ -d "$CLIENT_HOME" ]]; then
     echo "  ⚠ Safety check failed: ${CLIENT_HOME} is not under /hexos/, refusing to delete"
 fi
 
-# 7. Refresh isolation for remaining clients
+# 7. Remove nftables egress rules
+EGRESS_REMOVE="/hexos/platform/network/egress-remove.sh"
+if [[ -x "$EGRESS_REMOVE" ]]; then
+    "$EGRESS_REMOVE" "$CLIENT_NAME" 2>/dev/null || true
+    echo "  ✓ Egress rules removed"
+fi
+
+# 9. Refresh isolation for remaining clients
 REFRESH_SCRIPT="${SCRIPT_DIR}/hexos-refresh-isolation.sh"
 if [[ -x "$REFRESH_SCRIPT" ]]; then
     "$REFRESH_SCRIPT"
     echo "  ✓ Cross-client isolation paths refreshed"
 fi
 
-# 8. Update client registry (mark as removed)
+# 10. Update client registry (mark as removed)
 if [[ -f "$CLIENTS_YAML" ]]; then
     # Simple approach: add a removal note (proper YAML editing would need yq)
     sed -i "s/^  - name: ${CLIENT_NAME}$/  - name: ${CLIENT_NAME}  # REMOVED $(date -Iseconds)/" "$CLIENTS_YAML" 2>/dev/null || true
 fi
 
-# 9. Log removal
+# 11. Log removal
 echo "$(date -Iseconds) REMOVED client=${CLIENT_NAME} user=${CLIENT_USER} archive=${ARCHIVE}" >> "$LOG_FILE"
 echo "  ✓ Removal logged"
 
-# 10. Verify no orphaned processes
+# 12. Verify no orphaned processes
 sleep 1
 if id "$CLIENT_USER" &>/dev/null; then
     echo "  ⚠ Warning: User ${CLIENT_USER} still exists"
