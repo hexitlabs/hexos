@@ -1,184 +1,204 @@
 #!/usr/bin/env bash
-# HexOS Phase 1.5 — Built-in Pattern Scanner Backend
-# Regex-based pattern matching against categorized threat databases
-# Returns JSON findings array on stdout
+# HexOS Phase 1.5 — Built-in Pattern Scanner Backend (Optimized)
+# Regex-based pattern matching against categorized threat databases.
+# Returns JSON findings on stdout.
 # Exit codes: 0=clean, 1=threats found, 3=error
+#
+# Performance architecture:
+#   - Pattern files are cached in /tmp/hexos-pattern-cache/ and rebuilt only
+#     when their modification fingerprint changes.
+#   - Pass 1 (fast rejection): a single "grep -f" across ALL patterns rejects
+#     clean content with one subprocess call.
+#   - Pass 2 (identification): a single Perl process tests hit lines against
+#     every pattern without spawning additional subprocesses.
+#   - Dir scans bulk-grep all qualifying files in one grep invocation.
+#   - Policy settings are parsed once per invocation (not per file).
 set -uo pipefail
 
 BACKEND_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PATTERNS_DIR="${BACKEND_DIR}/../patterns"
 
-# ---------------------------------------------------------------------------
-# Usage
-# ---------------------------------------------------------------------------
-usage() {
+[[ $# -lt 2 ]] && {
     echo "Usage: builtin-scanner.sh <scan-type> <target> [policy-file]"
-    echo ""
-    echo "Scan types:"
-    echo "  file    <filepath>     Scan a single file"
-    echo "  string  <text>         Scan a string (command / code)"
-    echo "  dir     <dirpath>      Scan all files in a directory"
-    echo ""
-    echo "Returns JSON findings array on stdout."
     exit 3
 }
-
-[[ $# -lt 2 ]] && usage
 
 SCAN_TYPE="$1"
 TARGET="$2"
 POLICY_FILE="${3:-}"
 
 # ---------------------------------------------------------------------------
-# Policy helpers  (lightweight YAML parsing — no external deps)
+# Policy helpers — parsed ONCE per invocation, stored in module-level vars
 # ---------------------------------------------------------------------------
-get_policy_extensions() {
-    # Returns space-separated list of extensions from policy, or defaults
+_POL_EXT=""
+_POL_EXCL=""
+_POL_PARSED=false
+
+_parse_policy() {
+    [[ "$_POL_PARSED" == "true" ]] && return
+    _POL_PARSED=true
+
     if [[ -n "$POLICY_FILE" && -f "$POLICY_FILE" ]]; then
-        local exts=""
-        local in_section=false
+        local in_ext=false in_excl=false
         while IFS= read -r line; do
-            if [[ "$line" =~ ^[[:space:]]+extensions: ]]; then
-                in_section=true
-                continue
+            if   [[ "$line" =~ ^[[:space:]]+extensions: ]]; then in_ext=true;  in_excl=false; continue
+            elif [[ "$line" =~ ^[[:space:]]+exclude: ]];    then in_excl=true; in_ext=false;  continue
+            elif [[ "$line" =~ ^([[:space:]]+[a-z_]+:|[a-z]) ]]; then in_ext=false; in_excl=false; fi
+
+            if $in_ext && [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(\..*) ]]; then
+                local e="${BASH_REMATCH[1]//[[:space:]]/}"
+                e="${e//\"/}"; e="${e//\'/}"
+                _POL_EXT="${_POL_EXT} ${e}"
             fi
-            if $in_section; then
-                # Stop at next key (non-list-item line that isn't blank)
-                if [[ "$line" =~ ^[[:space:]]+[a-z_]+: ]] || [[ "$line" =~ ^[a-z] ]]; then
-                    break
-                fi
-                if [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(\..*) ]]; then
-                    local ext="${BASH_REMATCH[1]}"
-                    ext=$(echo "$ext" | tr -d '[:space:]"'"'")
-                    exts="${exts} ${ext}"
-                fi
+            if $in_excl && [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(.*) ]]; then
+                local v="${BASH_REMATCH[1]//\"/}"
+                v="${v//\'/}"
+                _POL_EXCL="${_POL_EXCL} ${v}"
             fi
         done < "$POLICY_FILE"
-        exts=$(echo "$exts" | xargs)
-        if [[ -n "$exts" ]]; then
-            echo "$exts"
-            return
-        fi
+        _POL_EXT="${_POL_EXT# }"; _POL_EXT="${_POL_EXT% }"
+        _POL_EXCL="${_POL_EXCL# }"; _POL_EXCL="${_POL_EXCL% }"
     fi
-    echo ".md .js .ts .py .sh .yaml .yml .json .txt .mjs .cjs .jsx .tsx"
+
+    [[ -z "$_POL_EXT" ]]  && _POL_EXT=".md .js .ts .py .sh .yaml .yml .json .txt .mjs .cjs .jsx .tsx"
+    [[ -z "$_POL_EXCL" ]] && _POL_EXCL="node_modules/ .git/ reports/ logs/"
 }
 
-get_policy_excludes() {
-    if [[ -n "$POLICY_FILE" && -f "$POLICY_FILE" ]]; then
-        local excl=""
-        local in_section=false
-        while IFS= read -r line; do
-            if [[ "$line" =~ ^[[:space:]]+exclude: ]]; then
-                in_section=true
-                continue
-            fi
-            if $in_section; then
-                if [[ "$line" =~ ^[[:space:]]+[a-z_]+: ]] || [[ "$line" =~ ^[a-z] ]]; then
-                    break
-                fi
-                if [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(.*) ]]; then
-                    local val="${BASH_REMATCH[1]}"
-                    val=$(echo "$val" | tr -d '"'"'")
-                    excl="${excl} ${val}"
-                fi
-            fi
-        done < "$POLICY_FILE"
-        excl=$(echo "$excl" | xargs)
-        if [[ -n "$excl" ]]; then
-            echo "$excl"
-            return
-        fi
-    fi
-    echo "node_modules/ .git/ reports/ logs/"
-}
+# Call once here so $_POL_EXT / $_POL_EXCL are populated for all helpers below
+_parse_policy
 
-get_policy_risk_action() {
-    local level="$1"
-    if [[ -n "$POLICY_FILE" && -f "$POLICY_FILE" ]]; then
-        local action
-        action=$(grep -A 10 'risk_levels:' "$POLICY_FILE" 2>/dev/null \
-            | grep "^\s*${level}:" | head -1 \
-            | sed 's/.*:\s*//' | tr -d '[:space:]')
-        if [[ -n "$action" ]]; then
-            echo "$action"
-            return
-        fi
-    fi
-    # Defaults
-    case "$level" in
-        critical|high) echo "fail" ;;
-        medium) echo "warn" ;;
-        low) echo "pass" ;;
-        *) echo "warn" ;;
-    esac
-}
+get_policy_extensions() { echo "$_POL_EXT"; }
+get_policy_excludes()   { echo "$_POL_EXCL"; }
 
 # ---------------------------------------------------------------------------
-# Core pattern matching
+# Pattern cache — built on first use, invalidated when pattern files change
+# ---------------------------------------------------------------------------
+_CACHE_DIR="/tmp/hexos-pattern-cache"
+_GREP_FILE="${_CACHE_DIR}/all.grep"   # ERE patterns for grep -Ei -f ((?i) stripped)
+_META_FILE="${_CACHE_DIR}/all.meta"   # risk|name|category|regex  (one per line)
+_PERL_FILE="${_CACHE_DIR}/pass2.pl"   # Perl script for pass-2 matching
+_FP_FILE="${_CACHE_DIR}/fingerprint"
+
+_fingerprint() {
+    find "${PATTERNS_DIR}" -name '*.patterns' -type f -print0 2>/dev/null \
+        | sort -z \
+        | xargs -0 stat -c '%Y%s' 2>/dev/null \
+        | md5sum \
+        | cut -d' ' -f1
+}
+
+_build_cache() {
+    mkdir -p "$_CACHE_DIR"
+    : > "$_GREP_FILE"
+    : > "$_META_FILE"
+
+    for pf in "${PATTERNS_DIR}"/*.patterns; do
+        [[ ! -f "$pf" ]] && continue
+        local category
+        category=$(grep '^# Category:' "$pf" 2>/dev/null | head -1 \
+                   | sed 's/.*Category:\s*//' | tr -d '[:space:]')
+        [[ -z "$category" ]] && category=$(basename "$pf" .patterns)
+
+        while IFS='|' read -r rl pn rx; do
+            [[ "$rl" =~ ^# || -z "$rx" ]] && continue
+            rl="${rl//[[:space:]]/}"; pn="${pn//[[:space:]]/}"
+            # Meta: full regex (including (?i) — Perl handles it natively)
+            printf '%s|%s|%s|%s\n' "$rl" "$pn" "$category" "$rx" >> "$_META_FILE"
+            # Grep file: strip (?i) — we use global -i on the grep call
+            echo "${rx//\(\?i\)/}" >> "$_GREP_FILE"
+        done < "$pf"
+    done
+
+    # Write the Perl pass-2 script
+    cat > "$_PERL_FILE" << 'PERL'
+#!/usr/bin/perl
+# HexOS scanner pass-2: identify which patterns matched hit lines.
+# Args: meta_file  source_file
+#   source_file = ""  → input lines are "filepath:lnum:text" (grep -H format)
+#   source_file = X   → input lines are "lnum:text" (grep -n, no filename)
+# Output: risk|name|category|filepath|lnum|match_text   (one per match)
+use strict; use warnings;
+
+my ($meta_file, $src_file) = @ARGV;
+
+# Load pattern metadata
+open(my $mf, '<', $meta_file) or die "Cannot open $meta_file: $!";
+my (@R, @N, @C, @X);
+while (<$mf>) {
+    chomp;
+    my ($r, $n, $c, $x) = split /\|/, $_, 4;
+    push @R, $r; push @N, $n; push @C, $c; push @X, $x;
+}
+close $mf;
+my $np = scalar @R;
+
+# Process hit lines from stdin
+while (my $line = <STDIN>) {
+    chomp $line;
+    next unless length $line;
+
+    my ($filepath, $lnum, $ltext);
+    if ($src_file ne '') {
+        # Format: linenum:text
+        ($lnum, $ltext) = $line =~ /^(\d+):(.*)/s;
+        $filepath = $src_file;
+    } else {
+        # Format: filepath:linenum:text  (grep -H output)
+        # Use lazy match so colons in filepath are handled correctly
+        ($filepath, $lnum, $ltext) = $line =~ /^(.+?):(\d+):(.*)/s;
+    }
+    next unless defined $lnum && defined $ltext;
+
+    # Truncate long lines for display
+    my $disp = length($ltext) > 120 ? substr($ltext, 0, 120) . '...' : $ltext;
+
+    for my $i (0 .. $np - 1) {
+        my $matched = 0;
+        # eval to catch regex compile errors (malformed patterns)
+        eval { $matched = ($ltext =~ /$X[$i]/) };
+        next unless $matched;
+
+        # Use a field separator unlikely to appear in data
+        # Replace literal | with a placeholder so fields stay intact
+        (my $ef = $filepath) =~ s/\|/\x01/g;
+        (my $ed = $disp)     =~ s/\|/\x01/g;
+        print "$R[$i]|$N[$i]|$C[$i]|$ef|$lnum|$ed\n";
+    }
+}
+PERL
+    chmod +x "$_PERL_FILE"
+    _fingerprint > "$_FP_FILE"
+}
+
+_ensure_cache() {
+    local cur
+    cur=$(_fingerprint)
+    if [[ ! -f "$_GREP_FILE" || ! -f "$_META_FILE" \
+       || ! -f "$_PERL_FILE" || ! -f "$_FP_FILE" ]] \
+    || [[ "$cur" != "$(cat "$_FP_FILE" 2>/dev/null)" ]]; then
+        _build_cache
+    fi
+}
+
+_ensure_cache
+
+# ---------------------------------------------------------------------------
+# Scan engine
 # ---------------------------------------------------------------------------
 FINDINGS=()
-HIGHEST_RISK="none"  # none < low < medium < high < critical
-EARLY_EXIT=false
-EARLY_EXIT_WHEN_CRITICAL=false
+HIGHEST_RISK="none"
+HIGHEST_RANK=0
 
-# Determine if we should exit early when we find a critical risk
-# (for string and file scans, we can break early; for dir scans we want to scan all)
-if [[ "$SCAN_TYPE" == "string" || "$SCAN_TYPE" == "file" ]]; then
-    EARLY_EXIT_WHEN_CRITICAL=true
-fi
-
-# Global patterns array: each element is "RISK_LEVEL|PATTERN_NAME|CATEGORY|REGEX"
-declare -a PATTERNS=()
-
-# Load all patterns from pattern files into the global array
-load_patterns() {
-    local pattern_file
-    for pattern_file in "${PATTERNS_DIR}"/*.patterns; do
-        [[ ! -f "$pattern_file" ]] && continue
-        local category
-        category=$(grep '^# Category:' "$pattern_file" | head -1 | sed 's/.*Category:\s*//')
-        [[ -z "$category" ]] && category=$(basename "$pattern_file" .patterns)
-
-        while IFS='|' read -r risk_level pattern_name regex; do
-            # Skip comments & empty lines
-            [[ "$risk_level" =~ ^# ]] && continue
-            [[ -z "$regex" ]] && continue
-
-            # Trim whitespace
-            risk_level=$(echo "$risk_level" | tr -d '[:space:]')
-            pattern_name=$(echo "$pattern_name" | tr -d '[:space:]')
-
-            PATTERNS+=("${risk_level}|${pattern_name}|${category}|${regex}")
-        done < "$pattern_file"
-    done
-}
-
-# Load patterns once at script startup
-load_patterns
-
-risk_rank() {
-    case "$1" in
-        critical) echo 4 ;;
-        high) echo 3 ;;
-        medium) echo 2 ;;
-        low) echo 1 ;;
-        *) echo 0 ;;
-    esac
-}
-
-update_highest_risk() {
-    local new_rank old_rank
-    new_rank=$(risk_rank "$1")
-    old_rank=$(risk_rank "$HIGHEST_RISK")
-    if [[ $new_rank -gt $old_rank ]]; then
+# Inline risk ranking — no subshell
+update_risk() {
+    local r=0
+    case "$1" in critical) r=4;; high) r=3;; medium) r=2;; low) r=1;; esac
+    if [[ $r -gt $HIGHEST_RANK ]]; then
+        HIGHEST_RANK=$r
         HIGHEST_RISK="$1"
-        if [[ "$EARLY_EXIT_WHEN_CRITICAL" == "true" && "$HIGHEST_RISK" == "critical" ]]; then
-            EARLY_EXIT=true
-        fi
     fi
 }
 
-# Escape string for JSON
 json_escape() {
     local s="$1"
     s="${s//\\/\\\\}"
@@ -189,121 +209,127 @@ json_escape() {
     printf '%s' "$s"
 }
 
+# Consume pass-2 Perl output (risk|name|cat|file|lnum|match) into FINDINGS
+# NOTE: Must be called via process substitution (< <(...)) NOT pipeline (|)
+# to avoid subshell variable scoping issues.
+_ingest_perl_out() {
+    local infile="$1"
+    while IFS='|' read -r risk name cat filepath lnum match; do
+        [[ -z "$risk" ]] && continue
+        # Restore escaped pipe placeholder
+        filepath="${filepath//$'\x01'/|}"
+        match="${match//$'\x01'/|}"
+        update_risk "$risk"
+        local em ef ep
+        em=$(json_escape "$match")
+        ef=$(json_escape "$filepath")
+        ep=$(json_escape "$name")
+        FINDINGS+=("{\"category\":\"${cat}\",\"risk\":\"${risk}\",\"pattern\":\"${ep}\",\"file\":\"${ef}\",\"line\":${lnum},\"match\":\"${em}\"}")
+    done < "$infile"
+}
+
+# Scan a string of content (for "string" scan-type, or called per-file from scan_file)
 scan_content() {
     local content="$1"
     local source_file="${2:-<string>}"
 
-    for pattern_file in "${PATTERNS_DIR}"/*.patterns; do
-        [[ ! -f "$pattern_file" ]] && continue
-        local category
-        category=$(grep '^# Category:' "$pattern_file" | head -1 | sed 's/.*Category:\s*//')
-        [[ -z "$category" ]] && category=$(basename "$pattern_file" .patterns)
+    # Pass 1 — reject clean content with a single grep
+    local hits
+    hits=$(printf '%s\n' "$content" | grep -Ein -f "$_GREP_FILE" 2>/dev/null) || true
+    [[ -z "$hits" ]] && return
 
-        while IFS='|' read -r risk_level pattern_name regex; do
-            # Skip comments & empty lines
-            [[ "$risk_level" =~ ^# ]] && continue
-            [[ -z "$regex" ]] && continue
-
-            # Trim whitespace
-            risk_level=$(echo "$risk_level" | tr -d '[:space:]')
-            pattern_name=$(echo "$pattern_name" | tr -d '[:space:]')
-
-            # Attempt match with grep -P (PCRE); fall back to grep -E (ERE)
-            local matched_line=""
-            matched_line=$(echo "$content" | grep -Pn "$regex" 2>/dev/null | head -1) || \
-            matched_line=$(echo "$content" | grep -En "$regex" 2>/dev/null | head -1) || true
-
-            if [[ -n "$matched_line" ]]; then
-                local line_num match_text
-                line_num=$(echo "$matched_line" | cut -d: -f1)
-                match_text=$(echo "$matched_line" | cut -d: -f2-)
-                # Truncate match for readability
-                if [[ ${#match_text} -gt 120 ]]; then
-                    match_text="${match_text:0:120}..."
-                fi
-
-                update_highest_risk "$risk_level"
-
-                local escaped_match escaped_file escaped_pattern
-                escaped_match=$(json_escape "$match_text")
-                escaped_file=$(json_escape "$source_file")
-                escaped_pattern=$(json_escape "$pattern_name")
-
-                FINDINGS+=("{\"category\":\"${category}\",\"risk\":\"${risk_level}\",\"pattern\":\"${escaped_pattern}\",\"file\":\"${escaped_file}\",\"line\":${line_num:-0},\"match\":\"${escaped_match}\"}")
-            fi
-            
-            # Early exit optimization: if we found a critical risk and can exit early, do so
-            if [[ "$EARLY_EXIT" == "true" && "$HIGHEST_RISK" == "critical" ]]; then
-                return
-            fi
-        done < "$pattern_file"
-        
-        # Early exit between pattern files
-        if [[ "$EARLY_EXIT" == "true" && "$HIGHEST_RISK" == "critical" ]]; then
-            return
-        fi
-    done
+    # Pass 2 — single Perl process identifies which pattern(s) matched each hit line
+    # Use temp file to avoid subshell scoping (pipeline loses FINDINGS changes)
+    local perl_out
+    perl_out=$(mktemp /tmp/hexos-perl-XXXXXX)
+    printf '%s\n' "$hits" \
+        | perl "$_PERL_FILE" "$_META_FILE" "$source_file" 2>/dev/null \
+        > "$perl_out"
+    _ingest_perl_out "$perl_out"
+    rm -f "$perl_out"
 }
 
+# Scan a single file (for "file" scan-type)
 scan_file() {
-    local filepath="$1"
-    [[ ! -f "$filepath" ]] && return
+    local fp="$1"
+    [[ ! -f "$fp" ]] && return
 
-    # Size check — skip files larger than 1MB
-    local size
-    size=$(stat -c%s "$filepath" 2>/dev/null || stat -f%z "$filepath" 2>/dev/null || echo 0)
-    [[ $size -gt 1048576 ]] && return
+    local sz
+    sz=$(stat -c%s "$fp" 2>/dev/null || echo 0)
+    [[ $sz -gt 1048576 ]] && return
 
-    # Binary check — skip binary files
-    if file "$filepath" 2>/dev/null | grep -qi 'binary\|executable\|ELF\|archive\|image\|audio\|video'; then
-        return
-    fi
+    # Fast binary-type rejection by extension (no subprocess)
+    case "${fp##*.}" in
+        png|jpg|jpeg|gif|webp|ico|bmp|tiff|svg|mp3|mp4|wav|ogg|flac|\
+        zip|gz|bz2|xz|7z|rar|tar|\
+        so|o|a|dll|exe|class|pyc|wasm|bin|db|sqlite)
+            return ;;
+    esac
 
     local content
-    content=$(cat "$filepath" 2>/dev/null) || return
-    scan_content "$content" "$filepath"
+    content=$(cat "$fp" 2>/dev/null) || return
+    scan_content "$content" "$fp"
 }
 
+# Helpers for dir/file filtering
 should_scan_file() {
-    local filepath="$1"
-    local filename
-    filename=$(basename "$filepath")
-    local ext=".${filename##*.}"
-
-    # Check extension whitelist
-    local extensions
-    extensions=$(get_policy_extensions)
-    local match=false
-    for e in $extensions; do
-        if [[ "$ext" == "$e" ]]; then
-            match=true
-            break
-        fi
-    done
-
-    # If filename has no extension, scan it anyway (scripts, configs)
-    if [[ "$filename" == "${filename%.*}" ]]; then
-        match=true
-    fi
-
-    # Files named Makefile, Dockerfile, etc.
-    if [[ "$filename" =~ ^(Makefile|Dockerfile|Vagrantfile|Rakefile|Gemfile|Procfile)$ ]]; then
-        match=true
-    fi
-
-    $match
+    local fn="${1##*/}" ext=".${1##*.}"
+    for e in $_POL_EXT; do [[ "$ext" == "$e" ]] && return 0; done
+    [[ "$fn" == "${fn%.*}" ]] && return 0   # no extension → scan anyway
+    [[ "$fn" =~ ^(Makefile|Dockerfile|Vagrantfile|Rakefile|Gemfile|Procfile)$ ]] && return 0
+    return 1
 }
 
 is_excluded() {
-    local filepath="$1"
-    local excludes
-    excludes=$(get_policy_excludes)
-    for excl in $excludes; do
-        if [[ "$filepath" == *"$excl"* ]]; then
-            return 0
-        fi
-    done
+    local fp="$1"
+    for excl in $_POL_EXCL; do [[ "$fp" == *"$excl"* ]] && return 0; done
     return 1
+}
+
+# Scan all qualifying files in a directory — single grep + single Perl call
+scan_dir() {
+    local dir="$1"
+
+    # Build a list of qualifying files into a temp file (null-delimited for xargs)
+    local list_f
+    list_f=$(mktemp /tmp/hexos-flist-XXXXXX)
+
+    while IFS= read -r -d '' fp; do
+        is_excluded "$fp" && continue
+        should_scan_file "$fp" || continue
+        local sz
+        sz=$(stat -c%s "$fp" 2>/dev/null || echo 0)
+        [[ $sz -gt 1048576 ]] && continue
+        # Fast extension-based binary skip
+        case "${fp##*.}" in
+            png|jpg|jpeg|gif|webp|ico|bmp|tiff|svg|mp3|mp4|wav|ogg|flac|\
+            zip|gz|bz2|xz|7z|rar|tar|\
+            so|o|a|dll|exe|class|pyc|wasm|bin|db|sqlite)
+                continue ;;
+        esac
+        printf '%s\0' "$fp"
+    done < <(find "$dir" -type f -print0 2>/dev/null) > "$list_f"
+
+    # Abort cleanly if nothing to scan
+    if [[ ! -s "$list_f" ]]; then
+        rm -f "$list_f"
+        return
+    fi
+
+    # Pass 1 — single grep across ALL files (xargs handles ARG_MAX safely)
+    local hits
+    hits=$(xargs -0 grep -EHin -f "$_GREP_FILE" 2>/dev/null < "$list_f") || true
+    rm -f "$list_f"
+    [[ -z "$hits" ]] && return
+
+    # Pass 2 — single Perl process for all hit lines (no filepath prefix → leave empty)
+    local perl_out
+    perl_out=$(mktemp /tmp/hexos-perl-XXXXXX)
+    printf '%s\n' "$hits" \
+        | perl "$_PERL_FILE" "$_META_FILE" "" 2>/dev/null \
+        > "$perl_out"
+    _ingest_perl_out "$perl_out"
+    rm -f "$perl_out"
 }
 
 # ---------------------------------------------------------------------------
@@ -319,13 +345,11 @@ case "$SCAN_TYPE" in
         ;;
     dir)
         [[ ! -d "$TARGET" ]] && echo '{"error":"Directory not found"}' && exit 3
-        while IFS= read -r -d '' filepath; do
-            is_excluded "$filepath" && continue
-            should_scan_file "$filepath" && scan_file "$filepath"
-        done < <(find "$TARGET" -type f -print0 2>/dev/null)
+        scan_dir "$TARGET"
         ;;
     *)
-        usage
+        echo "Usage: builtin-scanner.sh {string|file|dir} <target> [policy]"
+        exit 3
         ;;
 esac
 
@@ -340,14 +364,10 @@ fi
 
 echo "{\"scanner\":\"builtin\",\"total_findings\":${#FINDINGS[@]},\"highest_risk\":\"${HIGHEST_RISK}\",\"findings\":[${FINDINGS_JSON}]}"
 
-# Exit code based on highest risk
-if [[ ${#FINDINGS[@]} -eq 0 ]]; then
-    exit 0
-fi
-
+[[ ${#FINDINGS[@]} -eq 0 ]] && exit 0
 case "$HIGHEST_RISK" in
     critical|high) exit 1 ;;
-    medium) exit 2 ;;
-    low) exit 0 ;;
-    *) exit 0 ;;
+    medium)        exit 2 ;;
+    low)           exit 0 ;;
+    *)             exit 0 ;;
 esac
