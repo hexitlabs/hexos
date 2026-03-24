@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -uo pipefail
+set -euo pipefail
 
 # HexOS Phase 1 — Workspace Jail: Client Stats Script
 # Shows status, resource usage, and health info for client jails

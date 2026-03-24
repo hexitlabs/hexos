@@ -40,6 +40,19 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+# Validate client name (same regex as create script) — prevents path traversal and empty names
+if [[ ! "$CLIENT_NAME" =~ ^[a-z][a-z0-9-]{1,30}[a-z0-9]$ ]]; then
+    echo "Error: Invalid client name '${CLIENT_NAME}'"
+    echo "  Must be 3-32 lowercase alphanumeric + hyphens, starting with a letter, ending with alphanumeric"
+    exit 1
+fi
+
+# Disallow reserved names
+if [[ "$CLIENT_NAME" == "platform" || "$CLIENT_NAME" == "shared" ]]; then
+    echo "Error: '${CLIENT_NAME}' is a reserved name and cannot be removed"
+    exit 1
+fi
+
 CLIENT_USER="hexos-${CLIENT_NAME}"
 CLIENT_HOME="/hexos/${CLIENT_NAME}"
 SERVICE_NAME="hexos-agent@${CLIENT_NAME}.service"
@@ -101,12 +114,6 @@ if [[ -d "$OVERRIDE_DIR" ]]; then
     echo "  ✓ Systemd overrides removed"
 fi
 
-# Also clean hexos-agent@<name>.service.d
-OVERRIDE_DIR2="/etc/systemd/system/hexos-agent@${CLIENT_NAME}.service.d"
-if [[ -d "$OVERRIDE_DIR2" ]]; then
-    rm -rf "$OVERRIDE_DIR2"
-fi
-
 systemctl daemon-reload
 echo "  ✓ Systemd daemon reloaded"
 
@@ -139,10 +146,12 @@ if getent group "$CLIENT_USER" &>/dev/null; then
     echo "  ✓ System group removed: ${CLIENT_USER}"
 fi
 
-# 6. Remove filesystem
-if [[ -d "$CLIENT_HOME" ]]; then
+# 6. Remove filesystem (with safety check — must be under /hexos/)
+if [[ -d "$CLIENT_HOME" && "$CLIENT_HOME" == /hexos/* ]]; then
     rm -rf "$CLIENT_HOME"
     echo "  ✓ Filesystem removed: ${CLIENT_HOME}"
+elif [[ -d "$CLIENT_HOME" ]]; then
+    echo "  ⚠ Safety check failed: ${CLIENT_HOME} is not under /hexos/, refusing to delete"
 fi
 
 # 7. Refresh isolation for remaining clients

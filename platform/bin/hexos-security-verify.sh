@@ -191,7 +191,7 @@ check "Use su" \
     "true"
 
 check "Use pkexec" \
-    "pkexec --help 2>&1 | head -1; false" \
+    "pkexec id" \
     "true"
 
 # System operations
@@ -212,7 +212,7 @@ check "Change hostname" \
     "true"
 
 check "Write to sysctl" \
-    "sysctl -w kernel.hostname=evil 2>&1 | grep -q 'permission denied' && exit 1 || exit 0" \
+    "if command -v sysctl &>/dev/null; then sysctl -w kernel.hostname=evil 2>&1 | grep -qi 'permission denied' && exit 1; exit 0; else exit 1; fi" \
     "true"
 
 check "Access Docker socket" \
