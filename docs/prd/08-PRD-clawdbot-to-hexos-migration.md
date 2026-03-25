@@ -1,6 +1,6 @@
 # PRD 08 — Markus Server: Clawdbot → HexOS Migration
 
-*Version: 2.0 · March 25, 2026*
+*Version: 3.0 · March 25, 2026*
 *Status: Approved*
 *Scope: Markus's server ONLY (EEVEELUTIONS — 204.168.157.39)*
 
@@ -523,6 +523,92 @@ EOF
 
 ---
 
+### Step 10: Deploy HexOS Operator Mode (2 min)
+
+After both gateways are verified running on HexOS, deploy the platform scripts and activate operator mode.
+
+```bash
+ssh root@204.168.157.39 bash << 'EOF'
+set -e
+
+# Create platform directory structure
+mkdir -p /hexos/platform/{bin,config,templates,security,network,audit}
+mkdir -p /hexos/shared/{skills,bin}
+
+echo "✅ Platform directories created"
+EOF
+```
+
+```bash
+# Copy platform scripts from our repo to Markus's server
+scp -r ~/clawd/repos/hexos/platform/* root@204.168.157.39:/hexos/platform/
+scp ~/clawd/repos/hexos/scripts/hexos root@204.168.157.39:/usr/local/bin/hexos-platform
+
+# Make all scripts executable
+ssh root@204.168.157.39 "chmod +x /hexos/platform/bin/*.sh /hexos/platform/security/*.sh /hexos/platform/network/*.sh /hexos/platform/audit/*.sh /usr/local/bin/hexos-platform 2>/dev/null; echo '✅ Scripts deployed and executable'"
+```
+
+```bash
+ssh root@204.168.157.39 bash << 'EOF'
+set -e
+
+# Run operator setup
+bash /hexos/platform/bin/hexos-setup.sh operator
+
+# Verify mode
+echo ""
+echo "Deployment profile:"
+bash /hexos/platform/bin/hexos-mode.sh
+
+# Verify version in config
+VERSION=$(grep 'version:' /hexos/platform/config/hexos.yaml 2>/dev/null | head -1 | grep -o '"[^"]*"' | tr -d '"')
+echo ""
+echo "Platform version: $VERSION"
+echo "✅ Operator mode active"
+EOF
+```
+
+**What operator mode gives Markus:**
+- Phase 0 upstream patches (active via the HexOS npm package itself)
+- Scanner available as opt-in tool (`hexos-platform security scan`)
+- No workspace jails, egress control, or forced audit trail (those are managed-mode only)
+- Full access, no restrictions, maximum speed
+
+### Step 11: Final Verification (1 min)
+
+```bash
+ssh root@204.168.157.39 bash << 'EOF'
+echo "═══════════════════════════════════════════"
+echo "  FINAL STATE — MARKUS SERVER"
+echo "═══════════════════════════════════════════"
+echo ""
+echo "HexOS package: $(hexos --version 2>/dev/null)"
+echo "Platform mode: $(grep 'mode:' /hexos/platform/config/hexos.yaml 2>/dev/null | head -1)"
+echo "Platform ver:  $(grep 'version:' /hexos/platform/config/hexos.yaml 2>/dev/null | head -1)"
+echo ""
+echo "Gateways:"
+echo "  Eevee: $(systemctl --user is-active hexos-gateway) (port 18789)"
+echo "  Mew:   $(systemctl --user is-active hexos-gateway-mew) (port 18795)"
+echo ""
+echo "Health:"
+echo "  Eevee: HTTP $(curl -s -o /dev/null -w '%{http_code}' http://localhost:18789/healthz)"
+echo "  Mew:   HTTP $(curl -s -o /dev/null -w '%{http_code}' http://localhost:18795/healthz)"
+echo ""
+echo "Ollama: $(systemctl is-active ollama)"
+echo ""
+echo "Platform scripts: $(ls /hexos/platform/bin/*.sh 2>/dev/null | wc -l) scripts deployed"
+echo ""
+echo "═══════════════════════════════════════════"
+echo "  ✅ MIGRATION COMPLETE"
+echo "  □ Test Eevee via Telegram"
+echo "  □ Test Mew via Telegram (as Markus)"
+echo "  □ Monitor for 48h before cleanup"
+echo "═══════════════════════════════════════════"
+EOF
+```
+
+---
+
 ## Cleanup (AFTER 48h Stable)
 
 ```bash
@@ -576,7 +662,9 @@ EOF
 | Start + verify Eevee | 1 min | ⏱️ (Eevee back) |
 | Start + verify Mew | 1 min | ⏱️ END |
 | Full verification | 3 min | No |
-| **Total** | **~10 min** | **~5 min downtime** |
+| Deploy operator mode | 2 min | No |
+| Final verification | 1 min | No |
+| **Total** | **~13 min** | **~5 min downtime** |
 
 ---
 
