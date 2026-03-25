@@ -1,318 +1,268 @@
-# PRD 08 — Clawdbot → HexOS Migration Runbook
+# PRD 08 — Markus Server: Clawdbot → HexOS Migration
 
-*Version: 1.0 · March 25, 2026*
+*Version: 2.0 · March 25, 2026*
 *Status: Approved*
-*Target: Markus's server (EEVEELUTIONS) — 204.168.157.39*
+*Scope: Markus's server ONLY (EEVEELUTIONS — 204.168.157.39)*
 
 ---
 
 ## Overview
 
-Migrate Markus's server from vanilla Clawdbot (`2026.1.24-3`) to HexOS (`@hexitlabs/hexos@2026.1.24-18`). Two gateways run on this server: **Eevee** (main agent) and **Mew** (therapist companion). Both must continue working identically after migration — same LLM configs, fallbacks, memory, sessions, cron jobs, Telegram connections, and workspace files.
-
-**Principle:** Zero data loss, zero downtime beyond gateway restart (~30 seconds each), identical behavior post-migration.
+Migrate Markus's server from Clawdbot (`2026.1.24-3`) to HexOS (`@hexitlabs/hexos@2026.1.24-18`). Two gateways: **Eevee** (main agent) and **Mew** (therapist). Both must work identically after migration.
 
 ---
 
-## Current State (Pre-Migration Audit)
+## Investigation Results (Source Code Verified)
+
+### HexOS Has ZERO Backward Compatibility with Clawdbot Naming
+
+Verified by grepping the entire HexOS dist directory on Steve's server:
+
+| What | Clawdbot | HexOS | Backward compat? |
+|------|----------|-------|-------------------|
+| Config dir | `~/.clawdbot/` | `~/.hexos/` | ❌ None — hardcoded in `utils.js`: `path.join(homedir(), ".hexos")` |
+| Config file | `clawdbot.json` | `hexos.json` | ❌ None — set in `profile.js`: `path.join(stateDir, "hexos.json")` |
+| Env vars | `CLAWDBOT_*` | `HEXOS_*` | ❌ None — only `HEXOS_*` in source. Zero `CLAWDBOT` references. |
+| Binary | `clawdbot` | `hexos` | ❌ Different npm package name |
+| Process name | `clawdbot-gateway` | `hexos-gateway` | ❌ Set in `entry.js`: `process.title = "hexos"` |
+| Systemd service | `clawdbot-gateway` | `hexos-gateway` | ❌ Hardcoded in `constants.js` |
+| Profile suffix | `~/.clawdbot-<profile>/` | `~/.hexos-<profile>/` | ❌ Built from `.hexos` prefix |
+
+**Conclusion:** We MUST create new config dirs, new service files, and use new env vars. No shortcuts.
+
+### HexOS Config Resolution Order (from source)
+
+1. If `HEXOS_STATE_DIR` env var is set → use that
+2. If `--profile <name>` flag → `~/.hexos-<name>/`
+3. Default → `~/.hexos/`
+4. Config file: `<stateDir>/hexos.json`
+5. Override: `HEXOS_CONFIG_PATH` env var
+
+### Config File Format
+
+`hexos.json` is the **exact same JSON format** as `clawdbot.json`. Only the filename differs. Verified by comparing Steve's configs — identical schema.
+
+---
+
+## Current State: Markus's Server
 
 ### Server
-| Property | Value |
-|----------|-------|
-| Hostname | EEVEELUTIONS |
-| IP | 204.168.157.39 (IPv4), 2a01:4f9:c014:811::1 (IPv6) |
-| OS | Linux (Hetzner) |
-| Node.js | v22.22.1 |
-| Package | `clawdbot@2026.1.24-3` |
-| Binary | `/usr/bin/clawdbot` → `/usr/lib/node_modules/clawdbot/dist/entry.js` |
-| Ollama | Active, `nomic-embed-text` model loaded |
+- **Hostname:** EEVEELUTIONS
+- **IP:** 204.168.157.39 / 2a01:4f9:c014:811::1
+- **Node.js:** v22.22.1
+- **Current package:** `clawdbot@2026.1.24-3`
+- **Ollama:** Active, `nomic-embed-text` loaded
 
 ### Gateway 1: Eevee (Main Agent)
 
 | Property | Value |
 |----------|-------|
-| Config | `/root/.clawdbot/clawdbot.json` |
-| State dir | `/root/.clawdbot/` |
-| Workspace | `/root/clawd/` |
+| Config | `/root/.clawdbot/clawdbot.json` (262 lines) |
+| State | `/root/.clawdbot/` (12MB — sessions, agents, cron, identity, telegram) |
+| Workspace | `/root/clawd/` (SOUL.md, MEMORY.md, HEARTBEAT.md) |
 | Port | 18789 |
-| Systemd | `clawdbot-gateway.service` (user service) |
-| Telegram bot | Token: `8724516087:AAG...` |
-| Telegram policy | `dmPolicy: pairing` |
-| Session transcripts | 2 JSONL files in `/root/.clawdbot/agents/` |
-| Cron jobs | `/root/.clawdbot/cron/jobs.json` |
-| Sub-agents | `radar` |
-| Total size | ~12MB |
+| Systemd | `~/.config/systemd/user/clawdbot-gateway.service` |
+| Sub-agents | `main`, `radar` (workspace: `/root/clawd-radar/`) |
+| Session files | 2 JSONL transcripts |
+| Cron | `jobs.json` + backup |
 
-**LLM Configuration (MUST be preserved exactly):**
+**LLM Stack:**
+```
+Primary:    anthropic/claude-opus-4-6
+Fallback 1: nvidia/nvidia/nemotron-3-super-120b-a12b
+Fallback 2: anthropic/claude-sonnet-4-6
+Fallback 3: moonshot/kimi-k2.5
+Fallback 4: moonshot/kimi-k2-0905-preview
 
-| Setting | Value |
-|---------|-------|
-| Primary model | `anthropic/claude-opus-4-6` |
-| Fallback 1 | `nvidia/nvidia/nemotron-3-super-120b-a12b` |
-| Fallback 2 | `anthropic/claude-sonnet-4-6` |
-| Fallback 3 | `moonshot/kimi-k2.5` |
-| Fallback 4 | `moonshot/kimi-k2-0905-preview` |
-| Heartbeat model | `anthropic/claude-sonnet-4-6` |
-| Subagent model | `anthropic/claude-sonnet-4-6` |
+Heartbeat model:  anthropic/claude-sonnet-4-6
+Subagent model:   anthropic/claude-sonnet-4-6
+```
 
-**Providers (3 configured):**
-- **Anthropic** — `api.anthropic.com`, OAuth token auth, Opus + Sonnet models
-- **NVIDIA NIM** — `integrate.api.nvidia.com/v1`, API key auth, Nemotron 3 Super 120B
-- **Moonshot** — `api.moonshot.ai/v1`, API key auth, Kimi K2 + K2.5
+**3 API Providers:**
+- Anthropic — OAuth token auth, Opus + Sonnet
+- NVIDIA NIM — API key, Nemotron 3 Super 120B
+- Moonshot — API key, Kimi K2 + K2.5
 
-**Memory:**
-- Provider: Ollama (local) at `http://localhost:11434/v1/`
-- Model: `nomic-embed-text`
-- Sources: memory + sessions
-- Session memory: enabled
+**Memory:** Ollama `nomic-embed-text` at `localhost:11434`, session memory enabled
 
-**Other settings:**
-- Context tokens: 1,000,000
-- Compaction: safeguard mode, memoryFlush enabled
-- Heartbeat: every 1h
-- Max concurrent: 4
-- Session reset: idle after 480 minutes
-- Exec security: full
-- Gateway bind: loopback
-- Gateway auth: token `c5557fa9829dc2624ff5f7cbfc9697c7300ddc9a6c5e8f96`
-- Brave API key: in systemd env var
+**Key settings:** Context 1M tokens, compaction safeguard + memoryFlush, heartbeat 1h, max concurrent 4, session reset after 480min idle, exec security full, gateway bind loopback with auth token, Brave API key in systemd env.
 
-### Gateway 2: Mew (Therapist Companion)
+### Gateway 2: Mew (Therapist)
 
 | Property | Value |
 |----------|-------|
 | Config | `/root/.clawdbot-mew/clawdbot.json` |
-| State dir | `/root/.clawdbot-mew/` |
-| Workspace | `/root/therapist/` |
+| State | `/root/.clawdbot-mew/` (4.9MB) |
+| Workspace | `/root/therapist/` (SOUL.md, HEARTBEAT.md) |
 | Port | 18795 |
-| Systemd | `clawdbot-gateway-mew.service` (user service) |
-| Telegram bot | Token: `8775097819:AAG...` |
-| Telegram policy | `dmPolicy: allowlist`, allowFrom: `["6013499331"]` (Markus only) |
-| Session transcripts | 3 JSONL files |
-| Cron jobs | `/root/.clawdbot-mew/cron/jobs.json` |
-| Total size | ~4.9MB |
+| Systemd | `~/.config/systemd/user/clawdbot-gateway-mew.service` |
+| Sub-agents | None |
+| Session files | 3 JSONL transcripts |
+| Cron | `jobs.json` + backup |
 
-**LLM Configuration (MUST be preserved exactly):**
-
-| Setting | Value |
-|---------|-------|
-| Primary model | `anthropic/claude-opus-4-6` |
-| Fallback 1 | `moonshot/kimi-k2.5` |
-| Thinking | `high` (default) |
-
-**Providers (2 configured):**
-- **Anthropic** — Opus 4.6 only (cost: input 15, output 75 — full pricing)
-- **Moonshot** — Kimi K2.5
-
-**Other settings:**
-- Context tokens: 1,000,000
-- Compaction: safeguard mode
-- Heartbeat: every 1h
-- Max concurrent: 1
-- Session reset: daily at 21:00
-- Group policy: disabled
-- CLAWDBOT_ALLOW_MULTI_GATEWAY=1 (env var)
-
-### Workspace Files (MUST NOT be touched)
-
+**LLM Stack:**
 ```
-/root/clawd/
-├── SOUL.md
-├── MEMORY.md
-├── HEARTBEAT.md
-└── (other agent files)
+Primary:    anthropic/claude-opus-4-6
+Fallback 1: moonshot/kimi-k2.5
 
-/root/therapist/
-├── SOUL.md
-├── HEARTBEAT.md
-└── (other therapist files)
-
-/root/clawd-radar/
-└── (radar sub-agent workspace)
+Thinking: high (default)
 ```
 
-### Systemd Service Files
+**2 API Providers:**
+- Anthropic — OAuth token, Opus only
+- Moonshot — API key, Kimi K2.5
 
-**Eevee** (`~/.config/systemd/user/clawdbot-gateway.service`):
-```ini
-[Unit]
-Description=Clawdbot Gateway (v2026.1.24-3)
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-ExecStart="/usr/bin/node" "/usr/lib/node_modules/clawdbot/dist/entry.js" gateway --port 18789
-Restart=always
-RestartSec=5
-KillMode=process
-Environment=HOME=/root
-Environment="PATH=/root/.local/bin:/root/.npm-global/bin:/root/bin:/root/.nvm/current/bin:/root/.fnm/current/bin:/root/.volta/bin:/root/.asdf/shims:/root/.local/share/pnpm:/root/.bun/bin:/usr/local/bin:/usr/bin:/bin"
-Environment=CLAWDBOT_GATEWAY_PORT=18789
-Environment=CLAWDBOT_GATEWAY_TOKEN=c5557fa9829dc2624ff5f7cbfc9697c7300ddc9a6c5e8f96
-Environment="CLAWDBOT_SYSTEMD_UNIT=clawdbot-gateway.service"
-Environment=CLAWDBOT_SERVICE_MARKER=clawdbot
-Environment=CLAWDBOT_SERVICE_KIND=gateway
-Environment=CLAWDBOT_SERVICE_VERSION=2026.1.24-3
-Environment=BRAVE_API_KEY=BSAOdyOFxUvCpj2l_yZ9Jhv2UaOa3KQ
-
-[Install]
-WantedBy=default.target
-```
-
-**Mew** (`~/.config/systemd/user/clawdbot-gateway-mew.service`):
-```ini
-[Unit]
-Description=Clawdbot Gateway — Mew (Therapist Companion)
-After=network-online.target clawdbot-gateway.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/node /usr/lib/node_modules/clawdbot/dist/entry.js gateway --port 18795
-Environment=CLAWDBOT_PROFILE=mew
-Environment=CLAWDBOT_CONFIG_PATH=/root/.clawdbot-mew/clawdbot.json
-Environment=CLAWDBOT_STATE_DIR=/root/.clawdbot-mew
-Environment=CLAWDBOT_GATEWAY_PORT=18795
-Environment=CLAWDBOT_SERVICE_MARKER=clawdbot-mew
-Environment=CLAWDBOT_SYSTEMD_UNIT=clawdbot-gateway-mew.service
-Environment=CLAWDBOT_ALLOW_MULTI_GATEWAY=1
-WorkingDirectory=/root/therapist
-Restart=on-failure
-RestartSec=30
-
-[Install]
-WantedBy=default.target
-```
+**Key settings:** Context 1M, compaction safeguard, heartbeat 1h, max concurrent 1, session reset daily at 21:00, Telegram allowlist (Markus: `6013499331`), groups disabled, `CLAWDBOT_ALLOW_MULTI_GATEWAY=1`.
 
 ---
 
-## Migration Plan
+## Migration Procedure
 
-### Pre-Flight Checks
+### Pre-Flight (2 min)
 
 ```bash
-# 1. Verify SSH access
-ssh root@204.168.157.39 "hostname"
-# Expected: EEVEELUTIONS
+# Verify access
+ssh root@204.168.157.39 "hostname && clawdbot --version"
+# → EEVEELUTIONS / 2026.1.24-3
 
-# 2. Verify both gateways running
-ssh root@204.168.157.39 "systemctl --user status clawdbot-gateway clawdbot-gateway-mew --no-pager"
-# Expected: both active (running)
+# Verify both gateways running
+ssh root@204.168.157.39 "systemctl --user is-active clawdbot-gateway clawdbot-gateway-mew"
+# → active / active
 
-# 3. Verify Ollama running
-ssh root@204.168.157.39 "curl -s http://localhost:11434/api/tags | jq '.models[].name'"
-# Expected: nomic-embed-text:latest
+# Verify Ollama
+ssh root@204.168.157.39 "curl -s http://localhost:11434/api/tags | grep nomic"
+# → nomic-embed-text
 
-# 4. Verify current package
-ssh root@204.168.157.39 "clawdbot --version"
-# Expected: 2026.1.24-3
-
-# 5. Backup configs (CRITICAL)
-ssh root@204.168.157.39 "cp -a /root/.clawdbot /root/.clawdbot.backup.$(date +%Y%m%d)"
-ssh root@204.168.157.39 "cp -a /root/.clawdbot-mew /root/.clawdbot-mew.backup.$(date +%Y%m%d)"
-ssh root@204.168.157.39 "cp -a ~/.config/systemd/user/clawdbot-gateway.service ~/.config/systemd/user/clawdbot-gateway.service.bak"
-ssh root@204.168.157.39 "cp -a ~/.config/systemd/user/clawdbot-gateway-mew.service ~/.config/systemd/user/clawdbot-gateway-mew.service.bak"
+# BACKUP EVERYTHING
+ssh root@204.168.157.39 bash << 'EOF'
+STAMP=$(date +%Y%m%d%H%M)
+cp -a /root/.clawdbot "/root/.clawdbot.bak.$STAMP"
+cp -a /root/.clawdbot-mew "/root/.clawdbot-mew.bak.$STAMP"
+cp ~/.config/systemd/user/clawdbot-gateway.service ~/.config/systemd/user/clawdbot-gateway.service.bak
+cp ~/.config/systemd/user/clawdbot-gateway-mew.service ~/.config/systemd/user/clawdbot-gateway-mew.service.bak
+echo "✅ Backups created with stamp $STAMP"
+EOF
 ```
 
-### Step 1: Stop Both Gateways
+### Step 1: Stop Gateways (10 sec)
 
 ```bash
-ssh root@204.168.157.39 "systemctl --user stop clawdbot-gateway-mew clawdbot-gateway"
-
-# Verify stopped
-ssh root@204.168.157.39 "ps aux | grep -E 'clawdbot|hexos' | grep -v grep"
-# Expected: empty
+ssh root@204.168.157.39 bash << 'EOF'
+systemctl --user stop clawdbot-gateway-mew
+systemctl --user stop clawdbot-gateway
+sleep 2
+# Confirm stopped
+if ps aux | grep -E 'clawdbot-gateway' | grep -v grep > /dev/null; then
+    echo "⚠️ GATEWAYS STILL RUNNING — ABORT"
+    exit 1
+fi
+echo "✅ Both gateways stopped"
+EOF
 ```
 
-**Downtime starts here.** Eevee and Mew are offline. Telegram messages will queue and deliver when gateways restart.
+⏱️ **Downtime starts. Telegram messages will queue.**
 
-### Step 2: Install HexOS Package
+### Step 2: Install HexOS (30 sec)
 
 ```bash
-ssh root@204.168.157.39 "npm install -g @hexitlabs/hexos"
+ssh root@204.168.157.39 bash << 'EOF'
+npm install -g @hexitlabs/hexos
 
-# Verify installation
-ssh root@204.168.157.39 "hexos --version"
-# Expected: 2026.1.24-18
+# Verify
+HEXOS_VER=$(hexos --version 2>/dev/null)
+if [ "$HEXOS_VER" != "2026.1.24-18" ]; then
+    echo "⚠️ WRONG VERSION: $HEXOS_VER — ABORT"
+    exit 1
+fi
 
-# Verify binary path
-ssh root@204.168.157.39 "which hexos"
-# Expected: /usr/bin/hexos
-
-# Verify entry.js exists
-ssh root@204.168.157.39 "ls /usr/lib/node_modules/@hexitlabs/hexos/dist/entry.js"
+echo "✅ HexOS $HEXOS_VER installed at $(which hexos)"
+echo "   Entry: $(ls /usr/lib/node_modules/@hexitlabs/hexos/dist/entry.js)"
+EOF
 ```
 
-**Note:** Do NOT uninstall clawdbot first. Install hexos alongside, verify it works, then clean up old package later.
-
-### Step 3: Migrate Config Files
-
-**Eevee:** Copy clawdbot config to hexos format.
+### Step 3: Migrate Eevee Config (1 min)
 
 ```bash
-ssh root@204.168.157.39 bash -s << 'EOF'
-# Create HexOS state directory
+ssh root@204.168.157.39 bash << 'EOF'
+set -e
+
+# Create new state directory
 mkdir -p /root/.hexos
 
-# Copy config (rename clawdbot.json → hexos.json)
+# Copy config file (rename to hexos.json)
 cp /root/.clawdbot/clawdbot.json /root/.hexos/hexos.json
 
-# Copy all state data (sessions, agents, cron, identity, devices, telegram)
-for dir in agents cron devices identity telegram sessions; do
-    if [ -d "/root/.clawdbot/$dir" ]; then
-        cp -a "/root/.clawdbot/$dir" "/root/.hexos/$dir"
+# Copy ALL state subdirectories
+for item in agents cron devices identity telegram sessions update-check.json; do
+    src="/root/.clawdbot/$item"
+    if [ -e "$src" ]; then
+        cp -a "$src" "/root/.hexos/$item"
+        echo "  Copied: $item"
     fi
 done
 
-# Copy any other state files
-for f in /root/.clawdbot/*.json /root/.clawdbot/*.bak; do
-    [ -f "$f" ] && cp -a "$f" /root/.hexos/
+# Copy any remaining state files (json, bak)
+for f in /root/.clawdbot/*.json.bak; do
+    [ -f "$f" ] && cp -a "$f" "/root/.hexos/" && echo "  Copied: $(basename $f)"
 done
 
-# Update meta in hexos.json
-sed -i 's/"lastTouchedVersion": "2026.1.24-3"/"lastTouchedVersion": "2026.1.24-18"/g' /root/.hexos/hexos.json
+# Verify config integrity — check model fallbacks are intact
+PRIMARY=$(grep -o '"primary": "[^"]*"' /root/.hexos/hexos.json | head -1)
+FALLBACK_COUNT=$(grep -c '"nvidia/nvidia/nemotron\|claude-sonnet\|kimi-k2' /root/.hexos/hexos.json)
 
-echo "Eevee config migrated to /root/.hexos/"
+echo ""
+echo "✅ Eevee config migrated to /root/.hexos/"
+echo "   Primary model: $PRIMARY"
+echo "   Fallback references found: $FALLBACK_COUNT (expected: 6+)"
+echo "   Files:"
 ls -la /root/.hexos/
 EOF
 ```
 
-**Mew:** Copy clawdbot-mew config to hexos-mew format.
+### Step 4: Migrate Mew Config (1 min)
 
 ```bash
-ssh root@204.168.157.39 bash -s << 'EOF'
-# Create HexOS Mew state directory
+ssh root@204.168.157.39 bash << 'EOF'
+set -e
+
+# Create new state directory (profile suffix = -mew)
 mkdir -p /root/.hexos-mew
 
-# Copy config (rename clawdbot.json → hexos.json)
+# Copy config file
 cp /root/.clawdbot-mew/clawdbot.json /root/.hexos-mew/hexos.json
 
-# Copy all state data
-for dir in agents cron devices identity telegram sessions; do
-    if [ -d "/root/.clawdbot-mew/$dir" ]; then
-        cp -a "/root/.clawdbot-mew/$dir" "/root/.hexos-mew/$dir"
+# Copy ALL state subdirectories
+for item in agents cron devices identity telegram sessions update-check.json; do
+    src="/root/.clawdbot-mew/$item"
+    if [ -e "$src" ]; then
+        cp -a "$src" "/root/.hexos-mew/$item"
+        echo "  Copied: $item"
     fi
 done
 
-# Copy any other state files
-for f in /root/.clawdbot-mew/*.json /root/.clawdbot-mew/*.bak; do
-    [ -f "$f" ] && cp -a "$f" /root/.hexos-mew/
+# Copy remaining state files
+for f in /root/.clawdbot-mew/*.json.bak; do
+    [ -f "$f" ] && cp -a "$f" "/root/.hexos-mew/" && echo "  Copied: $(basename $f)"
 done
 
-# Update meta in hexos.json
-sed -i 's/"lastTouchedVersion": "2026.1.24-3"/"lastTouchedVersion": "2026.1.24-18"/g' /root/.hexos-mew/hexos.json
+# Verify config integrity
+PRIMARY=$(grep -o '"primary": "[^"]*"' /root/.hexos-mew/hexos.json | head -1)
+ALLOWFROM=$(grep -o '"6013499331"' /root/.hexos-mew/hexos.json)
 
-echo "Mew config migrated to /root/.hexos-mew/"
+echo ""
+echo "✅ Mew config migrated to /root/.hexos-mew/"
+echo "   Primary model: $PRIMARY"
+echo "   Markus allowlist: $ALLOWFROM"
+echo "   Files:"
 ls -la /root/.hexos-mew/
 EOF
 ```
 
-### Step 4: Create New Systemd Services
+### Step 5: Create New Systemd Services (1 min)
 
-**Eevee** (`~/.config/systemd/user/hexos-gateway.service`):
-
+**Eevee:**
 ```bash
-ssh root@204.168.157.39 bash -s << 'SERVICEEOF'
+ssh root@204.168.157.39 bash << 'OUTER'
 cat > ~/.config/systemd/user/hexos-gateway.service << 'EOF'
 [Unit]
 Description=HexOS Gateway — Eevee (v2026.1.24-18)
@@ -337,14 +287,13 @@ Environment=BRAVE_API_KEY=BSAOdyOFxUvCpj2l_yZ9Jhv2UaOa3KQ
 [Install]
 WantedBy=default.target
 EOF
-echo "Created hexos-gateway.service"
-SERVICEEOF
+echo "✅ Created hexos-gateway.service"
+OUTER
 ```
 
-**Mew** (`~/.config/systemd/user/hexos-gateway-mew.service`):
-
+**Mew:**
 ```bash
-ssh root@204.168.157.39 bash -s << 'SERVICEEOF'
+ssh root@204.168.157.39 bash << 'OUTER'
 cat > ~/.config/systemd/user/hexos-gateway-mew.service << 'EOF'
 [Unit]
 Description=HexOS Gateway — Mew (Therapist Companion)
@@ -368,219 +317,267 @@ RestartSec=30
 [Install]
 WantedBy=default.target
 EOF
-echo "Created hexos-gateway-mew.service"
-SERVICEEOF
+echo "✅ Created hexos-gateway-mew.service"
+OUTER
 ```
 
-### Step 5: Disable Old Services, Enable New
+### Step 6: Swap Services (30 sec)
 
 ```bash
-ssh root@204.168.157.39 bash -s << 'EOF'
-# Reload systemd
+ssh root@204.168.157.39 bash << 'EOF'
 systemctl --user daemon-reload
-
-# Disable old services (don't delete yet — keep for rollback)
-systemctl --user disable clawdbot-gateway.service
-systemctl --user disable clawdbot-gateway-mew.service
-
-# Enable new services
+systemctl --user disable clawdbot-gateway.service 2>/dev/null
+systemctl --user disable clawdbot-gateway-mew.service 2>/dev/null
 systemctl --user enable hexos-gateway.service
 systemctl --user enable hexos-gateway-mew.service
-
-echo "Old services disabled, new services enabled"
+echo "✅ Old disabled, new enabled"
 EOF
 ```
 
-### Step 6: Start Eevee (Gateway 1)
+### Step 7: Start Eevee + Verify (1 min)
 
 ```bash
-ssh root@204.168.157.39 "systemctl --user start hexos-gateway"
-
-# Wait 5 seconds for startup
+ssh root@204.168.157.39 bash << 'EOF'
+systemctl --user start hexos-gateway
 sleep 5
 
-# Verify running
-ssh root@204.168.157.39 "systemctl --user status hexos-gateway --no-pager | head -5"
-# Expected: active (running)
+# Check 1: Service running
+STATUS=$(systemctl --user is-active hexos-gateway)
+if [ "$STATUS" != "active" ]; then
+    echo "❌ FAIL: Eevee not running (status: $STATUS)"
+    echo "Logs:"
+    journalctl --user -u hexos-gateway --no-pager -n 30
+    exit 1
+fi
 
-# Verify process name
-ssh root@204.168.157.39 "ps aux | grep hexos | grep -v grep"
-# Expected: hexos and hexos-gateway processes
+# Check 2: Process is hexos (not clawdbot)
+if ! ps aux | grep 'hexos-gateway' | grep -v grep > /dev/null; then
+    echo "❌ FAIL: No hexos-gateway process"
+    exit 1
+fi
 
-# Verify gateway responding
-ssh root@204.168.157.39 "curl -s -o /dev/null -w '%{http_code}' http://localhost:18789/healthz"
-# Expected: 200
+# Check 3: HTTP health check
+HTTP=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18789/healthz 2>/dev/null)
+if [ "$HTTP" != "200" ]; then
+    echo "❌ FAIL: Health check returned $HTTP"
+    exit 1
+fi
 
-# Verify Telegram connected (check logs)
-ssh root@204.168.157.39 "journalctl --user -u hexos-gateway --no-pager -n 20 | grep -i telegram"
-# Expected: "Telegram: connected" or similar
+# Check 4: Telegram connected
+sleep 3
+if journalctl --user -u hexos-gateway --no-pager -n 50 | grep -qi 'telegram.*connect\|polling\|webhook'; then
+    echo "  ✅ Telegram appears connected"
+else
+    echo "  ⚠️ Telegram connection not confirmed in logs — check manually"
+fi
+
+echo "✅ Eevee (hexos-gateway) is LIVE on port 18789"
+EOF
 ```
 
-### Step 7: Start Mew (Gateway 2)
+### Step 8: Start Mew + Verify (1 min)
 
 ```bash
-ssh root@204.168.157.39 "systemctl --user start hexos-gateway-mew"
-
-# Wait 5 seconds
+ssh root@204.168.157.39 bash << 'EOF'
+systemctl --user start hexos-gateway-mew
 sleep 5
 
-# Verify running
-ssh root@204.168.157.39 "systemctl --user status hexos-gateway-mew --no-pager | head -5"
-# Expected: active (running)
+# Check 1: Service running
+STATUS=$(systemctl --user is-active hexos-gateway-mew)
+if [ "$STATUS" != "active" ]; then
+    echo "❌ FAIL: Mew not running (status: $STATUS)"
+    echo "Logs:"
+    journalctl --user -u hexos-gateway-mew --no-pager -n 30
+    exit 1
+fi
 
-# Verify gateway responding
-ssh root@204.168.157.39 "curl -s -o /dev/null -w '%{http_code}' http://localhost:18795/healthz"
-# Expected: 200
+# Check 2: HTTP health
+HTTP=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18795/healthz 2>/dev/null)
+if [ "$HTTP" != "200" ]; then
+    echo "❌ FAIL: Mew health check returned $HTTP"
+    exit 1
+fi
 
-# Verify Telegram connected
-ssh root@204.168.157.39 "journalctl --user -u hexos-gateway-mew --no-pager -n 20 | grep -i telegram"
+# Check 3: Telegram connected
+sleep 3
+if journalctl --user -u hexos-gateway-mew --no-pager -n 50 | grep -qi 'telegram.*connect\|polling\|webhook'; then
+    echo "  ✅ Telegram appears connected"
+else
+    echo "  ⚠️ Telegram connection not confirmed — check manually"
+fi
+
+echo "✅ Mew (hexos-gateway-mew) is LIVE on port 18795"
+EOF
 ```
 
-**Downtime ends here.** Both gateways should be live.
+⏱️ **Downtime ends.**
 
-### Step 8: Post-Migration Verification
+### Step 9: Full Verification (3 min)
 
 ```bash
-# 1. Both processes running as hexos (not clawdbot)
-ssh root@204.168.157.39 "ps aux | grep -E 'hexos|clawdbot' | grep -v grep"
-# Expected: ONLY hexos processes, zero clawdbot processes
+ssh root@204.168.157.39 bash << 'EOF'
+echo "═══════════════════════════════════════════"
+echo "  POST-MIGRATION VERIFICATION"
+echo "═══════════════════════════════════════════"
+echo ""
 
-# 2. Both systemd services healthy
-ssh root@204.168.157.39 "systemctl --user is-active hexos-gateway hexos-gateway-mew"
-# Expected: active / active
+# 1. Package version
+echo "1. Package version"
+echo "   $(hexos --version 2>/dev/null)"
 
-# 3. Eevee config preserved — check model and fallbacks
-ssh root@204.168.157.39 "cat /root/.hexos/hexos.json | grep -A6 '\"primary\"'"
-# Expected: anthropic/claude-opus-4-6 with 4 fallbacks
+# 2. Processes
+echo ""
+echo "2. Running processes"
+ps aux | grep -E 'hexos|clawdbot' | grep -v grep | awk '{print "   "$11" "$12" "$13}'
+CLAWDBOT_PROCS=$(ps aux | grep 'clawdbot' | grep -v grep | wc -l)
+if [ "$CLAWDBOT_PROCS" -gt 0 ]; then
+    echo "   ❌ WARNING: $CLAWDBOT_PROCS clawdbot processes still running!"
+fi
 
-# 4. Mew config preserved — check model and fallbacks
-ssh root@204.168.157.39 "cat /root/.hexos-mew/hexos.json | grep -A3 '\"primary\"'"
-# Expected: anthropic/claude-opus-4-6 with kimi-k2.5 fallback
+# 3. Services
+echo ""
+echo "3. Service status"
+echo "   hexos-gateway:     $(systemctl --user is-active hexos-gateway)"
+echo "   hexos-gateway-mew: $(systemctl --user is-active hexos-gateway-mew)"
 
-# 5. Memory search working (Ollama)
-ssh root@204.168.157.39 "curl -s http://localhost:11434/api/tags | grep nomic"
-# Expected: nomic-embed-text
+# 4. Health checks
+echo ""
+echo "4. Health checks"
+echo "   Eevee (18789): HTTP $(curl -s -o /dev/null -w '%{http_code}' http://localhost:18789/healthz)"
+echo "   Mew   (18795): HTTP $(curl -s -o /dev/null -w '%{http_code}' http://localhost:18795/healthz)"
 
-# 6. Cron jobs migrated
-ssh root@204.168.157.39 "cat /root/.hexos/cron/jobs.json | head -5"
-ssh root@204.168.157.39 "cat /root/.hexos-mew/cron/jobs.json | head -5"
+# 5. Eevee LLM config
+echo ""
+echo "5. Eevee LLM config"
+echo "   Primary: $(grep -o '"primary": "[^"]*"' /root/.hexos/hexos.json | head -1)"
+echo "   Fallbacks:"
+grep -o '"nvidia/nvidia/nemotron-3-super-120b-a12b"\|"anthropic/claude-sonnet-4-6"\|"moonshot/kimi-k2.5"\|"moonshot/kimi-k2-0905-preview"' /root/.hexos/hexos.json | sort -u | while read f; do echo "     $f"; done
+echo "   Providers:"
+grep -o '"baseUrl": "[^"]*"' /root/.hexos/hexos.json | while read u; do echo "     $u"; done
 
-# 7. HexOS version correct
-ssh root@204.168.157.39 "hexos --version"
-# Expected: 2026.1.24-18
+# 6. Mew LLM config
+echo ""
+echo "6. Mew LLM config"
+echo "   Primary: $(grep -o '"primary": "[^"]*"' /root/.hexos-mew/hexos.json | head -1)"
+echo "   Fallbacks:"
+grep -o '"moonshot/kimi-k2.5"' /root/.hexos-mew/hexos.json | head -1 | while read f; do echo "     $f"; done
+echo "   Telegram allowlist: $(grep -o '"6013499331"' /root/.hexos-mew/hexos.json)"
 
-# 8. Workspace files untouched
-ssh root@204.168.157.39 "ls /root/clawd/SOUL.md /root/therapist/SOUL.md"
-# Expected: both exist
+# 7. Memory search
+echo ""
+echo "7. Ollama (memory search)"
+echo "   Status: $(systemctl is-active ollama)"
+echo "   Model: $(curl -s http://localhost:11434/api/tags | grep -o '"name":"[^"]*"' | head -1)"
 
-# 9. Send a test message via Telegram to both bots
-# → Message Eevee's Telegram bot, verify response
-# → Message Mew's Telegram bot, verify response
+# 8. Workspace files
+echo ""
+echo "8. Workspace files"
+for f in /root/clawd/SOUL.md /root/clawd/MEMORY.md /root/clawd/HEARTBEAT.md /root/therapist/SOUL.md /root/therapist/HEARTBEAT.md; do
+    [ -f "$f" ] && echo "   ✅ $f" || echo "   ❌ MISSING: $f"
+done
+
+# 9. Cron jobs
+echo ""
+echo "9. Cron jobs"
+echo "   Eevee: $(cat /root/.hexos/cron/jobs.json 2>/dev/null | grep -c '"id"') jobs"
+echo "   Mew:   $(cat /root/.hexos-mew/cron/jobs.json 2>/dev/null | grep -c '"id"') jobs"
+
+echo ""
+echo "═══════════════════════════════════════════"
+echo "  MANUAL CHECKS REQUIRED:"
+echo "  □ Send a message to Eevee's Telegram bot"
+echo "  □ Send a message to Mew's Telegram bot"
+echo "  □ Verify Eevee responds with correct personality"
+echo "  □ Verify Mew responds (as Markus, ID 6013499331)"
+echo "═══════════════════════════════════════════"
+EOF
 ```
 
-### Step 9: Cleanup (AFTER 24h stable)
+---
 
-Only run this after confirming everything works for at least 24 hours:
+## Rollback (30 seconds)
+
+If ANYTHING fails at ANY step:
 
 ```bash
-ssh root@204.168.157.39 bash -s << 'EOF'
-# Remove old systemd service files
+ssh root@204.168.157.39 bash << 'EOF'
+# Stop new services (ignore errors)
+systemctl --user stop hexos-gateway hexos-gateway-mew 2>/dev/null
+
+# Re-enable old services
+systemctl --user enable clawdbot-gateway.service clawdbot-gateway-mew.service 2>/dev/null
+
+# Start old services
+systemctl --user start clawdbot-gateway
+systemctl --user start clawdbot-gateway-mew
+
+# Verify rollback
+sleep 3
+echo "clawdbot-gateway: $(systemctl --user is-active clawdbot-gateway)"
+echo "clawdbot-gateway-mew: $(systemctl --user is-active clawdbot-gateway-mew)"
+echo "✅ Rolled back to Clawdbot"
+EOF
+```
+
+**Why rollback works:** We COPY configs (never move), we don't uninstall clawdbot, old service files are backed up. Original state dirs (`/root/.clawdbot/`, `/root/.clawdbot-mew/`) are completely untouched.
+
+---
+
+## Cleanup (AFTER 48h Stable)
+
+```bash
+ssh root@204.168.157.39 bash << 'EOF'
+# Remove old service files
 rm ~/.config/systemd/user/clawdbot-gateway.service
 rm ~/.config/systemd/user/clawdbot-gateway-mew.service
 systemctl --user daemon-reload
 
-# Uninstall old clawdbot package
+# Uninstall clawdbot
 npm uninstall -g clawdbot
 
-# Keep backup configs for 30 days, then delete
-echo "Backups at /root/.clawdbot.backup.* and /root/.clawdbot-mew.backup.*"
-echo "Old configs at /root/.clawdbot/ and /root/.clawdbot-mew/"
-echo "Delete after 30 days if everything is stable"
+echo "Old configs preserved at:"
+echo "  /root/.clawdbot/ (Eevee original)"
+echo "  /root/.clawdbot-mew/ (Mew original)"
+echo "  /root/.clawdbot.bak.* (timestamped backup)"
+echo ""
+echo "Delete these manually after 30 days if stable."
 EOF
 ```
 
 ---
 
-## Rollback Plan
+## Risk Matrix
 
-If anything goes wrong at any step:
-
-```bash
-# 1. Stop new services
-ssh root@204.168.157.39 "systemctl --user stop hexos-gateway hexos-gateway-mew 2>/dev/null"
-
-# 2. Re-enable old services
-ssh root@204.168.157.39 "systemctl --user enable clawdbot-gateway.service clawdbot-gateway-mew.service"
-
-# 3. Start old services
-ssh root@204.168.157.39 "systemctl --user start clawdbot-gateway clawdbot-gateway-mew"
-
-# 4. Verify old gateways running
-ssh root@204.168.157.39 "systemctl --user status clawdbot-gateway clawdbot-gateway-mew --no-pager | head -10"
-```
-
-Old configs are untouched (we copied, not moved). Old package is still installed. Rollback takes 30 seconds.
-
----
-
-## Risk Assessment
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| HexOS doesn't read `hexos.json` the same as `clawdbot.json` | Low | High | Configs are identical format — only filename changes. Verified on Steve's server. |
-| Env vars `HEXOS_*` not recognized (backward compat) | Medium | High | HexOS may still read `CLAWDBOT_*` — test on first gateway start. If not, the config file has all the same values. Fallback: keep CLAWDBOT_ vars alongside HEXOS_ vars. |
-| Session transcripts lost | None | High | We copy (not move) all state. Originals stay in `.clawdbot*` dirs. |
-| Telegram bot doesn't reconnect | Low | Medium | Bot tokens are in config. Restart service. Telegram auto-reconnects. |
-| Ollama memory search breaks | None | Medium | Ollama is a separate service. Config points to `localhost:11434`. Unchanged. |
-| Cron jobs lost | None | Medium | Copied to new state dir. Verified. |
-| Multi-gateway env var not recognized | Medium | High | `CLAWDBOT_ALLOW_MULTI_GATEWAY=1` → `HEXOS_ALLOW_MULTI_GATEWAY=1`. If not recognized, both gateways might not start. Test Eevee first, then Mew. |
-
----
-
-## LLM Config Verification Checklist
-
-After migration, verify EVERY model config matches:
-
-### Eevee
-- [ ] Primary: `anthropic/claude-opus-4-6`
-- [ ] Fallback 1: `nvidia/nvidia/nemotron-3-super-120b-a12b`
-- [ ] Fallback 2: `anthropic/claude-sonnet-4-6`
-- [ ] Fallback 3: `moonshot/kimi-k2.5`
-- [ ] Fallback 4: `moonshot/kimi-k2-0905-preview`
-- [ ] Anthropic API key present
-- [ ] NVIDIA NIM API key present
-- [ ] Moonshot API key present
-- [ ] Heartbeat model: `anthropic/claude-sonnet-4-6`
-- [ ] Subagent model: `anthropic/claude-sonnet-4-6`
-- [ ] Memory search: Ollama nomic-embed-text at localhost:11434
-
-### Mew
-- [ ] Primary: `anthropic/claude-opus-4-6`
-- [ ] Fallback 1: `moonshot/kimi-k2.5`
-- [ ] Anthropic API key present (OAuth token)
-- [ ] Moonshot API key present
-- [ ] Thinking: `high` (default)
-- [ ] Telegram allowlist: `6013499331` (Markus only)
-- [ ] Memory search: Ollama nomic-embed-text at localhost:11434
+| # | Risk | Likelihood | Impact | Mitigation | Verified? |
+|---|------|-----------|--------|------------|-----------|
+| 1 | HexOS doesn't read `hexos.json` same as `clawdbot.json` | Very Low | High | Same JSON schema — verified on Steve's server. Only filename differs. | ✅ Verified |
+| 2 | `HEXOS_*` env vars not recognized | None | N/A | Confirmed in source: ALL env vars are `HEXOS_*`. Zero `CLAWDBOT_*` references in codebase. | ✅ Source verified |
+| 3 | `HEXOS_ALLOW_MULTI_GATEWAY` not supported | Low | High (Mew won't start) | Source has `HEXOS_ALLOW_MULTI_GATEWAY` — start Eevee first, then Mew. If Mew fails, check logs. | ⚠️ Need to test |
+| 4 | Session transcripts lost | None | High | We COPY, never move. Originals preserved in `.clawdbot*` dirs. | ✅ By design |
+| 5 | Telegram bot disconnects permanently | Very Low | Medium | Bot tokens are in config. Telegram auto-reconnects on gateway start. | ✅ Known behavior |
+| 6 | Ollama breaks | None | Medium | Separate service, unchanged. Config points to `localhost:11434`. | ✅ Independent |
+| 7 | Cron jobs lost | None | Medium | Copied to new state dir. `jobs.json` preserved. | ✅ By design |
+| 8 | API keys/tokens not migrated | None | Critical | Config is byte-for-byte copy. All keys (Anthropic OAuth, NIM, Moonshot, Brave, Telegram) preserved. | ✅ By design |
+| 9 | Workspace files corrupted | None | Critical | Workspaces (`/root/clawd/`, `/root/therapist/`) are NOT touched. Only state dirs change. | ✅ By design |
 
 ---
 
 ## Timeline
 
-| Step | Duration | Cumulative |
-|------|----------|------------|
-| Pre-flight checks + backups | 2 min | 2 min |
-| Stop gateways | 10 sec | ~2 min |
-| Install HexOS | 30 sec | ~3 min |
-| Migrate configs (Eevee + Mew) | 1 min | ~4 min |
-| Create systemd services | 1 min | ~5 min |
-| Swap services (disable/enable) | 30 sec | ~5.5 min |
-| Start + verify Eevee | 1 min | ~6.5 min |
-| Start + verify Mew | 1 min | ~7.5 min |
-| Post-migration verification | 3 min | ~10 min |
-| **Total** | | **~10 minutes** |
-| **Downtime** | | **~7 minutes** (between stop and Mew verified) |
+| Step | Duration | Downtime? |
+|------|----------|-----------|
+| Pre-flight + backups | 2 min | No |
+| Stop gateways | 10 sec | ⏱️ START |
+| Install HexOS | 30 sec | ⏱️ |
+| Migrate Eevee config | 30 sec | ⏱️ |
+| Migrate Mew config | 30 sec | ⏱️ |
+| Create systemd services | 30 sec | ⏱️ |
+| Swap services | 15 sec | ⏱️ |
+| Start + verify Eevee | 1 min | ⏱️ (Eevee back) |
+| Start + verify Mew | 1 min | ⏱️ END |
+| Full verification | 3 min | No |
+| **Total** | **~10 min** | **~5 min downtime** |
 
 ---
 
-*This runbook applies to any Clawdbot → HexOS migration. Adapt server IPs, gateway names, and config paths for other servers (e.g., Steve's server is already migrated and can be used as reference).*
+*This PRD is specific to Markus's server. Do not apply to other servers without creating a separate runbook.*
