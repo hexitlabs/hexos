@@ -3,6 +3,32 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.6.0] - 2026-03-25
+
+### Features
+- **Audit Trail** — tamper-evident JSONL logging with SHA-256 hash chaining
+- Credential sanitizer — 30+ regex patterns strip secrets before logging (<3ms, zero false positives)
+- Approval system — risky actions require explicit approval before execution
+- Anomaly detection alerts — API call spikes, new endpoints, repeated failures, approval timeouts
+- Viewer CLI — `hexos audit log/search/stats/verify`
+- Export system — JSON/CSV with date range and type filters, gzip compression
+- Retention policy — 90-day default with archival and cleanup
+- Hash chain verification — `hexos audit verify` detects tampering instantly
+
+### Bug Fixes
+- Fixed `grep -c || echo 0` producing multiline values in arithmetic expressions (egress-status, viewer)
+- Fixed `hexos mode` grep matching multiple `mode:` YAML entries
+- Fixed yq v4 compatibility in preset loading (index-based iteration)
+
+## [v0.5.0] - 2026-03-24
+
+### Features
+- **Deployment Profiles** — Operator (unrestricted, internal) vs Managed (full security, clients)
+- `hexos setup [operator|managed]` — configure deployment profile
+- `hexos mode` — display current profile with security stack status
+- `hexos deploy <client> [--presets p1,p2]` — one-command client onboarding (managed mode)
+- Template configs for operator and managed modes
+
 ## [v0.4.0] - 2026-03-24
 
 ### Features
