@@ -37,7 +37,7 @@ fi
 echo "── Policy ─────────────────────────────────────────"
 if [[ -f "$CONFIG_FILE" ]]; then
     echo "  Config: ${CONFIG_FILE}"
-    PRESETS=$(yq -r '.egress.presets[]? // empty' "$CONFIG_FILE" 2>/dev/null || true)
+    PRESETS=$(yq -r '.egress.presets[]? // ""' "$CONFIG_FILE" 2>/dev/null || true)
     if [[ -n "$PRESETS" ]]; then
         echo "  Presets: ${PRESETS}"
     else
@@ -117,7 +117,8 @@ echo ""
 # ── Violation statistics ─────────────────────────────────────────────────
 echo "── Violation Stats (last 24h) ────────────────────"
 if command -v journalctl &>/dev/null; then
-    total=$(journalctl -k --since "24 hours ago" --no-pager 2>/dev/null | grep -c "${DENY_PREFIX}" || echo "0")
+    total=$(journalctl -k --since "24 hours ago" --no-pager 2>/dev/null | grep -c "${DENY_PREFIX}" 2>/dev/null || true)
+    total=${total:-0}
     echo "  Total blocked connections: ${total}"
 
     if [[ "$total" -gt 0 ]]; then

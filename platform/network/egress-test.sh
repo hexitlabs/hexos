@@ -53,20 +53,23 @@ echo "2. Allowlist Check"
 if [[ -f "$CONFIG_FILE" ]]; then
     # Check presets
     is_allowed=false
-    PRESETS=$(yq -r '.egress.presets[]? // empty' "$CONFIG_FILE" 2>/dev/null || true)
+    PRESETS=$(yq -r '.egress.presets[]? // ""' "$CONFIG_FILE" 2>/dev/null || true)
     for preset in $PRESETS; do
         preset_file="/hexos/platform/config/egress-presets/${preset}.yaml"
         [[ -f "$preset_file" ]] || continue
 
         # Check unrestricted
-        if yq -r '.unrestricted_ports[]? // empty' "$preset_file" 2>/dev/null | grep -qw "$PORT"; then
+        if yq -r '.unrestricted_ports[]? // ""' "$preset_file" 2>/dev/null | grep -qw "$PORT"; then
             echo "   ✓ Port ${PORT} allowed by preset '${preset}' (unrestricted)"
             is_allowed=true
             break
         fi
 
-        # Check specific hosts
-        while IFS= read -r allowed_host; do
+        # Check specific hosts (iterate by index for yq v4 compat)
+        host_count=$(yq '.allow | length' "$preset_file" 2>/dev/null || echo 0)
+        for ((ai=0; ai<host_count; ai++)); do
+            allowed_host=$(yq -r ".allow[$ai].host" "$preset_file")
+            [[ -z "$allowed_host" || "$allowed_host" == "null" ]] && continue
             # Exact match
             if [[ "$allowed_host" == "$HOST" ]]; then
                 echo "   ✓ Host ${HOST} allowed by preset '${preset}'"
@@ -82,12 +85,15 @@ if [[ -f "$CONFIG_FILE" ]]; then
                     break 2
                 fi
             fi
-        done < <(yq -r '.allow[]?.host // empty' "$preset_file")
+        done
     done
 
     if [[ "$is_allowed" == "false" ]]; then
-        # Check custom rules
-        while IFS= read -r custom_host; do
+        # Check custom rules (iterate by index for yq v4 compat)
+        custom_count=$(yq '.egress.custom | length' "$CONFIG_FILE" 2>/dev/null || echo 0)
+        for ((ci=0; ci<custom_count; ci++)); do
+            custom_host=$(yq -r ".egress.custom[$ci].host" "$CONFIG_FILE")
+            [[ -z "$custom_host" || "$custom_host" == "null" ]] && continue
             if [[ "$custom_host" == "$HOST" ]]; then
                 echo "   ✓ Host ${HOST} allowed by custom rule"
                 is_allowed=true
@@ -101,7 +107,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
                     break
                 fi
             fi
-        done < <(yq -r '.egress.custom[]?.host // empty' "$CONFIG_FILE" 2>/dev/null || true)
+        done
     fi
 
     if [[ "$is_allowed" == "false" ]]; then

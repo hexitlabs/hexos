@@ -206,11 +206,17 @@ cmd_stats() {
         local file_count
         file_count=$(wc -l < "$f")
         total=$((total + file_count))
-        tool_calls=$((tool_calls + $(grep -c '"type":"tool_call"' "$f" 2>/dev/null || echo 0)))
-        api_calls=$((api_calls + $(grep -c '"type":"api_call"' "$f" 2>/dev/null || echo 0)))
-        system_events=$((system_events + $(grep -c '"type":"system_event"' "$f" 2>/dev/null || echo 0)))
-        security_events=$((security_events + $(grep -c '"type":"security_event"' "$f" 2>/dev/null || echo 0)))
-        approvals=$((approvals + $(grep -c '"type":"approval"' "$f" 2>/dev/null || echo 0)))
+        local tc ac se sce ap
+        tc=$(grep -c '"type":"tool_call"' "$f" 2>/dev/null) || tc=0
+        ac=$(grep -c '"type":"api_call"' "$f" 2>/dev/null) || ac=0
+        se=$(grep -c '"type":"system_event"' "$f" 2>/dev/null) || se=0
+        sce=$(grep -c '"type":"security_event"' "$f" 2>/dev/null) || sce=0
+        ap=$(grep -c '"type":"approval"' "$f" 2>/dev/null) || ap=0
+        tool_calls=$((tool_calls + tc))
+        api_calls=$((api_calls + ac))
+        system_events=$((system_events + se))
+        security_events=$((security_events + sce))
+        approvals=$((approvals + ap))
     done
 
     echo "  Period:           ${period} (since ${start_date})"

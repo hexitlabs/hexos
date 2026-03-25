@@ -10,7 +10,7 @@ PLATFORM_BIN="/hexos/platform/bin"
 PLATFORM_SECURITY="/hexos/platform/security"
 PLATFORM_NETWORK="/hexos/platform/network"
 PLATFORM_AUDIT="/hexos/platform/audit"
-VERSION="0.5.0"
+VERSION="0.6.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"

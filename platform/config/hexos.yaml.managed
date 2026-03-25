@@ -4,7 +4,7 @@
 
 hexos:
   mode: managed
-  version: "0.4.0"
+  version: "0.6.0"
 
 security:
   # Phase 0 patches are always active (core runtime fixes)
@@ -13,7 +13,7 @@ security:
   egress_control: true      # Phase 2: default-deny outbound + YAML allowlists
   docker_sandbox: false     # Phase 3: not yet implemented
   inference_policy: false   # Phase 5: not yet implemented
-  audit_trail: false        # Phase 6: not yet implemented
+  audit_trail: true        # Phase 6: audit trail + credential sanitization
 
 scanner:
   auto: true

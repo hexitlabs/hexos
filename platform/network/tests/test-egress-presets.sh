@@ -46,18 +46,18 @@ for preset in "${!EXPECTED_PRESETS[@]}"; do
     fi
     
     # Check for required fields
-    if ! yq -r '.description // empty' "$preset_file" &>/dev/null; then
+    if ! yq -r '.description // ""' "$preset_file" &>/dev/null; then
         echo "⚠ WARNING: Missing description in $preset_file"
     fi
     
     # Special check for web-general unrestricted
     if [[ "$preset" == "web-general" ]]; then
-        if ! yq -r '.unrestricted_ports[]? // empty' "$preset_file" &>/dev/null; then
+        if ! yq -r '.unrestricted_ports[]? // ""' "$preset_file" &>/dev/null; then
             echo "⚠ WARNING: web-general missing unrestricted_ports"
         fi
     else
         # Regular preset should have allow list
-        if ! yq -r '.allow[]?.host // empty' "$preset_file" &>/dev/null; then
+        if ! yq -r '.allow[]?.host // ""' "$preset_file" &>/dev/null; then
             echo "⚠ WARNING: $preset missing allow list"
         fi
     fi

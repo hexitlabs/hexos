@@ -10,7 +10,7 @@ if [[ ! -f "$HEXOS_CONFIG" ]]; then
     exit 1
 fi
 
-MODE=$(grep -oP '^\s+mode:\s+\K\w+' "$HEXOS_CONFIG" 2>/dev/null || echo "unknown")
+MODE=$(grep -oP '^\s+mode:\s+\K\w+' "$HEXOS_CONFIG" 2>/dev/null | head -1 || echo "unknown")
 VERSION=$(grep -oP '^\s+version:\s+"\K[^"]+' "$HEXOS_CONFIG" 2>/dev/null || echo "unknown")
 
 echo "╔══════════════════════════════════════════════════╗"

@@ -113,7 +113,7 @@ HAS_WILDCARD=false
 WILDCARD_PORTS=()
 
 # Load presets
-PRESETS=$(yq -r '.egress.presets[]? // empty' "$CONFIG_FILE" 2>/dev/null || true)
+PRESETS=$(yq -r '.egress.presets[]? // ""' "$CONFIG_FILE" 2>/dev/null || true)
 for preset in $PRESETS; do
     preset_file="${PRESETS_DIR}/${preset}.yaml"
     if [[ ! -f "$preset_file" ]]; then
@@ -122,7 +122,7 @@ for preset in $PRESETS; do
     fi
 
     # Check for unrestricted preset (web-general)
-    unrestricted=$(yq -r '.unrestricted_ports[]? // empty' "$preset_file" 2>/dev/null || true)
+    unrestricted=$(yq -r '.unrestricted_ports[]? // ""' "$preset_file" 2>/dev/null || true)
     if [[ -n "$unrestricted" ]]; then
         HAS_WILDCARD=true
         for p in $unrestricted; do
@@ -132,24 +132,27 @@ for preset in $PRESETS; do
         continue
     fi
 
-    # Regular preset — collect hosts
-    while IFS= read -r line; do
-        host=$(echo "$line" | yq -r '.host')
-        ports=$(echo "$line" | yq -r '.ports[]? // 443')
+    # Regular preset — collect hosts (iterate by index for yq v4 compat)
+    host_count=$(yq '.allow | length' "$preset_file" 2>/dev/null || echo 0)
+    for ((i=0; i<host_count; i++)); do
+        host=$(yq -r ".allow[$i].host" "$preset_file")
+        ports=$(yq -r ".allow[$i].ports[]? // 443" "$preset_file" 2>/dev/null || echo "443")
+        [[ -z "$host" || "$host" == "null" ]] && continue
         ALL_HOSTS+=("$host")
         ALL_PORTS+=("$ports")
-    done < <(yq -c '.allow[]?' "$preset_file")
-    echo "  Preset: ${preset}"
+    done
+    echo "  Preset: ${preset} (${host_count} hosts)"
 done
 
-# Load custom rules
-while IFS= read -r line; do
-    [[ -z "$line" ]] && continue
-    host=$(echo "$line" | yq -r '.host')
-    port=$(echo "$line" | yq -r '.port // 443')
+# Load custom rules (iterate by index for yq v4 compat)
+custom_count=$(yq '.egress.custom | length' "$CONFIG_FILE" 2>/dev/null || echo 0)
+for ((i=0; i<custom_count; i++)); do
+    host=$(yq -r ".egress.custom[$i].host" "$CONFIG_FILE")
+    port=$(yq -r ".egress.custom[$i].port // 443" "$CONFIG_FILE")
+    [[ -z "$host" || "$host" == "null" ]] && continue
     ALL_HOSTS+=("$host")
     ALL_PORTS+=("$port")
-done < <(yq -c '.egress.custom[]?' "$CONFIG_FILE" 2>/dev/null || true)
+done
 
 echo "  Hosts collected: ${#ALL_HOSTS[@]}"
 echo "  Wildcard mode: ${HAS_WILDCARD}"

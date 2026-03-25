@@ -4,7 +4,7 @@
 
 hexos:
   mode: operator
-  version: "0.4.0"
+  version: "0.6.0"
 
 security:
   # Phase 0 patches are always active (core runtime fixes)

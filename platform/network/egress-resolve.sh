@@ -35,11 +35,11 @@ fi
 
 # Check for unrestricted preset
 has_unrestricted=false
-PRESETS=$(yq -r '.egress.presets[]? // empty' "$CONFIG_FILE" 2>/dev/null || true)
+PRESETS=$(yq -r '.egress.presets[]? // ""' "$CONFIG_FILE" 2>/dev/null || true)
 for preset in $PRESETS; do
     preset_file="${PRESETS_DIR}/${preset}.yaml"
     if [[ -f "$preset_file" ]]; then
-        if yq -r '.unrestricted_ports[]? // empty' "$preset_file" 2>/dev/null | grep -q .; then
+        if yq -r '.unrestricted_ports[]? // ""' "$preset_file" 2>/dev/null | grep -q .; then
             has_unrestricted=true
             break
         fi
@@ -56,14 +56,18 @@ ALL_HOSTS=()
 for preset in $PRESETS; do
     preset_file="${PRESETS_DIR}/${preset}.yaml"
     [[ -f "$preset_file" ]] || continue
-    while IFS= read -r host; do
-        [[ -n "$host" ]] && ALL_HOSTS+=("$host")
-    done < <(yq -r '.allow[]?.host // empty' "$preset_file")
+    host_count=$(yq '.allow | length' "$preset_file" 2>/dev/null || echo 0)
+    for ((i=0; i<host_count; i++)); do
+        host=$(yq -r ".allow[$i].host" "$preset_file")
+        [[ -n "$host" && "$host" != "null" ]] && ALL_HOSTS+=("$host")
+    done
 done
 
-while IFS= read -r host; do
-    [[ -n "$host" ]] && ALL_HOSTS+=("$host")
-done < <(yq -r '.egress.custom[]?.host // empty' "$CONFIG_FILE" 2>/dev/null || true)
+custom_count=$(yq '.egress.custom | length' "$CONFIG_FILE" 2>/dev/null || echo 0)
+for ((i=0; i<custom_count; i++)); do
+    host=$(yq -r ".egress.custom[$i].host" "$CONFIG_FILE")
+    [[ -n "$host" && "$host" != "null" ]] && ALL_HOSTS+=("$host")
+done
 
 # Resolve all hostnames to IPs
 mkdir -p "$DNS_CACHE_DIR" 2>/dev/null || true
