@@ -4,13 +4,15 @@
 # Phase 1.5: Security scanning
 # Phase 2: Network Egress Control
 # Phase 6: Audit Trail + Credential Sanitization
+# Phase 8: Deployment Profiles v2
 set -euo pipefail
 
 PLATFORM_BIN="/hexos/platform/bin"
 PLATFORM_SECURITY="/hexos/platform/security"
 PLATFORM_NETWORK="/hexos/platform/network"
 PLATFORM_AUDIT="/hexos/platform/audit"
-VERSION="0.6.0"
+CAPABILITIES_DIR="$(cd "$(dirname "$0")/.." && pwd)/dist/capabilities"
+VERSION="0.8.0"
 
 show_help() {
     echo "HexOS CLI v${VERSION}"
@@ -57,6 +59,14 @@ show_help() {
     echo "  audit pending [client]              List pending approvals"
     echo "  audit verify <client> [date]        Verify hash chain integrity"
     echo "  audit alerts <client>               Run alert checks"
+    echo ""
+    echo "  profile show                         Show current profile + resolved caps"
+    echo "  profile diff <p1> <p2>              Compare two profile presets"
+    echo "  profile set <profile>               Switch profile (with backup)"
+    echo "  profile rollback                    Restore previous profile"
+    echo "  profile validate                    Validate current config"
+    echo "  profile explain <cap>               Explain a capability in detail"
+    echo "  migrate-profile                     Migrate from v0.5.0 profile system"
     echo ""
     echo "  setup [operator|managed]             Configure deployment profile"
     echo "  mode                                Show current profile + security status"
@@ -289,6 +299,49 @@ case "${1:-help}" in
                 exit 1
                 ;;
         esac
+        ;;
+    profile)
+        case "${2:-}" in
+            show|diff|set|rollback|validate|explain)
+                node --input-type=module -e "
+                  import { profileShow, profileDiff, profileSet, profileRollback, profileValidate, profileExplain } from '${CAPABILITIES_DIR}/cli.js';
+                  import { readFileSync, existsSync } from 'node:fs';
+                  const cmd = '${2:-}';
+                  const configPath = existsSync('hexos.json') ? 'hexos.json' : null;
+                  const config = configPath ? JSON.parse(readFileSync(configPath, 'utf-8')) : {};
+                  try {
+                    let result;
+                    if (cmd === 'show') result = profileShow(config);
+                    else if (cmd === 'diff') result = profileDiff('${3:-}', '${4:-}');
+                    else if (cmd === 'set') result = profileSet('${3:-}', { configPath: configPath || 'hexos.json' });
+                    else if (cmd === 'rollback') result = profileRollback({ configPath: configPath || 'hexos.json' });
+                    else if (cmd === 'validate') result = profileValidate(config);
+                    else if (cmd === 'explain') result = profileExplain('${3:-}', config);
+                    console.log(result.output);
+                  } catch (e) {
+                    console.error(e.message);
+                    process.exit(1);
+                  }
+                "
+                ;;
+            *)
+                echo "Usage: hexos profile {show|diff|set|rollback|validate|explain}"
+                exit 1
+                ;;
+        esac
+        ;;
+    migrate-profile)
+        node --input-type=module -e "
+          import { migrateProfile } from '${CAPABILITIES_DIR}/migration.js';
+          try {
+            const result = migrateProfile({ configPath: 'hexos.json' });
+            console.log(result.output);
+            if (!result.success) process.exit(1);
+          } catch (e) {
+            console.error(e.message);
+            process.exit(1);
+          }
+        "
         ;;
     setup)
         "${PLATFORM_BIN}/hexos-setup.sh" "${2:-}"
