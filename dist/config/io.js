@@ -13,6 +13,60 @@ import { ConfigIncludeError, resolveConfigIncludes } from "./includes.js";
 import { findLegacyConfigIssues } from "./legacy.js";
 import { normalizeConfigPaths } from "./normalize-paths.js";
 import { resolveConfigPath, resolveStateDir } from "./paths.js";
+/**
+ * Inline vault reference resolver (sync, no external module dependency).
+ * Resolves $vault:NAME references by reading the vault file directly.
+ * This avoids circular import issues and works in the sync loadConfig() path.
+ */
+function resolveVaultRefsIfPresent(cfg) {
+    // Quick check: does the config contain any vault references?
+    const serialized = JSON.stringify(cfg);
+    if (!serialized.includes('"$vault:')) return cfg;
+    // Try to load and decrypt vault
+    try {
+        const vaultPath = path.join(os.homedir(), ".hexos", "vault.enc");
+        const identityPath = path.join(os.homedir(), ".hexos", "identity", "device.json");
+        if (!fs.existsSync(vaultPath) || !fs.existsSync(identityPath)) return cfg;
+        const identity = JSON.parse(fs.readFileSync(identityPath, "utf8"));
+        if (!identity?.privateKeyPem) return cfg;
+        // Derive vault key via HKDF
+        const privateKey = crypto.createPrivateKey(identity.privateKeyPem);
+        const pkcs8 = privateKey.export({ type: "pkcs8", format: "der" });
+        const ikm = crypto.createHash("sha256").update(pkcs8).digest();
+        const vaultKey = Buffer.from(
+            crypto.hkdfSync("sha256", ikm, Buffer.from("hexos-vault-encryption-key", "utf8"), Buffer.from("hexos-vault-v1", "utf8"), 32)
+        );
+        // Decrypt vault
+        const encData = JSON.parse(fs.readFileSync(vaultPath, "utf8"));
+        const iv = Buffer.from(encData.iv, "base64");
+        const ciphertext = Buffer.from(encData.ciphertext, "base64");
+        const tag = Buffer.from(encData.tag, "base64");
+        const decipher = crypto.createDecipheriv("aes-256-gcm", vaultKey, iv, { authTagLength: 16 });
+        decipher.setAuthTag(tag);
+        const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+        const vault = JSON.parse(decrypted.toString("utf8"));
+        // Deep-resolve $vault: references
+        function resolveRefs(obj) {
+            if (typeof obj === "string" && obj.startsWith("$vault:")) {
+                const name = obj.slice(7);
+                const secret = vault.secrets?.[name];
+                if (!secret) throw new Error(`Vault secret "${name}" not found`);
+                return secret.value;
+            }
+            if (Array.isArray(obj)) return obj.map(resolveRefs);
+            if (obj && typeof obj === "object" && Object.prototype.toString.call(obj) === "[object Object]") {
+                const result = {};
+                for (const [k, v] of Object.entries(obj)) result[k] = resolveRefs(v);
+                return result;
+            }
+            return obj;
+        }
+        return resolveRefs(cfg);
+    } catch {
+        // Vault resolution failed — return config unchanged
+        return cfg;
+    }
+}
 import { applyConfigOverrides } from "./runtime-overrides.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
 import { compareHexOSVersions } from "./version.js";
@@ -167,7 +221,15 @@ export function createConfigIO(overrides = {}) {
             });
             // Substitute ${VAR} env var references
             const substituted = resolveConfigEnvVars(resolved, deps.env);
-            const resolvedConfig = substituted;
+            // Resolve $vault:NAME references (vault secrets injected into memory only)
+            let resolvedConfig;
+            try {
+                resolvedConfig = resolveVaultRefsIfPresent(substituted);
+            } catch (vaultErr) {
+                // Log vault resolution errors but don't crash config loading
+                deps.logger.warn?.(`Vault reference resolution failed: ${vaultErr.message}`);
+                resolvedConfig = substituted;
+            }
             warnOnConfigMiskeys(resolvedConfig, deps.logger);
             if (typeof resolvedConfig !== "object" || resolvedConfig === null)
                 return {};
