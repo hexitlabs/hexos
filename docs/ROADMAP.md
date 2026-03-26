@@ -1,6 +1,6 @@
 # HexOS Roadmap
 
-*Updated: March 25, 2026*
+*Updated: March 26, 2026*
 
 ## Completed
 
@@ -19,13 +19,17 @@
 
 | Target | What | PRD | Status |
 |--------|------|-----|--------|
+| v0.7.0 | **HexOS Vault** — AES-256-GCM encrypted credential storage, leak detection, config resolution, audit trail | `docs/vault.md` | ✅ Shipped (PR #12, Mar 26) |
 | Mar 31, 2026 | **Jirka Migration** — First managed client deployment | — | 🔧 Runbook written |
+| Q2 2026 | **v0.8.0: Multi-Tenant Docker Runtime** — Docker containerized agents, provisioning API, operator↔agent internal API, Docker-native isolation, per-customer cost tracking | `tasks/prd-hexos-multi-tenant-docker.md` | 📋 PRD written |
 | Q2 2026 | **Multi-Tenant Infra** — Audit server, provisioning automation, fleet management | `docs/architecture/multi-tenant.md` | 📋 Spec approved |
 
 ## Planned
 
 | Target | What | PRD | Priority |
 |--------|------|-----|----------|
+| Q2 2026 | **v0.7.1: Injection Shield** — Runtime prompt injection scanner on all external content ingestion | `tasks/prd-hexos-security-hardening.md` | Medium |
+| Q2 2026 | **v0.7.2: Tool Guardrails** — Per-tool resource limits (timeout, memory, output size) | `tasks/prd-hexos-security-hardening.md` | Medium |
 | Q2 2026 | **Phase 7: A2A Protocol Integration** — Agent-to-agent interoperability via Google's A2A standard. Inbound + outbound, auth gate, isolated sessions, full security pipeline. | `docs/prd/07-PRD-a2a-integration.md` | Medium |
 | Q2 2026 | **Phase 5: Inference Policy** — Token budget management, model routing, cost optimization per client. Optional, off by default. | — | Low |
 | Q2 2026 | **Client Dashboard** — Read-only web view of audit logs and agent activity for clients | — | Low |
