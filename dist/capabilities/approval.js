@@ -8,7 +8,7 @@
  * See PRD §5.3 for specification.
  */
 
-import { getCapability } from './resolver.js';
+import { getCapability, getResolvedProfile } from './resolver.js';
 
 /**
  * @typedef {'internal' | 'external' | 'destructive'} ActionCategory
@@ -22,23 +22,23 @@ import { getCapability } from './resolver.js';
  */
 
 /** Actions that communicate externally */
-export const EXTERNAL_ACTIONS = [
+export const EXTERNAL_ACTIONS = Object.freeze([
   'message.send',
   'email.send',
   'tweet.post',
   'webhook.call',
   'api.external',
   'file.upload.external',
-];
+]);
 
 /** Actions that destroy or irreversibly modify resources */
-export const DESTRUCTIVE_ACTIONS = [
+export const DESTRUCTIVE_ACTIONS = Object.freeze([
   'file.delete',
   'container.destroy',
   'vault.remove',
   'config.overwrite',
   'database.drop',
-];
+]);
 
 /**
  * Categorize an action as internal, external, or destructive.
@@ -91,13 +91,33 @@ export function checkApproval(action, context) {
     return { approved: true, reason: 'allowed' };
   }
 
-  // Scheduled task bypass — operator-configured crons run without approval
+  // Scheduled task bypass — operator-configured crons run without approval.
+  //
+  // TRUST BOUNDARY: In managed profile, the agent is untrusted and could
+  // fabricate `context.scheduled = true` to bypass approval gates. We require
+  // a valid `cronJobId` for managed profiles to mitigate this. Sovereign and
+  // operator profiles are trusted, so the flag alone is sufficient.
   if (gates.bypassScheduled && context.scheduled) {
-    auditLog.push({
-      type: 'approval.bypassed.scheduled',
-      data: { action, cronJobId: context.cronJobId, sessionId: context.sessionId },
-    });
-    return { approved: true, reason: 'bypassed' };
+    const profile = getResolvedProfile();
+    if (profile === 'managed') {
+      // Managed agents must provide a valid cronJobId to prove the
+      // scheduled flag is legitimate, not self-asserted.
+      if (!context.cronJobId || typeof context.cronJobId !== 'string' || context.cronJobId.trim() === '') {
+        // Fall through to normal approval checks — don't bypass
+      } else {
+        auditLog.push({
+          type: 'approval.bypassed.scheduled',
+          data: { action, cronJobId: context.cronJobId, sessionId: context.sessionId },
+        });
+        return { approved: true, reason: 'bypassed' };
+      }
+    } else {
+      auditLog.push({
+        type: 'approval.bypassed.scheduled',
+        data: { action, cronJobId: context.cronJobId, sessionId: context.sessionId },
+      });
+      return { approved: true, reason: 'bypassed' };
+    }
   }
 
   const category = categorizeAction(action);

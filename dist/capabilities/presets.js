@@ -3,10 +3,25 @@
  *
  * Exact values from PRD §3.3. Each preset defines the default
  * capabilities for a deployment profile.
+ *
+ * All presets are deep-frozen to prevent mutation by importers.
  */
 
+/**
+ * Deep-freeze an object recursively.
+ */
+function deepFreeze(obj) {
+  Object.freeze(obj);
+  for (const val of Object.values(obj)) {
+    if (val !== null && typeof val === 'object' && !Object.isFrozen(val)) {
+      deepFreeze(val);
+    }
+  }
+  return obj;
+}
+
 /** @type {import('./types.js').HexOSCapabilities} */
-export const SOVEREIGN = {
+export const SOVEREIGN = deepFreeze({
   // Execution — everything unlocked
   exec: { mode: 'unrestricted' },
   browser: { mode: 'full' },
@@ -44,10 +59,10 @@ export const SOVEREIGN = {
   vaultAccess: 'full',
   httpServer: true,
   adminApi: true,
-};
+});
 
 /** @type {import('./types.js').HexOSCapabilities} */
-export const OPERATOR = {
+export const OPERATOR = deepFreeze({
   // Execution — controlled
   exec: {
     mode: 'allowlist',
@@ -96,10 +111,10 @@ export const OPERATOR = {
   vaultAccess: 'full',
   httpServer: true,
   adminApi: true,
-};
+});
 
 /** @type {import('./types.js').HexOSCapabilities} */
-export const MANAGED = {
+export const MANAGED = deepFreeze({
   // Execution — minimal
   exec: { mode: 'disabled' },
   browser: { mode: 'disabled' },
@@ -137,14 +152,14 @@ export const MANAGED = {
   vaultAccess: 'injected-only',
   httpServer: false,
   adminApi: false,
-};
+});
 
 /** All profile presets indexed by name */
-export const PROFILES = {
+export const PROFILES = deepFreeze({
   sovereign: SOVEREIGN,
   operator: OPERATOR,
   managed: MANAGED,
-};
+});
 
 /** Valid profile names */
 export const PROFILE_NAMES = /** @type {const} */ (['sovereign', 'operator', 'managed']);

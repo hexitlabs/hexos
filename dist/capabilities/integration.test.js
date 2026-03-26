@@ -152,7 +152,7 @@ describe('Integration — Init → Override → Gate → Denial → Metrics', ()
     assert.ok(diffResult.diffs.length > 0);
 
     // Explain
-    const explainResult = profileExplain('exec', { profile: 'operator' });
+    const explainResult = profileExplain({ profile: 'operator' }, 'exec');
     assert.ok(explainResult.output.includes('allowlist'));
   });
 

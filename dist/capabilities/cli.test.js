@@ -271,40 +271,40 @@ describe('CLI — profileValidate', () => {
 describe('CLI — profileExplain', () => {
 
   it('shows capability description and layer', () => {
-    const result = profileExplain('exec');
+    const result = profileExplain(null, 'exec');
     assert.ok(result.output.includes('Shell command execution'));
     assert.ok(result.output.includes('Layer: Execution'));
   });
 
   it('shows possible values for enum capability', () => {
-    const result = profileExplain('fileSystem');
+    const result = profileExplain(null, 'fileSystem');
     assert.ok(result.output.includes('full'));
     assert.ok(result.output.includes('workspace-only'));
     assert.ok(result.output.includes('read-only'));
   });
 
   it('shows per-profile defaults', () => {
-    const result = profileExplain('exec');
+    const result = profileExplain(null, 'exec');
     assert.ok(result.output.includes('sovereign'));
     assert.ok(result.output.includes('operator'));
     assert.ok(result.output.includes('managed'));
   });
 
   it('shows current resolved value when config provided', () => {
-    const result = profileExplain('auditTrail', { profile: 'sovereign', capabilities: { auditTrail: 'local' } });
+    const result = profileExplain({ profile: 'sovereign', capabilities: { auditTrail: 'local' } }, 'auditTrail');
     assert.ok(result.output.includes('local'));
     assert.ok(result.output.includes('Current value'));
   });
 
   it('throws on unknown capability', () => {
     assert.throws(
-      () => profileExplain('unknownCap'),
+      () => profileExplain(null, 'unknownCap'),
       /Unknown capability: "unknownCap"/
     );
   });
 
   it('shows override rules per profile', () => {
-    const result = profileExplain('selfUpdate');
+    const result = profileExplain(null, 'selfUpdate');
     assert.ok(result.output.includes('Override rules:'));
     assert.ok(result.output.includes('sovereign'));
   });

@@ -87,6 +87,74 @@ export function migrateProfile(options = {}) {
     };
   }
 
+  // Both profile and deploymentProfile exist — keep existing profile, just clean up
+  if (configData.profile && configData.deploymentProfile) {
+    logger.info?.('Both profile and deploymentProfile found. Keeping existing profile, removing deprecated deploymentProfile.');
+
+    const existingProfile = configData.profile;
+    const oldDP = configData.deploymentProfile;
+
+    if (dryRun) {
+      return {
+        success: true,
+        migrated: false,
+        output: [
+          'HexOS Profile Migration: cleanup only',
+          '',
+          `  Both profile ("${existingProfile}") and deploymentProfile ("${oldDP}") found.`,
+          '  Keeping existing profile, removing deprecated deploymentProfile.',
+          '',
+          '  [DRY RUN] No changes written.',
+        ].join('\n'),
+        previousProfile: oldDP,
+        newProfile: existingProfile,
+        backupPath: null,
+      };
+    }
+
+    // Create backup
+    const backupPath = configPath + '.pre-migration';
+
+    if (writeConfig && !options.configData) {
+      try {
+        copyFileSync(configPath, backupPath);
+      } catch (err) {
+        return {
+          success: false,
+          migrated: false,
+          output: `Failed to create backup: ${err.message}`,
+          previousProfile: oldDP,
+          newProfile: null,
+          backupPath: null,
+        };
+      }
+    }
+
+    // Only remove deploymentProfile — do NOT touch profile
+    delete configData.deploymentProfile;
+
+    if (writeConfig && !options.configData) {
+      writeFileSync(configPath, JSON.stringify(configData, null, 2) + '\n', 'utf-8');
+    }
+
+    return {
+      success: true,
+      migrated: true,
+      output: [
+        'HexOS Profile Migration: cleanup only',
+        '',
+        `  Both profile ("${existingProfile}") and deploymentProfile ("${oldDP}") found.`,
+        '  Keeping existing profile, removing deprecated deploymentProfile.',
+        '',
+        '  Migration complete.',
+      ].join('\n'),
+      previousProfile: oldDP,
+      newProfile: existingProfile,
+      backupPath: writeConfig && !options.configData ? backupPath : null,
+      configData,
+    };
+  }
+
   // Detect old profile
   const oldProfile = configData.deploymentProfile || null;
 

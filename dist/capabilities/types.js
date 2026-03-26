@@ -127,7 +127,7 @@
  */
 
 /** All valid capability keys (21 total) */
-export const CAPABILITY_KEYS = [
+export const CAPABILITY_KEYS = Object.freeze([
   // Execution Layer
   'exec',
   'browser',
@@ -156,19 +156,19 @@ export const CAPABILITY_KEYS = [
   'vaultAccess',
   'httpServer',
   'adminApi',
-];
+]);
 
 /** Structured (object) capability keys — need deep merge */
-export const STRUCTURED_CAPABILITY_KEYS = [
+export const STRUCTURED_CAPABILITY_KEYS = Object.freeze([
   'exec',
   'browser',
   'approvalGates',
   'costLimits',
-];
+]);
 
 /** Array capability keys — replaced, not merged */
-export const ARRAY_CAPABILITY_KEYS = [
+export const ARRAY_CAPABILITY_KEYS = Object.freeze([
   'agentToolProfiles',
-];
+]);
 
 export {};

@@ -190,10 +190,11 @@ describe('Profile Migration', () => {
       logger: silentLogger,
     });
 
-    // Already has `profile` field — no migration needed
-    // But deploymentProfile is still there... should still be considered migrated
-    // since profile field exists
-    // Actually: if profile exists but deploymentProfile also exists, still needs cleanup
+    // Should keep existing profile, only remove deploymentProfile
     assert.strictEqual(result.success, true);
+    assert.strictEqual(result.migrated, true);
+    assert.strictEqual(result.newProfile, 'operator');
+    assert.strictEqual(result.configData.profile, 'operator');
+    assert.strictEqual(result.configData.deploymentProfile, undefined);
   });
 });

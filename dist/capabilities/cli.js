@@ -654,13 +654,13 @@ export function profileValidate(config, options = {}) {
 /**
  * `hexos profile explain <capability>` — Explain a capability in detail.
  *
- * @param {string} capabilityKey - The capability to explain
  * @param {object} [config] - Current config (to show resolved value)
+ * @param {string} capabilityKey - The capability to explain
  * @param {object} [options]
  * @param {object} [options.logger] - Logger instance
  * @returns {{ output: string }}
  */
-export function profileExplain(capabilityKey, config = null, options = {}) {
+export function profileExplain(config, capabilityKey, options = {}) {
   const logger = options.logger || { info() {}, warn() {}, error() {} };
 
   if (!CAPABILITY_KEYS.includes(capabilityKey)) {
