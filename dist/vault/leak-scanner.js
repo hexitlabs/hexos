@@ -13,6 +13,22 @@ import { logVaultEvent } from "./audit.js";
 import { LEAK_PATTERNS, VAULT_REF_PREFIX } from "./types.js";
 
 /**
+ * When true, secrets without allowedEndpoints are blocked in outbound requests.
+ * Set via `security.vault.requireEndpoints: true` in hexos.json config.
+ */
+let requireEndpoints = false;
+
+/**
+ * Configure the leak scanner's endpoint policy.
+ * Called at boot time with the resolved config.
+ */
+export function configureLeakScanner(options = {}) {
+  if (options.requireEndpoints !== undefined) {
+    requireEndpoints = Boolean(options.requireEndpoints);
+  }
+}
+
+/**
  * Check if a URL matches an allowed endpoint pattern.
  * Supports wildcards: "https://api.anthropic.com/*" matches any path.
  */
@@ -35,16 +51,24 @@ function isEndpointAllowed(url, allowedEndpoints) {
   return allowedEndpoints.some((pattern) => matchesEndpoint(url, pattern));
 }
 
+/** Minimum secret length for reliable substring scanning */
+const MIN_SCAN_LENGTH = 4;
+
 /**
  * Scan a string for vault secret values.
  * Returns array of detected secret names.
+ *
+ * Scans all secrets regardless of length — short secrets (< 8 chars) may
+ * produce false positives but are still checked for safety.
  */
 function scanForSecretValues(text, secrets) {
   if (!text || typeof text !== "string") return [];
 
   const found = [];
   for (const [name, value] of secrets) {
-    if (value && value.length >= 8 && text.includes(value)) {
+    // Skip empty/trivially short values that would false-positive on everything
+    if (!value || value.length < MIN_SCAN_LENGTH) continue;
+    if (text.includes(value)) {
       found.push(name);
     }
   }
@@ -108,19 +132,57 @@ function serializeForScan(parts) {
  */
 export function scanOutbound(request) {
   const secrets = getAllSecretsWithEndpoints();
-  if (secrets.size === 0) return { allowed: true, warnings: [] };
-
-  const text = serializeForScan(request);
   const blocked = [];
   const warnings = [];
 
+  const text = serializeForScan(request);
+
   for (const [name, { value, allowedEndpoints }] of secrets) {
-    if (!value || value.length < 8) continue;
+    if (!value || value.length < MIN_SCAN_LENGTH) continue;
 
     if (text.includes(value)) {
       const url = request.url || "";
 
-      if (!isEndpointAllowed(url, allowedEndpoints)) {
+      const hasEndpointPolicy = allowedEndpoints && allowedEndpoints.length > 0;
+
+      if (!hasEndpointPolicy) {
+        // No endpoint restrictions — warn (or block in strict mode)
+        if (requireEndpoints) {
+          blocked.push({
+            secret: name,
+            endpoint: url,
+            allowedEndpoints: [],
+            reason: "requireEndpoints is enabled but secret has no allowedEndpoints",
+          });
+
+          logVaultEvent({
+            event: "vault.leak_detected",
+            secret: name,
+            direction: "outbound",
+            tool: request.tool,
+            endpoint: url,
+            action: "blocked",
+            reason: "no_endpoint_policy_strict_mode",
+          });
+        } else {
+          warnings.push({
+            secret: name,
+            direction: "outbound",
+            endpoint: url,
+            message: `Secret "${name}" has no allowedEndpoints — outbound leak protection is disabled for this secret`,
+          });
+
+          logVaultEvent({
+            event: "vault.access",
+            secret: name,
+            action: "inject",
+            tool: request.tool,
+            endpoint: url,
+            result: "allowed_no_policy",
+            warning: "secret has no allowedEndpoints configured",
+          });
+        }
+      } else if (!isEndpointAllowed(url, allowedEndpoints)) {
         blocked.push({
           secret: name,
           endpoint: url,
@@ -180,7 +242,7 @@ export function scanInbound(response) {
 
   // Replace any vault secret values with $vault: references
   for (const [name, value] of secretValues) {
-    if (!value || value.length < 8) continue;
+    if (!value || value.length < MIN_SCAN_LENGTH) continue;
 
     if (text.includes(value)) {
       text = text.replaceAll(value, `${VAULT_REF_PREFIX}${name}`);
@@ -234,7 +296,7 @@ export function redactSecrets(text) {
 
   // Replace vault secret values
   for (const [name, value] of secretValues) {
-    if (value && value.length >= 8) {
+    if (value && value.length >= MIN_SCAN_LENGTH) {
       result = result.replaceAll(value, `${VAULT_REF_PREFIX}${name}`);
     }
   }

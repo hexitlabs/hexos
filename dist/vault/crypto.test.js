@@ -153,4 +153,90 @@ describe("vault/crypto", () => {
       assert.throws(() => decryptWithPassphrase(exported, "wrong-pass"));
     });
   });
+
+  describe("negative cases — corruption and tampering", () => {
+    it("fails to decrypt with corrupted IV", () => {
+      const key = deriveVaultKey(testKeyPair.privateKeyPem);
+      const encrypted = encrypt("test data", key);
+
+      // Corrupt the IV
+      const ivBuf = Buffer.from(encrypted.iv, "base64");
+      ivBuf[0] ^= 0xff;
+      encrypted.iv = ivBuf.toString("base64");
+
+      assert.throws(() => decrypt(encrypted, key));
+    });
+
+    it("fails to decrypt with tampered auth tag", () => {
+      const key = deriveVaultKey(testKeyPair.privateKeyPem);
+      const encrypted = encrypt("sensitive info", key);
+
+      // Tamper with the auth tag
+      const tagBuf = Buffer.from(encrypted.tag, "base64");
+      tagBuf[0] ^= 0xff;
+      encrypted.tag = tagBuf.toString("base64");
+
+      assert.throws(() => decrypt(encrypted, key));
+    });
+
+    it("fails to decrypt with truncated ciphertext", () => {
+      const key = deriveVaultKey(testKeyPair.privateKeyPem);
+      const encrypted = encrypt("some content to encrypt for testing", key);
+
+      // Truncate ciphertext
+      const buf = Buffer.from(encrypted.ciphertext, "base64");
+      encrypted.ciphertext = buf.subarray(0, Math.floor(buf.length / 2)).toString("base64");
+
+      assert.throws(() => decrypt(encrypted, key));
+    });
+
+    it("fails to decrypt with empty ciphertext", () => {
+      const key = deriveVaultKey(testKeyPair.privateKeyPem);
+      const encrypted = encrypt("data", key);
+
+      encrypted.ciphertext = "";
+
+      assert.throws(() => decrypt(encrypted, key));
+    });
+
+    it("fails to decrypt vault data with wrong key", () => {
+      const key1 = deriveVaultKey(testKeyPair.privateKeyPem);
+      const key2 = deriveVaultKey(generateTestKeyPair().privateKeyPem);
+
+      const vaultData = {
+        version: 1,
+        secrets: { KEY: { value: "secret" } },
+        metadata: { lastAccessed: new Date().toISOString(), secretCount: 1 },
+      };
+
+      const encrypted = encryptVault(vaultData, key1);
+      assert.throws(() => decryptVault(encrypted, key2));
+    });
+
+    it("fails passphrase decryption with tampered ciphertext", () => {
+      const exported = encryptWithPassphrase("important data", "my-pass");
+
+      // Tamper with ciphertext
+      const buf = Buffer.from(exported.ciphertext, "base64");
+      buf[0] ^= 0xff;
+      exported.ciphertext = buf.toString("base64");
+
+      assert.throws(() => decryptWithPassphrase(exported, "my-pass"));
+    });
+
+    it("fails passphrase decryption with tampered salt", () => {
+      const exported = encryptWithPassphrase("data", "pass123");
+
+      // Tamper with salt (changes the derived key)
+      const saltBuf = Buffer.from(exported.salt, "base64");
+      saltBuf[0] ^= 0xff;
+      exported.salt = saltBuf.toString("base64");
+
+      assert.throws(() => decryptWithPassphrase(exported, "pass123"));
+    });
+
+    it("deriveVaultKey throws for invalid PEM input", () => {
+      assert.throws(() => deriveVaultKey("not-a-valid-pem"));
+    });
+  });
 });

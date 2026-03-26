@@ -61,6 +61,7 @@ export {
   scanForLeaks,
   redactSecrets,
   shannonEntropy,
+  configureLeakScanner,
 } from "./leak-scanner.js";
 
 export {

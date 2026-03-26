@@ -15,7 +15,86 @@
  */
 
 import fs from "node:fs";
+import readline from "node:readline";
 import { defaultRuntime } from "../runtime.js";
+
+/**
+ * Prompt the user for a value interactively via stdin (hidden input).
+ */
+function promptStdin(promptText) {
+  return new Promise((resolve, reject) => {
+    if (!process.stdin.isTTY) {
+      // Non-interactive: read all of stdin
+      let data = "";
+      process.stdin.setEncoding("utf8");
+      process.stdin.on("data", (chunk) => (data += chunk));
+      process.stdin.on("end", () => resolve(data.trim()));
+      process.stdin.on("error", reject);
+      return;
+    }
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stderr, // prompts go to stderr so stdout stays clean
+    });
+    rl.question(promptText, (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
+/**
+ * Resolve a secret value from --from-env, --from-file, positional arg, or stdin prompt.
+ */
+async function resolveSecretValue(positionalValue, opts, label = "secret value") {
+  if (opts.fromEnv) {
+    const val = process.env[opts.fromEnv];
+    if (!val) {
+      defaultRuntime.error(`Environment variable "${opts.fromEnv}" is not set or empty`);
+      process.exit(1);
+    }
+    return val;
+  }
+  if (opts.fromFile) {
+    try {
+      return fs.readFileSync(opts.fromFile, "utf8").trim();
+    } catch (err) {
+      defaultRuntime.error(`Failed to read file "${opts.fromFile}": ${err.message}`);
+      process.exit(1);
+    }
+  }
+  if (positionalValue) return positionalValue;
+
+  // Interactive stdin fallback
+  return promptStdin(`Enter ${label}: `);
+}
+
+/**
+ * Resolve a passphrase from --passphrase, --passphrase-env, --passphrase-file, or stdin prompt.
+ */
+async function resolvePassphrase(opts) {
+  if (opts.passphraseEnv) {
+    const val = process.env[opts.passphraseEnv];
+    if (!val) {
+      defaultRuntime.error(`Environment variable "${opts.passphraseEnv}" is not set or empty`);
+      process.exit(1);
+    }
+    return val;
+  }
+  if (opts.passphraseFile) {
+    try {
+      return fs.readFileSync(opts.passphraseFile, "utf8").trim();
+    } catch (err) {
+      defaultRuntime.error(`Failed to read passphrase file "${opts.passphraseFile}": ${err.message}`);
+      process.exit(1);
+    }
+  }
+  if (opts.passphrase) return opts.passphrase;
+
+  // Interactive stdin fallback
+  return promptStdin("Enter passphrase: ");
+}
 
 export function registerSecretsCli(program) {
   const secrets = program
@@ -37,30 +116,21 @@ export function registerSecretsCli(program) {
     .action(async (name, value, opts) => {
       const { setSecret } = await import("../vault/store.js");
 
-      let secretValue = value;
-
-      if (opts.fromEnv) {
-        secretValue = process.env[opts.fromEnv];
-        if (!secretValue) {
-          defaultRuntime.error(
-            `Environment variable "${opts.fromEnv}" is not set or empty`
-          );
-          process.exit(1);
-        }
-      } else if (opts.fromFile) {
-        try {
-          secretValue = fs.readFileSync(opts.fromFile, "utf8").trim();
-        } catch (err) {
-          defaultRuntime.error(`Failed to read file "${opts.fromFile}": ${err.message}`);
-          process.exit(1);
-        }
-      }
+      const secretValue = await resolveSecretValue(value, opts, `value for "${name}"`);
 
       if (!secretValue) {
         defaultRuntime.error(
-          "No value provided. Use a positional argument, --from-env, or --from-file."
+          "No value provided. Use a positional argument, --from-env, --from-file, or pipe via stdin."
         );
         process.exit(1);
+      }
+
+      // Warn if the secret value is short (< 8 chars) — leak scanner may have reduced coverage
+      if (secretValue.length < 8) {
+        defaultRuntime.log(
+          `⚠ Warning: Secret "${name}" is shorter than 8 characters. ` +
+          `Short secrets have limited leak detection coverage.`
+        );
       }
 
       const options = {};
@@ -158,13 +228,24 @@ export function registerSecretsCli(program) {
 
   // ── hexos secrets rotate ─────────────────────────────────────────────
   secrets
-    .command("rotate <name> <newValue>")
+    .command("rotate <name> [newValue]")
     .description("Rotate a secret (update value, log rotation event)")
-    .action(async (name, newValue) => {
+    .option("--from-env <var>", "Read new value from environment variable")
+    .option("--from-file <path>", "Read new value from a file")
+    .action(async (name, newValue, opts) => {
       const { rotateSecret } = await import("../vault/store.js");
 
+      const resolvedValue = await resolveSecretValue(newValue, opts, `new value for "${name}"`);
+
+      if (!resolvedValue) {
+        defaultRuntime.error(
+          "No new value provided. Use a positional argument, --from-env, --from-file, or pipe via stdin."
+        );
+        process.exit(1);
+      }
+
       try {
-        rotateSecret(name, newValue);
+        rotateSecret(name, resolvedValue);
         defaultRuntime.log(`✓ Secret "${name}" rotated`);
       } catch (err) {
         defaultRuntime.error(`Failed to rotate secret: ${err.message}`);
@@ -245,13 +326,21 @@ export function registerSecretsCli(program) {
   secrets
     .command("export")
     .description("Export vault encrypted with a passphrase (for backup)")
-    .requiredOption("--passphrase <pass>", "Passphrase for encryption")
+    .option("--passphrase <pass>", "Passphrase for encryption (prefer --passphrase-env or --passphrase-file)")
+    .option("--passphrase-env <var>", "Read passphrase from environment variable")
+    .option("--passphrase-file <path>", "Read passphrase from a file")
     .option("-o, --output <file>", "Output file (default: stdout)")
     .action(async (opts) => {
       const { exportVault } = await import("../vault/store.js");
 
+      const passphrase = await resolvePassphrase(opts);
+      if (!passphrase) {
+        defaultRuntime.error("No passphrase provided. Use --passphrase, --passphrase-env, --passphrase-file, or enter interactively.");
+        process.exit(1);
+      }
+
       try {
-        const exported = exportVault(opts.passphrase);
+        const exported = exportVault(passphrase);
 
         if (opts.output) {
           fs.writeFileSync(opts.output, exported, { mode: 0o600 });
@@ -269,15 +358,23 @@ export function registerSecretsCli(program) {
   secrets
     .command("import <file>")
     .description("Import vault from an encrypted backup")
-    .requiredOption("--passphrase <pass>", "Passphrase for decryption")
+    .option("--passphrase <pass>", "Passphrase for decryption (prefer --passphrase-env or --passphrase-file)")
+    .option("--passphrase-env <var>", "Read passphrase from environment variable")
+    .option("--passphrase-file <path>", "Read passphrase from a file")
     .option("--merge", "Merge into existing vault instead of replacing")
     .option("--overwrite", "Overwrite existing secrets when merging")
     .action(async (file, opts) => {
       const { importVault } = await import("../vault/store.js");
 
+      const passphrase = await resolvePassphrase(opts);
+      if (!passphrase) {
+        defaultRuntime.error("No passphrase provided. Use --passphrase, --passphrase-env, --passphrase-file, or enter interactively.");
+        process.exit(1);
+      }
+
       try {
         const raw = fs.readFileSync(file, "utf8");
-        const result = importVault(raw, opts.passphrase, {
+        const result = importVault(raw, passphrase, {
           merge: Boolean(opts.merge),
           overwrite: Boolean(opts.overwrite),
         });

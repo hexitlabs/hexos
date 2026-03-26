@@ -154,79 +154,17 @@ export function scanConfigForMigration() {
  * 4. Back up original config
  * 5. Write updated config
  */
-export function migrateConfigSecrets(options = {}) {
-  const configPath = resolveConfigPath();
-  const snapshot = readConfigFileSnapshot();
-
-  if (!snapshot.raw) {
-    throw new Error("No config file found to migrate");
-  }
-
-  // Parse the raw config (we need the original structure, not the resolved one)
-  let rawConfig;
-  try {
-    // Use JSON5 if available, fall back to JSON
-    const JSON5 = await import("json5").then((m) => m.default).catch(() => JSON);
-    rawConfig = JSON5.parse(snapshot.raw);
-  } catch {
-    rawConfig = JSON.parse(snapshot.raw);
-  }
-
-  const secrets = scanForSecrets(rawConfig);
-
-  if (secrets.length === 0) {
-    return { migrated: 0, secrets: [] };
-  }
-
-  if (options.dryRun) {
-    return { migrated: secrets.length, secrets, dryRun: true };
-  }
-
-  // Back up original config
-  const backupPath = `${configPath}.pre-vault`;
-  fs.copyFileSync(configPath, backupPath);
-
-  // Store each secret in vault and update config
-  const migrated = [];
-  for (const secret of secrets) {
-    // Check if already in vault
-    const vault = loadVault();
-    if (vault.secrets[secret.vaultName]) {
-      if (!options.overwrite) {
-        continue; // Skip if already exists
-      }
-    }
-
-    // Store in vault
-    setSecret(secret.vaultName, secret.value, {
-      usedBy: [secret.path],
-      tags: secret.provider ? [secret.provider] : [],
-      allowedEndpoints: secret.allowedEndpoints,
-    });
-
-    // Replace in config
-    setNestedValue(rawConfig, secret.path, `${VAULT_REF_PREFIX}${secret.vaultName}`);
-    migrated.push(secret);
-  }
-
-  // Write updated config
-  fs.writeFileSync(configPath, JSON.stringify(rawConfig, null, 2), {
-    mode: 0o600,
-  });
-
-  logVaultEvent({
-    event: "vault.migration",
-    action: "migrated",
-    secretCount: migrated.length,
-    secrets: migrated.map((s) => s.vaultName),
-    backupPath,
-  });
-
-  return { migrated: migrated.length, secrets: migrated, backupPath };
-}
-
-// Make migrateConfigSecrets work with dynamic import by handling async
-// The actual async version
+/**
+ * Migrate secrets from hexos.json to the vault.
+ *
+ * 1. Scan config for plaintext secrets
+ * 2. Store each in vault with appropriate metadata
+ * 3. Replace in config with $vault:NAME references
+ * 4. Back up original config
+ * 5. Write updated config
+ *
+ * This is async because it dynamically imports json5 (optional dep).
+ */
 export async function migrateConfigSecretsAsync(options = {}) {
   const configPath = resolveConfigPath();
 
