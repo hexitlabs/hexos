@@ -21,6 +21,7 @@
 |--------|------|-----|--------|
 | v0.7.0 | **HexOS Vault** — AES-256-GCM encrypted credential storage, leak detection, config resolution, audit trail | `docs/vault.md` | ✅ Shipped (PR #12, Mar 26) |
 | Mar 31, 2026 | **Jirka Migration** — First managed client deployment | — | 🔧 Runbook written |
+| Q2 2026 | **v0.7.5: Deployment Profiles v2** — 3-tier capability system (Sovereign/Operator/Managed), 25 gated capabilities, override system, approval gates, cost limits | `tasks/prd-hexos-deployment-profiles-v2.md` | 📋 PRD written |
 | Q2 2026 | **v0.8.0: Multi-Tenant Docker Runtime** — Docker containerized agents, provisioning API, operator↔agent internal API, Docker-native isolation, per-customer cost tracking | `tasks/prd-hexos-multi-tenant-docker.md` | 📋 PRD written |
 | Q2 2026 | **Multi-Tenant Infra** — Audit server, provisioning automation, fleet management | `docs/architecture/multi-tenant.md` | 📋 Spec approved |
 
