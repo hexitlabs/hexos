@@ -71,6 +71,13 @@ export function createGatewayCloseHandler(params) {
             }
         }
         params.chatRunState.clear();
+        // Clear vault cache — wipe decrypted secrets from memory
+        try {
+            const { clearVaultCache } = await import("../vault/store.js");
+            clearVaultCache();
+        } catch {
+            /* vault module may not be available */
+        }
         for (const c of params.clients) {
             try {
                 c.socket.close(1012, "service restart");

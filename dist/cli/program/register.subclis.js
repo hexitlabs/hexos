@@ -203,6 +203,14 @@ const entries = [
         },
     },
     {
+        name: "secrets",
+        description: "Encrypted credential vault",
+        register: async (program) => {
+            const mod = await import("../secrets-cli.js");
+            mod.registerSecretsCli(program);
+        },
+    },
+    {
         name: "skills",
         description: "Skills management",
         register: async (program) => {
