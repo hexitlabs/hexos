@@ -1,5 +1,5 @@
 /**
- * HexOS Capability System — Phase 1 + Phase 2 (v0.8.0)
+ * HexOS Capability System — Phase 1 + Phase 2 + Phase 3 (v0.8.0)
  *
  * Central export for the deployment profile / capability system.
  */
@@ -59,3 +59,20 @@ export {
   rollbackProfile,
   hasBackup,
 } from './rollback.js';
+
+// Phase 3
+export {
+  profileShow,
+  profileDiff,
+  profileSet,
+  profileRollback,
+  profileValidate,
+  profileExplain,
+  diffCapabilities,
+  formatCapabilityValue,
+  CAPABILITY_METADATA,
+} from './cli.js';
+
+export {
+  migrateProfile,
+} from './migration.js';
