@@ -503,6 +503,69 @@ export const HexOSSchema = z
     })
         .strict()
         .optional(),
+    // ── Deployment Profile v2 (v0.8.0) ────────────────────────
+    profile: z
+        .union([z.literal("sovereign"), z.literal("operator"), z.literal("managed")])
+        .optional(),
+    deploymentProfile: z
+        .union([z.literal("operator"), z.literal("managed")])
+        .optional(),
+    capabilities: z
+        .object({
+        exec: z
+            .object({
+            mode: z.union([z.literal("unrestricted"), z.literal("allowlist"), z.literal("disabled")]).optional(),
+            allowlist: z.array(z.string()).optional(),
+        })
+            .strict()
+            .optional(),
+        browser: z
+            .object({
+            mode: z.union([z.literal("full"), z.literal("sandboxed"), z.literal("disabled")]).optional(),
+            navigationAllowlist: z.array(z.string()).optional(),
+            blockDownloads: z.boolean().optional(),
+            blockExtensions: z.boolean().optional(),
+        })
+            .strict()
+            .optional(),
+        fileSystem: z.union([z.literal("full"), z.literal("workspace-only"), z.literal("read-only")]).optional(),
+        network: z.union([z.literal("unrestricted"), z.literal("egress-controlled"), z.literal("internal-only")]).optional(),
+        selfUpdate: z.boolean().optional(),
+        skillInstall: z.union([z.literal("any"), z.literal("vetted-only"), z.literal("disabled")]).optional(),
+        configEdit: z.boolean().optional(),
+        workspaceEdit: z.boolean().optional(),
+        codeModification: z.boolean().optional(),
+        agentSpawn: z.union([z.literal("unlimited"), z.literal("budget-limited"), z.literal("operator-approved"), z.literal("disabled")]).optional(),
+        agentConcurrency: z.number().int().optional(),
+        agentToolProfiles: z.array(z.union([z.literal("full"), z.literal("coding"), z.literal("minimal")])).optional(),
+        agentCapabilityInheritance: z.union([z.literal("inherit"), z.literal("profile-default"), z.literal("explicit")]).optional(),
+        approvalGates: z
+            .object({
+            mode: z.union([z.literal("none"), z.literal("external-only"), z.literal("destructive"), z.literal("all")]).optional(),
+            bypassScheduled: z.boolean().optional(),
+        })
+            .strict()
+            .optional(),
+        auditTrail: z.union([z.literal("disabled"), z.literal("local"), z.literal("remote")]).optional(),
+        leakScanner: z.boolean().optional(),
+        costLimits: z
+            .object({
+            monthlyDollars: z.number().nullable().optional(),
+            perSessionDollars: z.number().nullable().optional(),
+            perTaskDollars: z.number().nullable().optional(),
+            alertAtPercent: z.number().min(0).max(100).optional(),
+        })
+            .strict()
+            .optional(),
+        externalAgentComms: z.union([z.literal("unrestricted"), z.literal("authenticated-only"), z.literal("disabled")]).optional(),
+        channelBindings: z.boolean().optional(),
+        cronScheduling: z.boolean().optional(),
+        vaultAccess: z.union([z.literal("full"), z.literal("read-only"), z.literal("injected-only"), z.literal("disabled")]).optional(),
+        httpServer: z.boolean().optional(),
+        adminApi: z.boolean().optional(),
+    })
+        .strict()
+        .optional(),
 })
     .strict()
     .superRefine((cfg, ctx) => {
