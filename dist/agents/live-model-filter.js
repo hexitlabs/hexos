@@ -1,4 +1,4 @@
-const ANTHROPIC_PREFIXES = ["claude-opus-4-5", "claude-sonnet-4-5", "claude-haiku-4-5"];
+const ANTHROPIC_PREFIXES = ["claude-opus-4-6", "claude-sonnet-4-6", "claude-opus-4-5", "claude-sonnet-4-5", "claude-haiku-4-5"];
 const OPENAI_MODELS = ["gpt-5.2", "gpt-5.0"];
 const CODEX_MODELS = [
     "gpt-5.2",

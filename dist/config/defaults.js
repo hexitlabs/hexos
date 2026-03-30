@@ -5,8 +5,8 @@ import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from ".
 let defaultWarnState = { warned: false };
 const DEFAULT_MODEL_ALIASES = {
     // Anthropic (pi-ai catalog uses "latest" ids without date suffix)
-    opus: "anthropic/claude-opus-4-5",
-    sonnet: "anthropic/claude-sonnet-4-5",
+    opus: "anthropic/claude-opus-4-6",
+    sonnet: "anthropic/claude-sonnet-4-6",
     // OpenAI
     gpt: "openai/gpt-5.2",
     "gpt-mini": "openai/gpt-5-mini",
