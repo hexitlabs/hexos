@@ -3,6 +3,16 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2026.1.24-22] - 2026-04-15
+
+### Features
+- **GPT-5.4 Support** — Added full support for OpenAI's GPT-5.4 model
+  - Updated all model references from GPT-5.2 to GPT-5.4
+  - Added GPT-5.4 to model catalogs, cost tables, and context window configs
+  - Updated OpenAI Codex OAuth flow to default to GPT-5.4
+  - Updated XHIGH thinking level models to include GPT-5.4
+  - Updated model picker placeholders and error messages
+
 ## [v0.6.0] - 2026-03-25
 
 ### Features

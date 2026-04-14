@@ -337,7 +337,7 @@ const FIELD_HELP = {
     "diagnostics.cacheTrace.includePrompt": "Include prompt text in trace output (default: true).",
     "diagnostics.cacheTrace.includeSystem": "Include system prompt in trace output (default: true).",
     "tools.exec.applyPatch.enabled": "Experimental. Enables apply_patch for OpenAI models when allowed by tool policy.",
-    "tools.exec.applyPatch.allowModels": 'Optional allowlist of model ids (e.g. "gpt-5.2" or "openai/gpt-5.2").',
+    "tools.exec.applyPatch.allowModels": 'Optional allowlist of model ids (e.g. "gpt-5.4" or "openai/gpt-5.4").',
     "tools.exec.notifyOnExit": "When true (default), backgrounded exec sessions enqueue a system event and request a heartbeat on exit.",
     "tools.exec.pathPrepend": "Directories to prepend to PATH for exec runs (gateway/sandbox).",
     "tools.exec.safeBins": "Allow stdin-only safe binaries to run without explicit allowlist entries.",

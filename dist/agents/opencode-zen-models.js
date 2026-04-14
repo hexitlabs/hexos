@@ -29,16 +29,16 @@ export const OPENCODE_ZEN_MODEL_ALIASES = {
     haiku: "claude-opus-4-5",
     "haiku-3.5": "claude-opus-4-5",
     // GPT-5.x family
-    gpt5: "gpt-5.2",
-    "gpt-5": "gpt-5.2",
+    gpt5: "gpt-5.4",
+    "gpt-5": "gpt-5.4",
     "gpt-5.1": "gpt-5.1",
     // Legacy GPT aliases (keep old config/docs stable; map to closest current equivalents).
     gpt4: "gpt-5.1",
     "gpt-4": "gpt-5.1",
     "gpt-mini": "gpt-5.1-codex-mini",
     // Legacy O-series aliases (no longer in the Zen catalog; map to a strong default).
-    o1: "gpt-5.2",
-    o3: "gpt-5.2",
+    o1: "gpt-5.4",
+    o3: "gpt-5.4",
     "o3-mini": "gpt-5.1-codex-mini",
     // Codex family
     codex: "gpt-5.1-codex",
@@ -117,6 +117,7 @@ const MODEL_COSTS = {
         cacheWrite: 0,
     },
     "gpt-5.2": { input: 1.75, output: 14, cacheRead: 0.175, cacheWrite: 0 },
+    "gpt-5.4": { input: 2.5, output: 20, cacheRead: 0.25, cacheWrite: 0 },
 };
 const DEFAULT_COST = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
 const MODEL_CONTEXT_WINDOWS = {
@@ -129,6 +130,7 @@ const MODEL_CONTEXT_WINDOWS = {
     "gemini-3-flash": 1048576,
     "gpt-5.1-codex-max": 400000,
     "gpt-5.2": 400000,
+    "gpt-5.4": 400000,
 };
 function getDefaultContextWindow(modelId) {
     return MODEL_CONTEXT_WINDOWS[modelId] ?? 128000;
@@ -143,6 +145,7 @@ const MODEL_MAX_TOKENS = {
     "gemini-3-flash": 65536,
     "gpt-5.1-codex-max": 128000,
     "gpt-5.2": 128000,
+    "gpt-5.4": 128000,
 };
 function getDefaultMaxTokens(modelId) {
     return MODEL_MAX_TOKENS[modelId] ?? 8192;
@@ -176,6 +179,7 @@ const MODEL_NAMES = {
     "gemini-3-flash": "Gemini 3 Flash",
     "gpt-5.1-codex-max": "GPT-5.1 Codex Max",
     "gpt-5.2": "GPT-5.2",
+    "gpt-5.4": "GPT-5.4",
 };
 function formatModelName(modelId) {
     if (MODEL_NAMES[modelId]) {
@@ -200,6 +204,7 @@ export function getOpencodeZenStaticFallbackModels() {
         "gemini-3-flash",
         "gpt-5.1-codex-max",
         "gpt-5.2",
+        "gpt-5.4",
     ];
     return modelIds.map(buildModelDefinition);
 }

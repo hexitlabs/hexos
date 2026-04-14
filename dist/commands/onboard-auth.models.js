@@ -9,6 +9,11 @@ export const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2-0905-preview";
 export const MOONSHOT_DEFAULT_MODEL_REF = `moonshot/${MOONSHOT_DEFAULT_MODEL_ID}`;
 export const MOONSHOT_DEFAULT_CONTEXT_WINDOW = 256000;
 export const MOONSHOT_DEFAULT_MAX_TOKENS = 8192;
+export const OPENAI_CODEX_BASE_URL = "https://api.openai.com/v1";
+export const OPENAI_CODEX_DEFAULT_MODEL_ID = "gpt-5.4";
+export const OPENAI_CODEX_DEFAULT_MODEL_REF = `openai-codex/${OPENAI_CODEX_DEFAULT_MODEL_ID}`;
+export const OPENAI_CODEX_DEFAULT_CONTEXT_WINDOW = 400000;
+export const OPENAI_CODEX_DEFAULT_MAX_TOKENS = 128000;
 export const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
 export const KIMI_CODE_MODEL_ID = "kimi-for-coding";
 export const KIMI_CODE_MODEL_REF = `kimi-code/${KIMI_CODE_MODEL_ID}`;
@@ -36,6 +41,12 @@ export const MINIMAX_LM_STUDIO_COST = {
     cacheWrite: 0,
 };
 export const MOONSHOT_DEFAULT_COST = {
+    input: 0,
+    output: 0,
+    cacheRead: 0,
+    cacheWrite: 0,
+};
+export const OPENAI_CODEX_DEFAULT_COST = {
     input: 0,
     output: 0,
     cacheRead: 0,
@@ -83,6 +94,17 @@ export function buildMoonshotModelDefinition() {
         cost: MOONSHOT_DEFAULT_COST,
         contextWindow: MOONSHOT_DEFAULT_CONTEXT_WINDOW,
         maxTokens: MOONSHOT_DEFAULT_MAX_TOKENS,
+    };
+}
+export function buildOpenAICodexModelDefinition() {
+    return {
+        id: OPENAI_CODEX_DEFAULT_MODEL_ID,
+        name: "GPT-5.4",
+        reasoning: true,
+        input: ["text"],
+        cost: OPENAI_CODEX_DEFAULT_COST,
+        contextWindow: OPENAI_CODEX_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: OPENAI_CODEX_DEFAULT_MAX_TOKENS,
     };
 }
 export function buildKimiCodeModelDefinition() {

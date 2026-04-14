@@ -1,7 +1,7 @@
 import { buildSyntheticModelDefinition, SYNTHETIC_BASE_URL, SYNTHETIC_DEFAULT_MODEL_REF, SYNTHETIC_MODEL_CATALOG, } from "../agents/synthetic-models.js";
 import { buildVeniceModelDefinition, VENICE_BASE_URL, VENICE_DEFAULT_MODEL_REF, VENICE_MODEL_CATALOG, } from "../agents/venice-models.js";
 import { OPENROUTER_DEFAULT_MODEL_REF, VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF, ZAI_DEFAULT_MODEL_REF, } from "./onboard-auth.credentials.js";
-import { buildKimiCodeModelDefinition, buildMoonshotModelDefinition, KIMI_CODE_BASE_URL, KIMI_CODE_MODEL_ID, KIMI_CODE_MODEL_REF, MOONSHOT_BASE_URL, MOONSHOT_DEFAULT_MODEL_ID, MOONSHOT_DEFAULT_MODEL_REF, } from "./onboard-auth.models.js";
+import { buildKimiCodeModelDefinition, buildMoonshotModelDefinition, buildOpenAICodexModelDefinition, KIMI_CODE_BASE_URL, KIMI_CODE_MODEL_ID, KIMI_CODE_MODEL_REF, MOONSHOT_BASE_URL, MOONSHOT_DEFAULT_MODEL_ID, MOONSHOT_DEFAULT_MODEL_REF, OPENAI_CODEX_BASE_URL, OPENAI_CODEX_DEFAULT_MODEL_ID, OPENAI_CODEX_DEFAULT_MODEL_REF, } from "./onboard-auth.models.js";
 export function applyZaiConfig(cfg) {
     const models = { ...cfg.agents?.defaults?.models };
     models[ZAI_DEFAULT_MODEL_REF] = {
@@ -99,6 +99,64 @@ export function applyOpenrouterConfig(cfg) {
                         }
                         : undefined),
                     primary: OPENROUTER_DEFAULT_MODEL_REF,
+                },
+            },
+        },
+    };
+}
+export function applyOpenAICodexProviderConfig(cfg) {
+    const models = { ...cfg.agents?.defaults?.models };
+    models[OPENAI_CODEX_DEFAULT_MODEL_REF] = {
+        ...models[OPENAI_CODEX_DEFAULT_MODEL_REF],
+        alias: models[OPENAI_CODEX_DEFAULT_MODEL_REF]?.alias ?? "GPT-5.4",
+    };
+    const providers = { ...cfg.models?.providers };
+    const existingProvider = providers["openai-codex"];
+    const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
+    const defaultModel = buildOpenAICodexModelDefinition();
+    const hasDefaultModel = existingModels.some((model) => model.id === OPENAI_CODEX_DEFAULT_MODEL_ID);
+    const mergedModels = hasDefaultModel ? existingModels : [...existingModels, defaultModel];
+    const { apiKey: existingApiKey, ...existingProviderRest } = (existingProvider ?? {});
+    const resolvedApiKey = typeof existingApiKey === "string" ? existingApiKey : undefined;
+    const normalizedApiKey = resolvedApiKey?.trim();
+    providers["openai-codex"] = {
+        ...existingProviderRest,
+        baseUrl: OPENAI_CODEX_BASE_URL,
+        api: "openai-codex-responses",
+        ...(normalizedApiKey ? { apiKey: normalizedApiKey } : {}),
+        models: mergedModels.length > 0 ? mergedModels : [defaultModel],
+    };
+    return {
+        ...cfg,
+        agents: {
+            ...cfg.agents,
+            defaults: {
+                ...cfg.agents?.defaults,
+                models,
+            },
+        },
+        models: {
+            mode: cfg.models?.mode ?? "merge",
+            providers,
+        },
+    };
+}
+export function applyOpenAICodexConfig(cfg) {
+    const next = applyOpenAICodexProviderConfig(cfg);
+    const existingModel = next.agents?.defaults?.model;
+    return {
+        ...next,
+        agents: {
+            ...next.agents,
+            defaults: {
+                ...next.agents?.defaults,
+                model: {
+                    ...(existingModel && "fallbacks" in existingModel
+                        ? {
+                            fallbacks: existingModel.fallbacks,
+                        }
+                        : undefined),
+                    primary: OPENAI_CODEX_DEFAULT_MODEL_REF,
                 },
             },
         },

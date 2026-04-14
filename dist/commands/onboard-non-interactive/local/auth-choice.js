@@ -4,7 +4,7 @@ import { parseDurationMs } from "../../../cli/parse-duration.js";
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
-import { applyAuthProfileConfig, applyKimiCodeConfig, applyMinimaxApiConfig, applyMinimaxConfig, applyMoonshotConfig, applyOpencodeZenConfig, applyOpenrouterConfig, applySyntheticConfig, applyVercelAiGatewayConfig, applyZaiConfig, setAnthropicApiKey, setGeminiApiKey, setKimiCodeApiKey, setMinimaxApiKey, setMoonshotApiKey, setOpencodeZenApiKey, setOpenrouterApiKey, setSyntheticApiKey, setVercelAiGatewayApiKey, setZaiApiKey, } from "../../onboard-auth.js";
+import { applyAuthProfileConfig, applyKimiCodeConfig, applyMinimaxApiConfig, applyMinimaxConfig, applyMoonshotConfig, applyOpenAICodexProviderConfig, applyOpencodeZenConfig, applyOpenrouterConfig, applySyntheticConfig, applyVercelAiGatewayConfig, applyZaiConfig, setAnthropicApiKey, setGeminiApiKey, setKimiCodeApiKey, setMinimaxApiKey, setMoonshotApiKey, setOpencodeZenApiKey, setOpenrouterApiKey, setSyntheticApiKey, setVercelAiGatewayApiKey, setZaiApiKey, } from "../../onboard-auth.js";
 import { applyOpenAICodexModelDefault } from "../../openai-codex-model-default.js";
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
@@ -293,6 +293,7 @@ export async function applyNonInteractiveAuthChoice(params) {
             provider: "openai-codex",
             mode: "oauth",
         });
+        nextConfig = applyOpenAICodexProviderConfig(nextConfig);
         return applyOpenAICodexModelDefault(nextConfig).next;
     }
     if (authChoice === "minimax")

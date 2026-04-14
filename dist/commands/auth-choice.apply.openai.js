@@ -5,7 +5,7 @@ import { upsertSharedEnvVar } from "../infra/env-file.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
 import { formatApiKeyPreview, normalizeApiKeyInput, validateApiKeyInput, } from "./auth-choice.api-key.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
-import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
+import { applyAuthProfileConfig, applyOpenAICodexProviderConfig, writeOAuthCredentials } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
 import { applyOpenAICodexModelDefault, OPENAI_CODEX_DEFAULT_MODEL, } from "./openai-codex-model-default.js";
 export async function applyAuthChoiceOpenAI(params) {
@@ -94,6 +94,7 @@ export async function applyAuthChoiceOpenAI(params) {
                     provider: "openai-codex",
                     mode: "oauth",
                 });
+                nextConfig = applyOpenAICodexProviderConfig(nextConfig);
                 if (params.setDefaultModel) {
                     const applied = applyOpenAICodexModelDefault(nextConfig);
                     nextConfig = applied.next;
@@ -132,6 +133,7 @@ export async function applyAuthChoiceOpenAI(params) {
             provider: "openai-codex",
             mode: "oauth",
         });
+        nextConfig = applyOpenAICodexProviderConfig(nextConfig);
         if (params.setDefaultModel) {
             const applied = applyOpenAICodexModelDefault(nextConfig);
             nextConfig = applied.next;

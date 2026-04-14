@@ -154,7 +154,7 @@ export async function resolveApiKeyForProvider(params) {
     if (provider === "openai") {
         const hasCodex = listProfilesForProvider(store, "openai-codex").length > 0;
         if (hasCodex) {
-            throw new Error('No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.2 (ChatGPT OAuth) or set OPENAI_API_KEY for openai/gpt-5.2.');
+            throw new Error('No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.4 (ChatGPT OAuth) or set OPENAI_API_KEY for openai/gpt-5.4.');
         }
     }
     const authStorePath = resolveAuthStorePathForDisplay(params.agentDir);
