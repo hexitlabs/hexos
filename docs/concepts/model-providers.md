@@ -50,12 +50,20 @@ HexOS ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai-codex`
 - Auth: OAuth or Codex CLI (`~/.codex/auth.json`)
-- Example model: `openai-codex/gpt-5.2`
+- Example model: `openai-codex/gpt-5.4`
 - CLI: `hexos onboard --auth-choice openai-codex` or `codex-cli`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } }
+  agents: { defaults: { model: { primary: "openai-codex/gpt-5.4" } } },
+  models: {
+    providers: {
+      "openai-codex": {
+        api: "openai-codex-responses",
+        models: [{ id: "gpt-5.4", name: "GPT-5.4" }]
+      }
+    }
+  }
 }
 ```
 

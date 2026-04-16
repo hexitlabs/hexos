@@ -3,6 +3,14 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2026.1.24-23] - 2026-04-16
+
+### Fixes
+- **OpenAI Codex GPT-5.4 config/runtime fix**
+  - Added `openai-codex-responses` to the config schema so `models.providers.openai-codex.api` validates correctly.
+  - Preserved provider-level `api` metadata when inlining models from config so `openai-codex/gpt-5.4` no longer crashes at runtime with `Unhandled API in mapOptionsForApi: undefined`.
+  - Verified end-to-end with a live Hiro gateway smoke test using Codex/ChatGPT OAuth; `openai-codex/gpt-5.4` responded successfully.
+
 ## [2026.1.24-22] - 2026-04-15
 
 ### Features

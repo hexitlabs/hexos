@@ -8,7 +8,11 @@ export function buildInlineProviderModels(providers) {
         const trimmed = providerId.trim();
         if (!trimmed)
             return [];
-        return (entry?.models ?? []).map((model) => ({ ...model, provider: trimmed }));
+        return (entry?.models ?? []).map((model) => ({
+            ...model,
+            api: model?.api ?? entry?.api,
+            provider: trimmed,
+        }));
     });
 }
 export function buildModelAliasLines(cfg) {

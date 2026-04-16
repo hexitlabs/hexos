@@ -2607,7 +2607,7 @@ Notes:
 - Set `CEREBRAS_API_KEY` in the environment or config.
 
 Notes:
-- Supported APIs: `openai-completions`, `openai-responses`, `anthropic-messages`,
+- Supported APIs: `openai-completions`, `openai-responses`, `openai-codex-responses`, `anthropic-messages`,
   `google-generative-ai`
 - Use `authHeader: true` + `headers` for custom auth needs.
 - Override the agent config root with `HEXOS_AGENT_DIR` (or `PI_CODING_AGENT_DIR`)
