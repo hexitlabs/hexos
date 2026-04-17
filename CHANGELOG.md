@@ -3,6 +3,14 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2026.1.24-24] - 2026-04-17
+
+### Fixes
+- **`hexos models set openai-codex/gpt-5.4` now auto-registers the Codex provider**
+  - `models set` now injects the missing `models.providers.openai-codex` block when selecting an OpenAI Codex model.
+  - The injected provider uses the correct API mode: `openai-codex-responses`.
+  - This prevents existing installs from landing in a broken state where GPT-5.4 becomes the default model but agent runs still fail with `Unknown model: openai-codex/gpt-5.4`.
+
 ## [2026.1.24-23] - 2026-04-16
 
 ### Fixes

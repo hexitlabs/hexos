@@ -1,19 +1,23 @@
 import { logConfigUpdated } from "../../config/logging.js";
+import { applyOpenAICodexProviderConfig } from "../onboard-auth.config-core.js";
 import { resolveModelTarget, updateConfig } from "./shared.js";
 export async function modelsSetCommand(modelRaw, runtime) {
     const updated = await updateConfig((cfg) => {
         const resolved = resolveModelTarget({ raw: modelRaw, cfg });
         const key = `${resolved.provider}/${resolved.model}`;
-        const nextModels = { ...cfg.agents?.defaults?.models };
+        const nextCfg = resolved.provider === "openai-codex"
+            ? applyOpenAICodexProviderConfig(cfg)
+            : cfg;
+        const nextModels = { ...nextCfg.agents?.defaults?.models };
         if (!nextModels[key])
             nextModels[key] = {};
-        const existingModel = cfg.agents?.defaults?.model;
+        const existingModel = nextCfg.agents?.defaults?.model;
         return {
-            ...cfg,
+            ...nextCfg,
             agents: {
-                ...cfg.agents,
+                ...nextCfg.agents,
                 defaults: {
-                    ...cfg.agents?.defaults,
+                    ...nextCfg.agents?.defaults,
                     model: {
                         ...(existingModel?.fallbacks ? { fallbacks: existingModel.fallbacks } : undefined),
                         primary: key,
