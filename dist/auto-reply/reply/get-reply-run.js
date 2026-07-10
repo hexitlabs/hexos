@@ -8,7 +8,7 @@ import { normalizeMainKey } from "../../routing/session-key.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { hasControlCommand } from "../command-detection.js";
 import { buildInboundMediaNote } from "../media-note.js";
-import { formatXHighModelHint, normalizeThinkLevel, supportsXHighThinking, } from "../thinking.js";
+import { formatThinkingLevels, normalizeThinkLevel, supportsThinkingLevel, } from "../thinking.js";
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
 import { runReplyAgent } from "./agent-runner.js";
 import { applySessionHints } from "./body.js";
@@ -116,7 +116,7 @@ export async function runPreparedReply(params) {
     if (!resolvedThinkLevel && prefixedCommandBody) {
         const parts = prefixedCommandBody.split(/\s+/);
         const maybeLevel = normalizeThinkLevel(parts[0]);
-        if (maybeLevel && (maybeLevel !== "xhigh" || supportsXHighThinking(provider, model))) {
+        if (maybeLevel && supportsThinkingLevel(provider, model, maybeLevel)) {
             resolvedThinkLevel = maybeLevel;
             prefixedCommandBody = parts.slice(1).join(" ").trim();
         }
@@ -124,17 +124,21 @@ export async function runPreparedReply(params) {
     if (!resolvedThinkLevel) {
         resolvedThinkLevel = await modelState.resolveDefaultThinkingLevel();
     }
-    if (resolvedThinkLevel === "xhigh" && !supportsXHighThinking(provider, model)) {
+    if (resolvedThinkLevel && !supportsThinkingLevel(provider, model, resolvedThinkLevel)) {
         const explicitThink = directives.hasThinkDirective && directives.thinkLevel !== undefined;
         if (explicitThink) {
             typing.cleanup();
             return {
-                text: `Thinking level "xhigh" is only supported for ${formatXHighModelHint()}. Use /think high or switch to one of those models.`,
+                text: `Thinking level "${resolvedThinkLevel}" is not supported for ${provider}/${model}. Use one of: ${formatThinkingLevels(provider, model)}.`,
             };
         }
-        resolvedThinkLevel = "high";
-        if (sessionEntry && sessionStore && sessionKey && sessionEntry.thinkingLevel === "xhigh") {
-            sessionEntry.thinkingLevel = "high";
+        const unsupportedThinkLevel = resolvedThinkLevel;
+        resolvedThinkLevel = unsupportedThinkLevel === "minimal" ? "low" : "high";
+        if (sessionEntry &&
+            sessionStore &&
+            sessionKey &&
+            sessionEntry.thinkingLevel === unsupportedThinkLevel) {
+            sessionEntry.thinkingLevel = resolvedThinkLevel;
             sessionEntry.updatedAt = Date.now();
             sessionStore[sessionKey] = sessionEntry;
             if (storePath) {

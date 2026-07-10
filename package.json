@@ -1,6 +1,6 @@
 {
   "name": "@hexitlabs/hexos",
-  "version": "2026.1.24-24",
+  "version": "2026.1.24-26",
   "description": "HexOS — The operating system for AI-powered businesses. Deploy AI agent teams that work 24/7.",
   "type": "module",
   "main": "dist/index.js",
@@ -254,6 +254,11 @@
       "@sinclair/typebox": "0.34.47",
       "hono": "4.11.4",
       "tar": "7.5.4"
+    },
+    "patchedDependencies": {
+      "@mariozechner/pi-agent-core@0.49.3": "patches/@mariozechner__pi-agent-core@0.49.3.patch",
+      "@mariozechner/pi-ai@0.49.3": "patches/@mariozechner__pi-ai@0.49.3.patch",
+      "@mariozechner/pi-coding-agent@0.49.3": "patches/@mariozechner__pi-coding-agent@0.49.3.patch"
     }
   },
   "vitest": {

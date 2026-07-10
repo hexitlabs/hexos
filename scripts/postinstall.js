@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -17,9 +18,10 @@ function detectPackageManager(ua = process.env.npm_config_user_agent ?? "") {
   return "unknown";
 }
 
-function shouldApplyPnpmPatchedDependenciesFallback(pm = detectPackageManager()) {
-  // pnpm already applies pnpm.patchedDependencies itself; re-applying would fail.
-  return pm !== "pnpm";
+function shouldApplyPnpmPatchedDependenciesFallback(_pm = detectPackageManager()) {
+  // Published dependency metadata is not guaranteed to be honored by the
+  // consumer's package manager. The patcher is idempotent, so always verify it.
+  return true;
 }
 
 function getRepoRoot() {
@@ -53,6 +55,46 @@ function extractPackageName(key) {
   const idx = key.lastIndexOf("@");
   if (idx <= 0) return key;
   return key.slice(0, idx);
+}
+
+function findPackageDir(entryPath, packageName) {
+  let current = path.dirname(entryPath);
+  while (true) {
+    const manifestPath = path.join(current, "package.json");
+    if (fs.existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        if (manifest?.name === packageName) return current;
+      } catch {
+        // Keep walking in case this is an intermediate package boundary.
+      }
+    }
+    const parent = path.dirname(current);
+    if (parent === current) return null;
+    current = parent;
+  }
+}
+
+function resolveInstalledPackageDir(repoRoot, packageName) {
+  let current = repoRoot;
+  while (true) {
+    const candidate = path.join(current, "node_modules", ...packageName.split("/"));
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+
+  const require = createRequire(path.join(repoRoot, "package.json"));
+  try {
+    return path.dirname(require.resolve(`${packageName}/package.json`));
+  } catch {
+    try {
+      return findPackageDir(require.resolve(packageName), packageName);
+    } catch {
+      return null;
+    }
+  }
 }
 
 function stripPrefix(p) {
@@ -269,10 +311,12 @@ function main() {
     if (typeof relPatchPath !== "string" || !relPatchPath.trim()) continue;
     const pkgName = extractPackageName(String(key));
     if (!pkgName) continue;
-    applyPatchFile({
-      targetDir: path.join("node_modules", ...pkgName.split("/")),
-      patchPath: relPatchPath,
-    });
+    const targetDir = resolveInstalledPackageDir(repoRoot, pkgName);
+    if (!targetDir) {
+      console.warn(`[postinstall] skip unresolved package: ${pkgName}`);
+      continue;
+    }
+    applyPatchFile({ targetDir, patchPath: relPatchPath });
   }
 }
 
@@ -296,5 +340,6 @@ export {
   applyPatchToFile,
   detectPackageManager,
   parsePatch,
+  resolveInstalledPackageDir,
   shouldApplyPnpmPatchedDependenciesFallback,
 };

@@ -18,7 +18,7 @@ export function registerAgentCommands(program, args) {
         .option("-t, --to <number>", "Recipient number in E.164 used to derive the session key")
         .option("--session-id <id>", "Use an explicit session id")
         .option("--agent <id>", "Agent id (overrides routing bindings)")
-        .option("--thinking <level>", "Thinking level: off | minimal | low | medium | high")
+        .option("--thinking <level>", "Thinking level: off | minimal | low | medium | high | xhigh | max | ultra")
         .option("--verbose <on|off>", "Persist agent verbose level for the session")
         .option("--channel <channel>", `Delivery channel: ${args.agentChannelOptions} (default: ${DEFAULT_CHAT_CHANNEL})`)
         .option("--reply-to <target>", "Delivery target override (separate from session routing)")

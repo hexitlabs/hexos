@@ -11,7 +11,7 @@ import { buildWorkspaceSkillSnapshot } from "../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../agents/skills/refresh.js";
 import { resolveAgentTimeoutMs } from "../agents/timeout.js";
 import { ensureAgentWorkspace } from "../agents/workspace.js";
-import { formatThinkingLevels, formatXHighModelHint, normalizeThinkLevel, normalizeVerboseLevel, supportsXHighThinking, } from "../auto-reply/thinking.js";
+import { formatThinkingLevels, normalizeThinkLevel, normalizeVerboseLevel, supportsThinkingLevel, } from "../auto-reply/thinking.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { loadConfig } from "../config/config.js";
 import { resolveAgentIdFromSessionKey, resolveSessionFilePath, updateSessionStore, } from "../config/sessions.js";
@@ -68,10 +68,14 @@ export async function agentCommand(opts, runtime = defaultRuntime, deps = create
     const thinkingLevelsHint = formatThinkingLevels(configuredModel.provider, configuredModel.model);
     const thinkOverride = normalizeThinkLevel(opts.thinking);
     const thinkOnce = normalizeThinkLevel(opts.thinkingOnce);
-    if (opts.thinking && !thinkOverride) {
+    if (opts.thinking &&
+        (!thinkOverride ||
+            !supportsThinkingLevel(configuredModel.provider, configuredModel.model, thinkOverride))) {
         throw new Error(`Invalid thinking level. Use one of: ${thinkingLevelsHint}.`);
     }
-    if (opts.thinkingOnce && !thinkOnce) {
+    if (opts.thinkingOnce &&
+        (!thinkOnce ||
+            !supportsThinkingLevel(configuredModel.provider, configuredModel.model, thinkOnce))) {
         throw new Error(`Invalid one-shot thinking level. Use one of: ${thinkingLevelsHint}.`);
     }
     const verboseOverride = normalizeVerboseLevel(opts.verbose);
@@ -271,15 +275,19 @@ export async function agentCommand(opts, runtime = defaultRuntime, deps = create
                 catalog: catalogForThinking,
             });
         }
-        if (resolvedThinkLevel === "xhigh" && !supportsXHighThinking(provider, model)) {
+        if (resolvedThinkLevel && !supportsThinkingLevel(provider, model, resolvedThinkLevel)) {
             const explicitThink = Boolean(thinkOnce || thinkOverride);
             if (explicitThink) {
-                throw new Error(`Thinking level "xhigh" is only supported for ${formatXHighModelHint()}.`);
+                throw new Error(`Thinking level "${resolvedThinkLevel}" is not supported for ${provider}/${model}. Use one of: ${formatThinkingLevels(provider, model)}.`);
             }
-            resolvedThinkLevel = "high";
-            if (sessionEntry && sessionStore && sessionKey && sessionEntry.thinkingLevel === "xhigh") {
+            const unsupportedThinkLevel = resolvedThinkLevel;
+            resolvedThinkLevel = unsupportedThinkLevel === "minimal" ? "low" : "high";
+            if (sessionEntry &&
+                sessionStore &&
+                sessionKey &&
+                sessionEntry.thinkingLevel === unsupportedThinkLevel) {
                 const entry = sessionEntry;
-                entry.thinkingLevel = "high";
+                entry.thinkingLevel = resolvedThinkLevel;
                 entry.updatedAt = Date.now();
                 sessionStore[sessionKey] = entry;
                 await updateSessionStore(storePath, (store) => {

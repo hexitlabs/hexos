@@ -7,14 +7,18 @@ read_when:
 
 ## What it does
 - Inline directive in any inbound body: `/t <level>`, `/think:<level>`, or `/thinking <level>`.
-- Levels (aliases): `off | minimal | low | medium | high | xhigh` (GPT-5.2 + Codex models only)
+- Levels are model-dependent. The complete set is `off | minimal | low | medium | high | xhigh | max | ultra`.
   - minimal → “think”
   - low → “think hard”
   - medium → “think harder”
   - high → “ultrathink” (max budget)
-  - xhigh → “ultrathink+” (GPT-5.2 + Codex models only)
-  - `highest`, `max` map to `high`.
+  - xhigh → “ultrathink+”
+  - max → maximum model reasoning
+  - ultra → app-level maximum mode; GPT-5.6-Sol sends `max` to the Codex Responses API
+  - `highest` maps to `high`, `uncapped` maps to `xhigh`, and `maximum` maps to `max`.
 - Provider notes:
+  - GPT-5.6-Sol supports `off`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`. It does not expose `minimal`.
+  - HexOS validates choices against the active model and shows only supported levels.
   - Z.AI (`zai/*`) only supports binary thinking (`on`/`off`). Any non-`off` level is treated as `on` (mapped to `low`).
 
 ## Resolution order

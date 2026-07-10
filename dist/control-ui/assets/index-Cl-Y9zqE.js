@@ -2645,7 +2645,7 @@ ${e.snapshot?JSON.stringify(e.snapshot,null,2):"No snapshot yet."}
         </div>
       </div>
     </section>
-  `}const rh=["","off","minimal","low","medium","high"],lh=["","off","on"],ch=[{value:"",label:"inherit"},{value:"off",label:"off (explicit)"},{value:"on",label:"on"}],dh=["","off","on","stream"];function uh(e){if(!e)return"";const t=e.trim().toLowerCase();return t==="z.ai"||t==="z-ai"?"zai":t}function vr(e){return uh(e)==="zai"}function ph(e){return vr(e)?lh:rh}function fh(e,t){return!t||!e||e==="off"?e:"on"}function hh(e,t){return e?t&&e==="on"?"low":e:null}function gh(e){const t=e.result?.sessions??[];return r`
+  `}const rh=["","off","minimal","low","medium","high","xhigh","max","ultra"],lh=["","off","on"],ch=[{value:"",label:"inherit"},{value:"off",label:"off (explicit)"},{value:"on",label:"on"}],dh=["","off","on","stream"];function uh(e){if(!e)return"";const t=e.trim().toLowerCase();return t==="z.ai"||t==="z-ai"?"zai":t}function vr(e){return uh(e)==="zai"}function ph(e){return vr(e)?lh:rh}function fh(e,t){return!t||!e||e==="off"?e:"on"}function hh(e,t){return e?t&&e==="on"?"low":e:null}function gh(e){const t=e.result?.sessions??[];return r`
     <section class="card">
       <div class="row" style="justify-content: space-between;">
         <div>

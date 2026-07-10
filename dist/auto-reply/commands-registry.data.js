@@ -341,7 +341,7 @@ function buildChatCommands() {
             args: [
                 {
                     name: "level",
-                    description: "off, minimal, low, medium, high, xhigh",
+                    description: "off, minimal, low, medium, high, xhigh, max, ultra",
                     type: "string",
                     choices: ({ provider, model }) => listThinkingLevels(provider, model),
                 },

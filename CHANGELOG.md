@@ -3,6 +3,15 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2026.1.24-26] - 2026-07-10
+
+### Features
+- **GPT-5.6-Sol support across the OpenAI Codex stack**
+  - Added `openai-codex/gpt-5.6-sol` to the built-in model registry with text and image input, a 372,000-token context window, and a 128,000-token output limit.
+  - Made GPT-5.6-Sol the default for Codex OAuth onboarding and automatic provider registration.
+  - Added model-aware thinking support for `off`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; unsupported levels are rejected or safely downgraded when switching models.
+  - Patched the bundled Pi runtime so Sol is available after npm, pnpm, yarn, and bun installs, including API effort mapping and CLI selectors.
+
 ## [2026.1.24-24] - 2026-04-17
 
 ### Fixes

@@ -1,0 +1,211 @@
+diff --git a/dist/core/agent-session.js b/dist/core/agent-session.js
+--- a/dist/core/agent-session.js
++++ b/dist/core/agent-session.js
+@@ -13,7 +13,7 @@
+  * Modes use this class and add their own I/O layer on top.
+  */
+ import { readFileSync } from "node:fs";
+-import { isContextOverflow, modelsAreEqual, supportsXhigh } from "@mariozechner/pi-ai";
++import { isContextOverflow, modelsAreEqual, supportsMaxThinking, supportsXhigh } from "@mariozechner/pi-ai";
+ import { getAuthPath } from "../config.js";
+ import { theme } from "../modes/interactive/theme/theme.js";
+ import { stripFrontmatter } from "../utils/frontmatter.js";
+@@ -29,6 +29,9 @@
+ const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high"];
+ /** Thinking levels including xhigh (for supported models) */
+ const THINKING_LEVELS_WITH_XHIGH = ["off", "minimal", "low", "medium", "high", "xhigh"];
++/** GPT-5.6 Sol levels. Minimal is not exposed by the model. */
++const THINKING_LEVELS_WITH_MAX = ["off", "low", "medium", "high", "xhigh", "max", "ultra"];
++const ALL_THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"];
+ // ============================================================================
+ // AgentSession Class
+ // ============================================================================
+@@ -921,6 +924,8 @@
+     getAvailableThinkingLevels() {
+         if (!this.supportsThinking())
+             return ["off"];
++        if (this.model && supportsMaxThinking(this.model))
++            return THINKING_LEVELS_WITH_MAX;
+         return this.supportsXhighThinking() ? THINKING_LEVELS_WITH_XHIGH : THINKING_LEVELS;
+     }
+     /**
+@@ -936,7 +941,7 @@
+         return !!this.model?.reasoning;
+     }
+     _clampThinkingLevel(level, availableLevels) {
+-        const ordered = THINKING_LEVELS_WITH_XHIGH;
++        const ordered = ALL_THINKING_LEVELS;
+         const available = new Set(availableLevels);
+         const requestedIndex = ordered.indexOf(level);
+         if (requestedIndex === -1) {
+@@ -1919,4 +1924,4 @@
+         return this._extensionRunner;
+     }
+ }
+-//# sourceMappingURL=agent-session.js.map
+\ No newline at end of file
++//# sourceMappingURL=agent-session.js.map
+diff --git a/dist/cli/args.js b/dist/cli/args.js
+--- a/dist/cli/args.js
++++ b/dist/cli/args.js
+@@ -4,7 +4,7 @@
+ import chalk from "chalk";
+ import { APP_NAME, CONFIG_DIR_NAME, ENV_AGENT_DIR } from "../config.js";
+ import { allTools } from "../core/tools/index.js";
+-const VALID_THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh"];
++const VALID_THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"];
+ export function isValidThinkingLevel(level) {
+     return VALID_THINKING_LEVELS.includes(level);
+ }
+@@ -162,7 +162,7 @@
+   --no-tools                     Disable all built-in tools
+   --tools <tools>                Comma-separated list of tools to enable (default: read,bash,edit,write)
+                                  Available: read, bash, edit, write, grep, find, ls
+-  --thinking <level>             Set thinking level: off, minimal, low, medium, high, xhigh
++  --thinking <level>             Set thinking level: off, minimal, low, medium, high, xhigh, max, ultra
+   --extension, -e <path>         Load an extension file (can be used multiple times)
+   --no-extensions                Disable extension discovery (explicit -e paths still work)
+   --no-skills                    Disable skills discovery and loading
+@@ -246,4 +246,4 @@
+   ls     - List directory contents (read-only, off by default)
+ `);
+ }
+-//# sourceMappingURL=args.js.map
+\ No newline at end of file
++//# sourceMappingURL=args.js.map
+diff --git a/dist/main.js b/dist/main.js
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -4,7 +4,7 @@
+  * This file handles CLI argument parsing and translates them into
+  * createAgentSession() options. The SDK does the heavy lifting.
+  */
+-import { modelsAreEqual, supportsXhigh } from "@mariozechner/pi-ai";
++import { modelsAreEqual } from "@mariozechner/pi-ai";
+ import chalk from "chalk";
+ import { existsSync } from "fs";
+ import { join } from "path";
+@@ -407,8 +407,8 @@
+         if (!session.model.reasoning) {
+             effectiveThinking = "off";
+         }
+-        else if (effectiveThinking === "xhigh" && !supportsXhigh(session.model)) {
+-            effectiveThinking = "high";
++        else if (!session.getAvailableThinkingLevels().includes(effectiveThinking)) {
++            effectiveThinking = effectiveThinking === "minimal" ? "low" : "high";
+         }
+         if (effectiveThinking !== session.thinkingLevel) {
+             session.setThinkingLevel(effectiveThinking);
+@@ -451,4 +451,4 @@
+         process.exit(0);
+     }
+ }
+-//# sourceMappingURL=main.js.map
+\ No newline at end of file
++//# sourceMappingURL=main.js.map
+diff --git a/dist/core/settings-manager.d.ts b/dist/core/settings-manager.d.ts
+--- a/dist/core/settings-manager.d.ts
++++ b/dist/core/settings-manager.d.ts
+@@ -43,7 +43,7 @@
+     lastChangelogVersion?: string;
+     defaultProvider?: string;
+     defaultModel?: string;
+-    defaultThinkingLevel?: "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
++    defaultThinkingLevel?: "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
+     steeringMode?: "all" | "one-at-a-time";
+     followUpMode?: "all" | "one-at-a-time";
+     theme?: string;
+@@ -97,8 +97,8 @@
+     setFollowUpMode(mode: "all" | "one-at-a-time"): void;
+     getTheme(): string | undefined;
+     setTheme(theme: string): void;
+-    getDefaultThinkingLevel(): "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | undefined;
+-    setDefaultThinkingLevel(level: "off" | "minimal" | "low" | "medium" | "high" | "xhigh"): void;
++    getDefaultThinkingLevel(): "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra" | undefined;
++    setDefaultThinkingLevel(level: "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra"): void;
+     getCompactionEnabled(): boolean;
+     setCompactionEnabled(enabled: boolean): void;
+     getCompactionReserveTokens(): number;
+@@ -152,4 +152,4 @@
+     setEditorPaddingX(padding: number): void;
+     getCodeBlockIndent(): string;
+ }
+-//# sourceMappingURL=settings-manager.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=settings-manager.d.ts.map
+diff --git a/dist/modes/interactive/components/settings-selector.js b/dist/modes/interactive/components/settings-selector.js
+--- a/dist/modes/interactive/components/settings-selector.js
++++ b/dist/modes/interactive/components/settings-selector.js
+@@ -8,6 +8,8 @@
+     medium: "Moderate reasoning (~8k tokens)",
+     high: "Deep reasoning (~16k tokens)",
+     xhigh: "Maximum reasoning (~32k tokens)",
++    max: "Maximum model reasoning",
++    ultra: "Maximum reasoning with delegation",
+ };
+ /**
+  * A submenu component for selecting from a list of options.
+@@ -250,4 +252,4 @@
+         return this.settingsList;
+     }
+ }
+-//# sourceMappingURL=settings-selector.js.map
+\ No newline at end of file
++//# sourceMappingURL=settings-selector.js.map
+diff --git a/dist/modes/interactive/theme/theme.d.ts b/dist/modes/interactive/theme/theme.d.ts
+--- a/dist/modes/interactive/theme/theme.d.ts
++++ b/dist/modes/interactive/theme/theme.d.ts
+@@ -17,7 +17,7 @@
+     getFgAnsi(color: ThemeColor): string;
+     getBgAnsi(color: ThemeBg): string;
+     getColorMode(): ColorMode;
+-    getThinkingBorderColor(level: "off" | "minimal" | "low" | "medium" | "high" | "xhigh"): (str: string) => string;
++    getThinkingBorderColor(level: "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra"): (str: string) => string;
+     getBashModeBorderColor(): (str: string) => string;
+ }
+ export declare function getAvailableThemes(): string[];
+@@ -68,4 +68,4 @@
+ export declare function getEditorTheme(): EditorTheme;
+ export declare function getSettingsListTheme(): import("@mariozechner/pi-tui").SettingsListTheme;
+ export {};
+-//# sourceMappingURL=theme.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=theme.d.ts.map
+diff --git a/dist/modes/interactive/theme/theme.js b/dist/modes/interactive/theme/theme.js
+--- a/dist/modes/interactive/theme/theme.js
++++ b/dist/modes/interactive/theme/theme.js
+@@ -315,6 +315,8 @@
+             case "high":
+                 return (str) => this.fg("thinkingHigh", str);
+             case "xhigh":
++            case "max":
++            case "ultra":
+                 return (str) => this.fg("thinkingXhigh", str);
+             default:
+                 return (str) => this.fg("thinkingOff", str);
+@@ -894,4 +896,4 @@
+         hint: (text) => theme.fg("dim", text),
+     };
+ }
+-//# sourceMappingURL=theme.js.map
+\ No newline at end of file
++//# sourceMappingURL=theme.js.map
+diff --git a/dist/modes/interactive/components/thinking-selector.js b/dist/modes/interactive/components/thinking-selector.js
+--- a/dist/modes/interactive/components/thinking-selector.js
++++ b/dist/modes/interactive/components/thinking-selector.js
+@@ -8,6 +8,8 @@
+     medium: "Moderate reasoning (~8k tokens)",
+     high: "Deep reasoning (~16k tokens)",
+     xhigh: "Maximum reasoning (~32k tokens)",
++    max: "Maximum model reasoning",
++    ultra: "Maximum reasoning with delegation",
+ };
+ /**
+  * Component that renders a thinking level selector with borders
+@@ -44,4 +46,4 @@
+         return this.selectList;
+     }
+ }
+-//# sourceMappingURL=thinking-selector.js.map
+\ No newline at end of file
++//# sourceMappingURL=thinking-selector.js.map
