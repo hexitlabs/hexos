@@ -13,13 +13,22 @@ export const XHIGH_MODEL_REFS = [
     "openai/gpt-5.4",
     "openai-codex/gpt-5.4",
     "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna",
     "openai-codex/gpt-5.2-codex",
     "openai-codex/gpt-5.1-codex",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
 ];
-export const MAX_THINKING_MODEL_REFS = ["openai-codex/gpt-5.6-sol"];
-export const ULTRA_THINKING_MODEL_REFS = ["openai-codex/gpt-5.6-sol"];
+export const MAX_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna",
+];
+export const ULTRA_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+];
 const XHIGH_MODEL_SET = new Set(XHIGH_MODEL_REFS.map((entry) => entry.toLowerCase()));
 const XHIGH_MODEL_IDS = new Set(XHIGH_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
 const MAX_THINKING_MODEL_SET = new Set(MAX_THINKING_MODEL_REFS.map((entry) => entry.toLowerCase()));

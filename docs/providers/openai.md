@@ -50,6 +50,8 @@ hexos onboard --auth-choice codex-cli
 hexos onboard --auth-choice openai-codex
 ```
 
+The built-in Codex registry includes `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`. Onboarding defaults to Sol.
+
 ### Config snippet
 
 ```json5

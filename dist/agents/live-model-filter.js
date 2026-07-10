@@ -2,6 +2,8 @@ const ANTHROPIC_PREFIXES = ["claude-opus-4-6", "claude-sonnet-4-6", "claude-opus
 const OPENAI_MODELS = ["gpt-5.4", "gpt-5.2", "gpt-5.0"];
 const CODEX_MODELS = [
     "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-5.6-luna",
     "gpt-5.4",
     "gpt-5.2",
     "gpt-5.2-codex",

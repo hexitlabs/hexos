@@ -6,30 +6,31 @@ diff --git a/dist/core/agent-session.js b/dist/core/agent-session.js
   */
  import { readFileSync } from "node:fs";
 -import { isContextOverflow, modelsAreEqual, supportsXhigh } from "@mariozechner/pi-ai";
-+import { isContextOverflow, modelsAreEqual, supportsMaxThinking, supportsXhigh } from "@mariozechner/pi-ai";
++import { isContextOverflow, modelsAreEqual, supportsMaxThinking, supportsUltraThinking, supportsXhigh } from "@mariozechner/pi-ai";
  import { getAuthPath } from "../config.js";
  import { theme } from "../modes/interactive/theme/theme.js";
  import { stripFrontmatter } from "../utils/frontmatter.js";
-@@ -29,6 +29,9 @@
+@@ -29,6 +29,10 @@
  const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high"];
  /** Thinking levels including xhigh (for supported models) */
  const THINKING_LEVELS_WITH_XHIGH = ["off", "minimal", "low", "medium", "high", "xhigh"];
-+/** GPT-5.6 Sol levels. Minimal is not exposed by the model. */
-+const THINKING_LEVELS_WITH_MAX = ["off", "low", "medium", "high", "xhigh", "max", "ultra"];
++/** GPT-5.6 levels. Minimal is not exposed by these models. */
++const THINKING_LEVELS_WITH_MAX = ["off", "low", "medium", "high", "xhigh", "max"];
++const THINKING_LEVELS_WITH_ULTRA = [...THINKING_LEVELS_WITH_MAX, "ultra"];
 +const ALL_THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"];
  // ============================================================================
  // AgentSession Class
  // ============================================================================
-@@ -921,6 +924,8 @@
+@@ -921,6 +925,8 @@
      getAvailableThinkingLevels() {
          if (!this.supportsThinking())
              return ["off"];
 +        if (this.model && supportsMaxThinking(this.model))
-+            return THINKING_LEVELS_WITH_MAX;
++            return supportsUltraThinking(this.model) ? THINKING_LEVELS_WITH_ULTRA : THINKING_LEVELS_WITH_MAX;
          return this.supportsXhighThinking() ? THINKING_LEVELS_WITH_XHIGH : THINKING_LEVELS;
      }
      /**
-@@ -936,7 +941,7 @@
+@@ -936,7 +942,7 @@
          return !!this.model?.reasoning;
      }
      _clampThinkingLevel(level, availableLevels) {
@@ -38,7 +39,7 @@ diff --git a/dist/core/agent-session.js b/dist/core/agent-session.js
          const available = new Set(availableLevels);
          const requestedIndex = ordered.indexOf(level);
          if (requestedIndex === -1) {
-@@ -1919,4 +1924,4 @@
+@@ -1919,4 +1925,4 @@
          return this._extensionRunner;
      }
  }

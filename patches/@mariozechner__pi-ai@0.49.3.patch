@@ -19,7 +19,7 @@ diff --git a/dist/models.d.ts b/dist/models.d.ts
 diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 --- a/dist/models.generated.d.ts
 +++ b/dist/models.generated.d.ts
-@@ -3992,6 +3992,23 @@
+@@ -3992,6 +3992,57 @@
              contextWindow: number;
              maxTokens: number;
          };
@@ -40,10 +40,44 @@ diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 +            contextWindow: number;
 +            maxTokens: number;
 +        };
++        readonly "gpt-5.6-terra": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-5.6-luna": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
      };
      readonly opencode: {
          readonly "alpha-gd4": {
-@@ -10968,4 +10985,4 @@
+@@ -10968,4 +11019,4 @@
          };
      };
  };
@@ -53,7 +87,7 @@ diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 diff --git a/dist/models.generated.js b/dist/models.generated.js
 --- a/dist/models.generated.js
 +++ b/dist/models.generated.js
-@@ -3864,6 +3864,23 @@
+@@ -3864,6 +3864,57 @@
              contextWindow: 272000,
              maxTokens: 128000,
          },
@@ -74,10 +108,44 @@ diff --git a/dist/models.generated.js b/dist/models.generated.js
 +            contextWindow: 372000,
 +            maxTokens: 128000,
 +        },
++        "gpt-5.6-terra": {
++            id: "gpt-5.6-terra",
++            name: "GPT-5.6-Terra",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 372000,
++            maxTokens: 128000,
++        },
++        "gpt-5.6-luna": {
++            id: "gpt-5.6-luna",
++            name: "GPT-5.6-Luna",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 372000,
++            maxTokens: 128000,
++        },
      },
      "opencode": {
          "alpha-gd4": {
-@@ -10819,4 +10836,4 @@
+@@ -10819,4 +10870,4 @@
          },
      },
  };
@@ -87,17 +155,18 @@ diff --git a/dist/models.generated.js b/dist/models.generated.js
 diff --git a/dist/models.js b/dist/models.js
 --- a/dist/models.js
 +++ b/dist/models.js
-@@ -28,7 +28,8 @@
+@@ -28,7 +28,9 @@
      return usage.cost;
  }
  /** Models that support xhigh thinking level */
 -const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex"]);
-+const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex", "gpt-5.6-sol"]);
-+const MAX_THINKING_MODELS = new Set(["gpt-5.6-sol"]);
++const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
++const MAX_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
++const ULTRA_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra"]);
  /**
   * Check if a model supports xhigh thinking level.
   * Currently only certain OpenAI Codex models support this.
-@@ -36,6 +37,12 @@
+@@ -36,6 +38,12 @@
  export function supportsXhigh(model) {
      return XHIGH_MODELS.has(model.id);
  }
@@ -105,12 +174,12 @@ diff --git a/dist/models.js b/dist/models.js
 +    return MAX_THINKING_MODELS.has(model.id);
 +}
 +export function supportsUltraThinking(model) {
-+    return MAX_THINKING_MODELS.has(model.id);
++    return ULTRA_THINKING_MODELS.has(model.id);
 +}
  /**
   * Check if two models are equal by comparing both their id and provider.
   * Returns false if either model is null or undefined.
-@@ -45,4 +52,4 @@
+@@ -45,4 +53,4 @@
          return false;
      return a.id === b.id && a.provider === b.provider;
  }
@@ -152,7 +221,7 @@ diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-co
  }
  function clampReasoningEffort(modelId, effort) {
      const id = modelId.includes("/") ? modelId.split("/").pop() : modelId;
-+    if (id === "gpt-5.6-sol") {
++    if (id === "gpt-5.6-sol" || id === "gpt-5.6-terra" || id === "gpt-5.6-luna") {
 +        if (effort === undefined)
 +            return "none";
 +        if (effort === "minimal")

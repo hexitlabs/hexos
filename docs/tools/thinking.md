@@ -17,7 +17,8 @@ read_when:
   - ultra → app-level maximum mode; GPT-5.6-Sol sends `max` to the Codex Responses API
   - `highest` maps to `high`, `uncapped` maps to `xhigh`, and `maximum` maps to `max`.
 - Provider notes:
-  - GPT-5.6-Sol supports `off`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`. It does not expose `minimal`.
+  - GPT-5.6-Sol and GPT-5.6-Terra support `off`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`.
+  - GPT-5.6-Luna supports the same levels through `max`, but does not expose `ultra`. None of the GPT-5.6 variants exposes `minimal`.
   - HexOS validates choices against the active model and shows only supported levels.
   - Z.AI (`zai/*`) only supports binary thinking (`on`/`off`). Any non-`off` level is treated as `on` (mapped to `low`).
 
