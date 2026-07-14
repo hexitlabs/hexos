@@ -473,7 +473,7 @@ Required:
 Options:
 - `--to <dest>` (for session key and optional delivery)
 - `--session-id <id>`
-- `--thinking <off|minimal|low|medium|high|xhigh>` (GPT-5.2 + Codex models only)
+- `--thinking <off|minimal|low|medium|high|xhigh|max|ultra>` (availability depends on the selected model)
 - `--verbose <on|full|off>`
 - `--channel <whatsapp|telegram|discord|slack|mattermost|signal|imessage|msteams>`
 - `--local`

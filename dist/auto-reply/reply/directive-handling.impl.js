@@ -4,7 +4,7 @@ import { updateSessionStore } from "../../config/sessions.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { applyVerboseOverride } from "../../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
-import { formatThinkingLevels, formatXHighModelHint, supportsXHighThinking } from "../thinking.js";
+import { formatThinkingLevels, supportsThinkingLevel } from "../thinking.js";
 import { maybeHandleModelDirectiveInfo, resolveModelSelectionFromDirective, } from "./directive-handling.model.js";
 import { maybeHandleQueueDirective } from "./directive-handling.queue-validation.js";
 import { formatDirectiveAck, formatElevatedEvent, formatElevatedRuntimeHint, formatElevatedUnavailableText, formatReasoningEvent, withOptions, } from "./directive-handling.shared.js";
@@ -183,18 +183,19 @@ export async function handleDirectiveOnly(params) {
     if (queueAck)
         return queueAck;
     if (directives.hasThinkDirective &&
-        directives.thinkLevel === "xhigh" &&
-        !supportsXHighThinking(resolvedProvider, resolvedModel)) {
+        directives.thinkLevel &&
+        !supportsThinkingLevel(resolvedProvider, resolvedModel, directives.thinkLevel)) {
         return {
-            text: `Thinking level "xhigh" is only supported for ${formatXHighModelHint()}.`,
+            text: `Thinking level "${directives.thinkLevel}" is not supported for ${resolvedProvider}/${resolvedModel}. Valid levels: ${formatThinkingLevels(resolvedProvider, resolvedModel)}.`,
         };
     }
     const nextThinkLevel = directives.hasThinkDirective
         ? directives.thinkLevel
         : (sessionEntry?.thinkingLevel ?? currentThinkLevel);
-    const shouldDowngradeXHigh = !directives.hasThinkDirective &&
-        nextThinkLevel === "xhigh" &&
-        !supportsXHighThinking(resolvedProvider, resolvedModel);
+    const shouldDowngradeThinking = !directives.hasThinkDirective &&
+        nextThinkLevel !== undefined &&
+        !supportsThinkingLevel(resolvedProvider, resolvedModel, nextThinkLevel);
+    const downgradedThinkLevel = nextThinkLevel === "minimal" ? "low" : "high";
     const prevElevatedLevel = currentElevatedLevel ??
         sessionEntry.elevatedLevel ??
         (elevatedAllowed ? "on" : "off");
@@ -210,8 +211,8 @@ export async function handleDirectiveOnly(params) {
         else
             sessionEntry.thinkingLevel = directives.thinkLevel;
     }
-    if (shouldDowngradeXHigh) {
-        sessionEntry.thinkingLevel = "high";
+    if (shouldDowngradeThinking) {
+        sessionEntry.thinkingLevel = downgradedThinkLevel;
     }
     if (directives.hasVerboseDirective && directives.verboseLevel) {
         applyVerboseOverride(sessionEntry, directives.verboseLevel);
@@ -345,8 +346,8 @@ export async function handleDirectiveOnly(params) {
             parts.push(formatDirectiveAck(`Exec defaults set (${execParts.join(", ")}).`));
         }
     }
-    if (shouldDowngradeXHigh) {
-        parts.push(`Thinking level set to high (xhigh not supported for ${resolvedProvider}/${resolvedModel}).`);
+    if (shouldDowngradeThinking) {
+        parts.push(`Thinking level set to ${downgradedThinkLevel} (${nextThinkLevel} not supported for ${resolvedProvider}/${resolvedModel}).`);
     }
     if (modelSelection) {
         const label = `${modelSelection.provider}/${modelSelection.model}`;

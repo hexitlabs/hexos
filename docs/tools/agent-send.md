@@ -45,7 +45,7 @@ hexos agent --agent ops --message "Generate report" --deliver --reply-channel sl
 - `--reply-to`: delivery target override
 - `--reply-channel`: delivery channel override
 - `--reply-account`: delivery account id override
-- `--thinking <off|minimal|low|medium|high|xhigh>`: persist thinking level (GPT-5.2 + Codex models only)
+- `--thinking <off|minimal|low|medium|high|xhigh|max|ultra>`: persist a level supported by the selected model
 - `--verbose <on|full|off>`: persist verbose level
 - `--timeout <seconds>`: override agent timeout
 - `--json`: output structured JSON

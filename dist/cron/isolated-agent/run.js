@@ -13,7 +13,7 @@ import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone, } from "../../agents/date-time.js";
-import { formatXHighModelHint, normalizeThinkLevel, normalizeVerboseLevel, supportsXHighThinking, } from "../../auto-reply/thinking.js";
+import { formatThinkingLevels, normalizeThinkLevel, normalizeVerboseLevel, supportsThinkingLevel, } from "../../auto-reply/thinking.js";
 import { createOutboundSendDeps } from "../../cli/outbound-send-deps.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
@@ -146,8 +146,8 @@ export async function runCronIsolatedAgentTurn(params) {
             catalog: await loadCatalog(),
         });
     }
-    if (thinkLevel === "xhigh" && !supportsXHighThinking(provider, model)) {
-        throw new Error(`Thinking level "xhigh" is only supported for ${formatXHighModelHint()}.`);
+    if (thinkLevel && !supportsThinkingLevel(provider, model, thinkLevel)) {
+        throw new Error(`Thinking level "${thinkLevel}" is not supported for ${provider}/${model}. Use one of: ${formatThinkingLevels(provider, model)}.`);
     }
     const timeoutMs = resolveAgentTimeoutMs({
         cfg: cfgWithAgentDefaults,

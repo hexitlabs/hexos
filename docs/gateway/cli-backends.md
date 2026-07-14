@@ -29,7 +29,7 @@ hexos agent --message "hi" --model claude-cli/opus-4.5
 Codex CLI also works out of the box:
 
 ```bash
-hexos agent --message "hi" --model codex-cli/gpt-5.4
+hexos agent --message "hi" --model codex-cli/gpt-5.6-sol
 ```
 
 If your gateway runs under launchd/systemd and PATH is minimal, add just the

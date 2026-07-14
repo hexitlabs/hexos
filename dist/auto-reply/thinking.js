@@ -12,19 +12,42 @@ export function isBinaryThinkingProvider(provider) {
 export const XHIGH_MODEL_REFS = [
     "openai/gpt-5.4",
     "openai-codex/gpt-5.4",
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna",
     "openai-codex/gpt-5.2-codex",
     "openai-codex/gpt-5.1-codex",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
 ];
+export const MAX_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna",
+];
+export const ULTRA_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+];
 const XHIGH_MODEL_SET = new Set(XHIGH_MODEL_REFS.map((entry) => entry.toLowerCase()));
 const XHIGH_MODEL_IDS = new Set(XHIGH_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
+const MAX_THINKING_MODEL_SET = new Set(MAX_THINKING_MODEL_REFS.map((entry) => entry.toLowerCase()));
+const MAX_THINKING_MODEL_IDS = new Set(MAX_THINKING_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
+const ULTRA_THINKING_MODEL_SET = new Set(ULTRA_THINKING_MODEL_REFS.map((entry) => entry.toLowerCase()));
+const ULTRA_THINKING_MODEL_IDS = new Set(ULTRA_THINKING_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
+function matchesThinkingModel(provider, model, refs, ids) {
+    const modelKey = model?.trim().toLowerCase();
+    if (!modelKey)
+        return false;
+    const providerKey = provider?.trim().toLowerCase();
+    return providerKey ? refs.has(`${providerKey}/${modelKey}`) : ids.has(modelKey);
+}
 // Normalize user-provided thinking level strings to the canonical enum.
 export function normalizeThinkLevel(raw) {
     if (!raw)
         return undefined;
     const key = raw.toLowerCase();
-    if (["off"].includes(key))
+    if (["off", "none"].includes(key))
         return "off";
     if (["on", "enable", "enabled"].includes(key))
         return "low";
@@ -34,28 +57,48 @@ export function normalizeThinkLevel(raw) {
         return "low";
     if (["mid", "med", "medium", "thinkharder", "think-harder", "harder"].includes(key))
         return "medium";
-    if (["high", "ultra", "ultrathink", "think-hard", "thinkhardest", "highest"].includes(key))
+    if (["high", "ultrathink", "think-hard", "thinkhardest", "highest"].includes(key))
         return "high";
-    if (["xhigh", "x-high", "x_high", "max", "maximum", "uncapped"].includes(key))
+    if (["xhigh", "x-high", "x_high", "uncapped"].includes(key))
         return "xhigh";
+    if (["max", "maximum"].includes(key))
+        return "max";
+    if (["ultra"].includes(key))
+        return "ultra";
     if (["think"].includes(key))
         return "minimal";
     return undefined;
 }
 export function supportsXHighThinking(provider, model) {
-    const modelKey = model?.trim().toLowerCase();
-    if (!modelKey)
+    return matchesThinkingModel(provider, model, XHIGH_MODEL_SET, XHIGH_MODEL_IDS);
+}
+export function supportsMaxThinking(provider, model) {
+    return matchesThinkingModel(provider, model, MAX_THINKING_MODEL_SET, MAX_THINKING_MODEL_IDS);
+}
+export function supportsUltraThinking(provider, model) {
+    return matchesThinkingModel(provider, model, ULTRA_THINKING_MODEL_SET, ULTRA_THINKING_MODEL_IDS);
+}
+export function supportsThinkingLevel(provider, model, level) {
+    if (level === "xhigh")
+        return supportsXHighThinking(provider, model);
+    if (level === "max")
+        return supportsMaxThinking(provider, model);
+    if (level === "ultra")
+        return supportsUltraThinking(provider, model);
+    if (level === "minimal" && supportsMaxThinking(provider, model))
         return false;
-    const providerKey = provider?.trim().toLowerCase();
-    if (providerKey) {
-        return XHIGH_MODEL_SET.has(`${providerKey}/${modelKey}`);
-    }
-    return XHIGH_MODEL_IDS.has(modelKey);
+    return ["off", "minimal", "low", "medium", "high"].includes(level);
 }
 export function listThinkingLevels(provider, model) {
-    const levels = ["off", "minimal", "low", "medium", "high"];
+    const levels = supportsMaxThinking(provider, model)
+        ? ["off", "low", "medium", "high"]
+        : ["off", "minimal", "low", "medium", "high"];
     if (supportsXHighThinking(provider, model))
         levels.push("xhigh");
+    if (supportsMaxThinking(provider, model))
+        levels.push("max");
+    if (supportsUltraThinking(provider, model))
+        levels.push("ultra");
     return levels;
 }
 export function listThinkingLevelLabels(provider, model) {
@@ -67,7 +110,14 @@ export function formatThinkingLevels(provider, model, separator = ", ") {
     return listThinkingLevelLabels(provider, model).join(separator);
 }
 export function formatXHighModelHint() {
-    const refs = [...XHIGH_MODEL_REFS];
+    return formatThinkingLevelModelHint("xhigh");
+}
+export function formatThinkingLevelModelHint(level) {
+    const refs = level === "max"
+        ? [...MAX_THINKING_MODEL_REFS]
+        : level === "ultra"
+            ? [...ULTRA_THINKING_MODEL_REFS]
+            : [...XHIGH_MODEL_REFS];
     if (refs.length === 0)
         return "unknown model";
     if (refs.length === 1)

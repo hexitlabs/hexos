@@ -25,7 +25,7 @@ export function getAvailableCommands() {
         { name: "new", description: "Reset the session (/reset)." },
         {
             name: "think",
-            description: "Set thinking level (off|minimal|low|medium|high|xhigh).",
+            description: "Set thinking level (off|minimal|low|medium|high|xhigh|max|ultra).",
         },
         { name: "verbose", description: "Set verbose mode (on|full|off)." },
         { name: "reasoning", description: "Toggle reasoning output (on|off|stream)." },

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveAllowedModelRef, resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { normalizeGroupActivation } from "../auto-reply/group-activation.js";
-import { formatThinkingLevels, formatXHighModelHint, normalizeElevatedLevel, normalizeReasoningLevel, normalizeThinkLevel, normalizeUsageDisplay, supportsXHighThinking, } from "../auto-reply/thinking.js";
+import { formatThinkingLevels, normalizeElevatedLevel, normalizeReasoningLevel, normalizeThinkLevel, normalizeUsageDisplay, supportsThinkingLevel, } from "../auto-reply/thinking.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { applyVerboseOverride, parseVerboseOverride } from "../sessions/level-overrides.js";
 import { normalizeSendPolicy } from "../sessions/send-policy.js";
@@ -253,7 +253,7 @@ export async function applySessionsPatchToStore(params) {
             });
         }
     }
-    if (next.thinkingLevel === "xhigh") {
+    if (next.thinkingLevel) {
         const resolvedDefault = resolveConfiguredModelRef({
             cfg,
             defaultProvider: DEFAULT_PROVIDER,
@@ -261,11 +261,11 @@ export async function applySessionsPatchToStore(params) {
         });
         const effectiveProvider = next.providerOverride ?? resolvedDefault.provider;
         const effectiveModel = next.modelOverride ?? resolvedDefault.model;
-        if (!supportsXHighThinking(effectiveProvider, effectiveModel)) {
+        if (!supportsThinkingLevel(effectiveProvider, effectiveModel, next.thinkingLevel)) {
             if ("thinkingLevel" in patch) {
-                return invalid(`thinkingLevel "xhigh" is only supported for ${formatXHighModelHint()}`);
+                return invalid(`thinkingLevel "${next.thinkingLevel}" is not supported for ${effectiveProvider}/${effectiveModel} (use ${formatThinkingLevels(effectiveProvider, effectiveModel, "|")})`);
             }
-            next.thinkingLevel = "high";
+            next.thinkingLevel = next.thinkingLevel === "minimal" ? "low" : "high";
         }
     }
     if ("sendPolicy" in patch) {

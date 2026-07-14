@@ -108,7 +108,7 @@ export function applyOpenAICodexProviderConfig(cfg) {
     const models = { ...cfg.agents?.defaults?.models };
     models[OPENAI_CODEX_DEFAULT_MODEL_REF] = {
         ...models[OPENAI_CODEX_DEFAULT_MODEL_REF],
-        alias: models[OPENAI_CODEX_DEFAULT_MODEL_REF]?.alias ?? "GPT-5.4",
+        alias: models[OPENAI_CODEX_DEFAULT_MODEL_REF]?.alias ?? "GPT-5.6-Sol",
     };
     const providers = { ...cfg.models?.providers };
     const existingProvider = providers["openai-codex"];

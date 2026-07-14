@@ -1,0 +1,261 @@
+diff --git a/dist/models.d.ts b/dist/models.d.ts
+--- a/dist/models.d.ts
++++ b/dist/models.d.ts
+@@ -12,10 +12,12 @@
+  * Currently only certain OpenAI Codex models support this.
+  */
+ export declare function supportsXhigh<TApi extends Api>(model: Model<TApi>): boolean;
++export declare function supportsMaxThinking<TApi extends Api>(model: Model<TApi>): boolean;
++export declare function supportsUltraThinking<TApi extends Api>(model: Model<TApi>): boolean;
+ /**
+  * Check if two models are equal by comparing both their id and provider.
+  * Returns false if either model is null or undefined.
+  */
+ export declare function modelsAreEqual<TApi extends Api>(a: Model<TApi> | null | undefined, b: Model<TApi> | null | undefined): boolean;
+ export {};
+-//# sourceMappingURL=models.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=models.d.ts.map
+diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
+--- a/dist/models.generated.d.ts
++++ b/dist/models.generated.d.ts
+@@ -3992,6 +3992,57 @@
+             contextWindow: number;
+             maxTokens: number;
+         };
++        readonly "gpt-5.6-sol": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-5.6-terra": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-5.6-luna": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
+     };
+     readonly opencode: {
+         readonly "alpha-gd4": {
+@@ -10968,4 +11019,4 @@
+         };
+     };
+ };
+-//# sourceMappingURL=models.generated.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=models.generated.d.ts.map
+diff --git a/dist/models.generated.js b/dist/models.generated.js
+--- a/dist/models.generated.js
++++ b/dist/models.generated.js
+@@ -3864,6 +3864,57 @@
+             contextWindow: 272000,
+             maxTokens: 128000,
+         },
++        "gpt-5.6-sol": {
++            id: "gpt-5.6-sol",
++            name: "GPT-5.6-Sol",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 372000,
++            maxTokens: 128000,
++        },
++        "gpt-5.6-terra": {
++            id: "gpt-5.6-terra",
++            name: "GPT-5.6-Terra",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 372000,
++            maxTokens: 128000,
++        },
++        "gpt-5.6-luna": {
++            id: "gpt-5.6-luna",
++            name: "GPT-5.6-Luna",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 372000,
++            maxTokens: 128000,
++        },
+     },
+     "opencode": {
+         "alpha-gd4": {
+@@ -10819,4 +10870,4 @@
+         },
+     },
+ };
+-//# sourceMappingURL=models.generated.js.map
+\ No newline at end of file
++//# sourceMappingURL=models.generated.js.map
+diff --git a/dist/models.js b/dist/models.js
+--- a/dist/models.js
++++ b/dist/models.js
+@@ -28,7 +28,9 @@
+     return usage.cost;
+ }
+ /** Models that support xhigh thinking level */
+-const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex"]);
++const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
++const MAX_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
++const ULTRA_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra"]);
+ /**
+  * Check if a model supports xhigh thinking level.
+  * Currently only certain OpenAI Codex models support this.
+@@ -36,6 +38,12 @@
+ export function supportsXhigh(model) {
+     return XHIGH_MODELS.has(model.id);
+ }
++export function supportsMaxThinking(model) {
++    return MAX_THINKING_MODELS.has(model.id);
++}
++export function supportsUltraThinking(model) {
++    return ULTRA_THINKING_MODELS.has(model.id);
++}
+ /**
+  * Check if two models are equal by comparing both their id and provider.
+  * Returns false if either model is null or undefined.
+@@ -45,4 +53,4 @@
+         return false;
+     return a.id === b.id && a.provider === b.provider;
+ }
+-//# sourceMappingURL=models.js.map
+\ No newline at end of file
++//# sourceMappingURL=models.js.map
+diff --git a/dist/providers/openai-codex-responses.d.ts b/dist/providers/openai-codex-responses.d.ts
+--- a/dist/providers/openai-codex-responses.d.ts
++++ b/dist/providers/openai-codex-responses.d.ts
+@@ -1,8 +1,8 @@
+ import type { StreamFunction, StreamOptions } from "../types.js";
+ export interface OpenAICodexResponsesOptions extends StreamOptions {
+-    reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
++    reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
+     reasoningSummary?: "auto" | "concise" | "detailed" | "off" | "on" | null;
+     textVerbosity?: "low" | "medium" | "high";
+ }
+ export declare const streamOpenAICodexResponses: StreamFunction<"openai-codex-responses">;
+-//# sourceMappingURL=openai-codex-responses.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=openai-codex-responses.d.ts.map
+diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-codex-responses.js
+--- a/dist/providers/openai-codex-responses.js
++++ b/dist/providers/openai-codex-responses.js
+@@ -172,9 +172,10 @@
+             strict: null,
+         }));
+     }
+-    if (options?.reasoningEffort !== undefined) {
++    const reasoningEffort = clampReasoningEffort(model.id, options?.reasoningEffort);
++    if (reasoningEffort !== undefined) {
+         body.reasoning = {
+-            effort: clampReasoningEffort(model.id, options.reasoningEffort),
++            effort: reasoningEffort,
+             summary: options.reasoningSummary ?? "auto",
+         };
+     }
+@@ -182,6 +183,15 @@
+ }
+ function clampReasoningEffort(modelId, effort) {
+     const id = modelId.includes("/") ? modelId.split("/").pop() : modelId;
++    if (id === "gpt-5.6-sol" || id === "gpt-5.6-terra" || id === "gpt-5.6-luna") {
++        if (effort === undefined)
++            return "none";
++        if (effort === "minimal")
++            return "low";
++        // Ultra is an app-level mode; the Responses API receives maximum effort.
++        if (effort === "ultra")
++            return "max";
++    }
+     if (id.startsWith("gpt-5.2") && effort === "minimal")
+         return "low";
+     if (id === "gpt-5.1" && effort === "xhigh")
+@@ -589,4 +599,4 @@
+     }
+     return headers;
+ }
+-//# sourceMappingURL=openai-codex-responses.js.map
+\ No newline at end of file
++//# sourceMappingURL=openai-codex-responses.js.map
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -22,7 +22,7 @@
+ export type OptionsForApi<TApi extends Api> = ApiOptionsMap[TApi];
+ export type KnownProvider = "amazon-bedrock" | "anthropic" | "google" | "google-gemini-cli" | "google-antigravity" | "google-vertex" | "openai" | "openai-codex" | "github-copilot" | "xai" | "groq" | "cerebras" | "openrouter" | "vercel-ai-gateway" | "zai" | "mistral" | "minimax" | "minimax-cn" | "opencode";
+ export type Provider = KnownProvider | string;
+-export type ThinkingLevel = "minimal" | "low" | "medium" | "high" | "xhigh";
++export type ThinkingLevel = "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
+ /** Token budgets for each thinking level (token-based providers only) */
+ export interface ThinkingBudgets {
+     minimal?: number;
+@@ -235,4 +235,4 @@
+     /** Compatibility overrides for OpenAI-compatible APIs. If not set, auto-detected from baseUrl. */
+     compat?: TApi extends "openai-completions" ? OpenAICompletionsCompat : TApi extends "openai-responses" ? OpenAIResponsesCompat : never;
+ }
+-//# sourceMappingURL=types.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=types.d.ts.map

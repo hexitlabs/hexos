@@ -62,7 +62,7 @@ export function registerCronAddCommand(cron) {
         .option("--tz <iana>", "Timezone for cron expressions (IANA)", "")
         .option("--system-event <text>", "System event payload (main session)")
         .option("--message <text>", "Agent message payload")
-        .option("--thinking <level>", "Thinking level for agent jobs (off|minimal|low|medium|high)")
+        .option("--thinking <level>", "Thinking level for agent jobs (off|minimal|low|medium|high|xhigh|max|ultra)")
         .option("--model <model>", "Model override for agent jobs (provider/model or alias)")
         .option("--timeout-seconds <n>", "Timeout seconds for agent jobs")
         .option("--deliver", "Deliver agent output (required when using last-route delivery without --to)", false)

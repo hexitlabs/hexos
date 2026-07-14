@@ -187,7 +187,7 @@ HEXOS_LIVE_SETUP_TOKEN=1 HEXOS_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-token-te
   - Args: `["-p","--output-format","json","--dangerously-skip-permissions"]`
 - Overrides (optional):
   - `HEXOS_LIVE_CLI_BACKEND_MODEL="claude-cli/claude-opus-4-5"`
-  - `HEXOS_LIVE_CLI_BACKEND_MODEL="codex-cli/gpt-5.4"`
+  - `HEXOS_LIVE_CLI_BACKEND_MODEL="codex-cli/gpt-5.6-sol"`
   - `HEXOS_LIVE_CLI_BACKEND_COMMAND="/full/path/to/claude"`
   - `HEXOS_LIVE_CLI_BACKEND_ARGS='["-p","--output-format","json","--permission-mode","bypassPermissions"]'`
   - `HEXOS_LIVE_CLI_BACKEND_CLEAR_ENV='["ANTHROPIC_API_KEY","ANTHROPIC_API_KEY_OLD"]'`
@@ -238,7 +238,7 @@ There is no fixed “CI model list” (live is opt-in), but these are the **reco
 
 This is the “common models” run we expect to keep working:
 - OpenAI (non-Codex): `openai/gpt-5.2` (optional: `openai/gpt-5.1`)
-- OpenAI Codex: `openai-codex/gpt-5.4` (optional: `openai-codex/gpt-5.2-codex`)
+- OpenAI Codex: `openai-codex/gpt-5.6-sol`, `openai-codex/gpt-5.6-terra`, and `openai-codex/gpt-5.6-luna` (optional: `openai-codex/gpt-5.2-codex`)
 - Anthropic: `anthropic/claude-opus-4-5` (or `anthropic/claude-sonnet-4-5`)
 - Google (Gemini API): `google/gemini-3-pro-preview` and `google/gemini-3-flash-preview` (avoid older Gemini 2.x models)
 - Google (Antigravity): `google-antigravity/claude-opus-4-5-thinking` and `google-antigravity/gemini-3-flash`
@@ -246,7 +246,7 @@ This is the “common models” run we expect to keep working:
 - MiniMax: `minimax/minimax-m2.1`
 
 Run gateway smoke with tools + image:
-`HEXOS_LIVE_GATEWAY_MODELS="openai/gpt-5.2,openai-codex/gpt-5.4,anthropic/claude-opus-4-5,google/gemini-3-pro-preview,google/gemini-3-flash-preview,google-antigravity/claude-opus-4-5-thinking,google-antigravity/gemini-3-flash,zai/glm-4.7,minimax/minimax-m2.1" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
+`HEXOS_LIVE_GATEWAY_MODELS="openai/gpt-5.2,openai-codex/gpt-5.6-sol,anthropic/claude-opus-4-5,google/gemini-3-pro-preview,google/gemini-3-flash-preview,google-antigravity/claude-opus-4-5-thinking,google-antigravity/gemini-3-flash,zai/glm-4.7,minimax/minimax-m2.1" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
 ### Baseline: tool calling (Read + optional Exec)
 

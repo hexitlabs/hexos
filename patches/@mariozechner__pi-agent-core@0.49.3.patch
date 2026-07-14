@@ -1,0 +1,22 @@
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -79,9 +79,9 @@
+ }
+ /**
+  * Thinking/reasoning level for models that support it.
+- * Note: "xhigh" is only supported by OpenAI gpt-5.1-codex-max, gpt-5.2, and gpt-5.2-codex models.
++ * Note: "max" and "ultra" are extended levels exposed by OpenAI GPT-5.6-Sol.
+  */
+-export type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
++export type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
+ /**
+  * Extensible interface for custom app messages.
+  * Apps can extend via declaration merging:
+@@ -175,4 +175,4 @@
+     result: any;
+     isError: boolean;
+ };
+-//# sourceMappingURL=types.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=types.d.ts.map
