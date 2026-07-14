@@ -161,9 +161,11 @@ npm run build
 
 ---
 
-## License
+## License & Credits
 
 [MIT](LICENSE)
+
+HexOS is built on [Clawdbot](https://github.com/openclaw/openclaw) (now OpenClaw) by [Peter Steinberger](https://github.com/steipete), which itself adapts portions of [Pi](https://github.com/earendil-works/pi-mono) by Mario Zechner. Both MIT licensed — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 
