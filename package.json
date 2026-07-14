@@ -1,6 +1,6 @@
 {
   "name": "@hexitlabs/hexos",
-  "version": "2026.1.24-26",
+  "version": "2026.1.24-27",
   "description": "HexOS — The operating system for AI-powered businesses. Deploy AI agent teams that work 24/7.",
   "type": "module",
   "main": "dist/index.js",
