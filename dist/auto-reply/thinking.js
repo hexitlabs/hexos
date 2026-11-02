@@ -12,6 +12,10 @@ export function isBinaryThinkingProvider(provider) {
 export const XHIGH_MODEL_REFS = [
     "openai/gpt-5.4",
     "openai-codex/gpt-5.4",
+    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6.1-terra",
+    "openai-codex/gpt-6-luna",
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-terra",
     "openai-codex/gpt-5.6-luna",
@@ -21,11 +25,18 @@ export const XHIGH_MODEL_REFS = [
     "anthropic/claude-sonnet-4-6",
 ];
 export const MAX_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6.1-terra",
+    "openai-codex/gpt-6-luna",
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-terra",
     "openai-codex/gpt-5.6-luna",
 ];
 export const ULTRA_THINKING_MODEL_REFS = [
+    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6.1-terra",
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-terra",
 ];

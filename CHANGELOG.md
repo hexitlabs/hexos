@@ -3,6 +3,15 @@
 All notable changes to HexOS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2026.1.24-27] - 2026-11-02
+
+### Features
+- **GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra, and GPT-6 Luna support across the OpenAI Codex stack**
+  - Added `openai-codex/gpt-6.1-sol`, `openai-codex/gpt-6-astra`, `openai-codex/gpt-6.1-terra`, and `openai-codex/gpt-6-luna` to the built-in model registry with text and image input and a 128,000-token output limit. Context windows follow the Codex catalog defaults: 272,000 tokens (500,000 for Terra).
+  - Made GPT-6.1-Sol the default for Codex OAuth onboarding and automatic provider registration.
+  - Added thinking support through `ultra` for Sol, Astra, and Terra and through `max` for Luna; `ultra` is sent to the Codex Responses API as `max`.
+  - Extended the bundled Pi runtime patch so the new models resolve after npm, pnpm, yarn, and bun installs.
+
 ## [2026.1.24-26] - 2026-07-10
 
 ### Features

@@ -1,7 +1,7 @@
 diff --git a/dist/models.d.ts b/dist/models.d.ts
 --- a/dist/models.d.ts
 +++ b/dist/models.d.ts
-@@ -12,10 +12,12 @@
+@@ -12,10 +12,12 @@ export declare function calculateCost<TApi extends Api>(model: Model<TApi>, usag
   * Currently only certain OpenAI Codex models support this.
   */
  export declare function supportsXhigh<TApi extends Api>(model: Model<TApi>): boolean;
@@ -19,7 +19,7 @@ diff --git a/dist/models.d.ts b/dist/models.d.ts
 diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 --- a/dist/models.generated.d.ts
 +++ b/dist/models.generated.d.ts
-@@ -3992,6 +3992,57 @@
+@@ -3992,6 +3992,125 @@ export declare const MODELS: {
              contextWindow: number;
              maxTokens: number;
          };
@@ -74,10 +74,78 @@ diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 +            contextWindow: number;
 +            maxTokens: number;
 +        };
++        readonly "gpt-6.1-sol": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-6-astra": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-6.1-terra": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
++        readonly "gpt-6-luna": {
++            id: string;
++            name: string;
++            api: "openai-codex-responses";
++            provider: string;
++            baseUrl: string;
++            reasoning: true;
++            input: ("image" | "text")[];
++            cost: {
++                input: number;
++                output: number;
++                cacheRead: number;
++                cacheWrite: number;
++            };
++            contextWindow: number;
++            maxTokens: number;
++        };
      };
      readonly opencode: {
          readonly "alpha-gd4": {
-@@ -10968,4 +11019,4 @@
+@@ -10968,4 +11087,4 @@ export declare const MODELS: {
          };
      };
  };
@@ -87,7 +155,7 @@ diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
 diff --git a/dist/models.generated.js b/dist/models.generated.js
 --- a/dist/models.generated.js
 +++ b/dist/models.generated.js
-@@ -3864,6 +3864,57 @@
+@@ -3864,6 +3864,125 @@ export const MODELS = {
              contextWindow: 272000,
              maxTokens: 128000,
          },
@@ -142,10 +210,78 @@ diff --git a/dist/models.generated.js b/dist/models.generated.js
 +            contextWindow: 372000,
 +            maxTokens: 128000,
 +        },
++        "gpt-6.1-sol": {
++            id: "gpt-6.1-sol",
++            name: "GPT-6.1-Sol",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 272000,
++            maxTokens: 128000,
++        },
++        "gpt-6-astra": {
++            id: "gpt-6-astra",
++            name: "GPT-6-Astra",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 272000,
++            maxTokens: 128000,
++        },
++        "gpt-6.1-terra": {
++            id: "gpt-6.1-terra",
++            name: "GPT-6.1-Terra",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 500000,
++            maxTokens: 128000,
++        },
++        "gpt-6-luna": {
++            id: "gpt-6-luna",
++            name: "GPT-6-Luna",
++            api: "openai-codex-responses",
++            provider: "openai-codex",
++            baseUrl: "https://chatgpt.com/backend-api",
++            reasoning: true,
++            input: ["text", "image"],
++            cost: {
++                input: 0,
++                output: 0,
++                cacheRead: 0,
++                cacheWrite: 0,
++            },
++            contextWindow: 272000,
++            maxTokens: 128000,
++        },
      },
      "opencode": {
          "alpha-gd4": {
-@@ -10819,4 +10870,4 @@
+@@ -10819,4 +10938,4 @@ export const MODELS = {
          },
      },
  };
@@ -155,18 +291,18 @@ diff --git a/dist/models.generated.js b/dist/models.generated.js
 diff --git a/dist/models.js b/dist/models.js
 --- a/dist/models.js
 +++ b/dist/models.js
-@@ -28,7 +28,9 @@
+@@ -28,7 +28,9 @@ export function calculateCost(model, usage) {
      return usage.cost;
  }
  /** Models that support xhigh thinking level */
 -const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex"]);
-+const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
-+const MAX_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]);
-+const ULTRA_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra"]);
++const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6-luna"]);
++const MAX_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6-luna"]);
++const ULTRA_THINKING_MODELS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra"]);
  /**
   * Check if a model supports xhigh thinking level.
   * Currently only certain OpenAI Codex models support this.
-@@ -36,6 +38,12 @@
+@@ -36,6 +38,12 @@ const XHIGH_MODELS = new Set(["gpt-5.1-codex-max", "gpt-5.2", "gpt-5.2-codex"]);
  export function supportsXhigh(model) {
      return XHIGH_MODELS.has(model.id);
  }
@@ -179,7 +315,7 @@ diff --git a/dist/models.js b/dist/models.js
  /**
   * Check if two models are equal by comparing both their id and provider.
   * Returns false if either model is null or undefined.
-@@ -45,4 +53,4 @@
+@@ -45,4 +53,4 @@ export function modelsAreEqual(a, b) {
          return false;
      return a.id === b.id && a.provider === b.provider;
  }
@@ -204,7 +340,7 @@ diff --git a/dist/providers/openai-codex-responses.d.ts b/dist/providers/openai-
 diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-codex-responses.js
 --- a/dist/providers/openai-codex-responses.js
 +++ b/dist/providers/openai-codex-responses.js
-@@ -172,9 +172,10 @@
+@@ -172,16 +172,27 @@ function buildRequestBody(model, context, options) {
              strict: null,
          }));
      }
@@ -217,11 +353,12 @@ diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-co
              summary: options.reasoningSummary ?? "auto",
          };
      }
-@@ -182,6 +183,15 @@
+     return body;
  }
++const EXTENDED_EFFORT_MODEL_IDS = new Set(["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6-luna"]);
  function clampReasoningEffort(modelId, effort) {
      const id = modelId.includes("/") ? modelId.split("/").pop() : modelId;
-+    if (id === "gpt-5.6-sol" || id === "gpt-5.6-terra" || id === "gpt-5.6-luna") {
++    if (EXTENDED_EFFORT_MODEL_IDS.has(id)) {
 +        if (effort === undefined)
 +            return "none";
 +        if (effort === "minimal")
@@ -233,7 +370,7 @@ diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-co
      if (id.startsWith("gpt-5.2") && effort === "minimal")
          return "low";
      if (id === "gpt-5.1" && effort === "xhigh")
-@@ -589,4 +599,4 @@
+@@ -589,4 +600,4 @@ function buildHeaders(initHeaders, additionalHeaders, accountId, token, sessionI
      }
      return headers;
  }
@@ -243,7 +380,7 @@ diff --git a/dist/providers/openai-codex-responses.js b/dist/providers/openai-co
 diff --git a/dist/types.d.ts b/dist/types.d.ts
 --- a/dist/types.d.ts
 +++ b/dist/types.d.ts
-@@ -22,7 +22,7 @@
+@@ -22,7 +22,7 @@ export interface ApiOptionsMap {
  export type OptionsForApi<TApi extends Api> = ApiOptionsMap[TApi];
  export type KnownProvider = "amazon-bedrock" | "anthropic" | "google" | "google-gemini-cli" | "google-antigravity" | "google-vertex" | "openai" | "openai-codex" | "github-copilot" | "xai" | "groq" | "cerebras" | "openrouter" | "vercel-ai-gateway" | "zai" | "mistral" | "minimax" | "minimax-cn" | "opencode";
  export type Provider = KnownProvider | string;
@@ -252,7 +389,7 @@ diff --git a/dist/types.d.ts b/dist/types.d.ts
  /** Token budgets for each thinking level (token-based providers only) */
  export interface ThinkingBudgets {
      minimal?: number;
-@@ -235,4 +235,4 @@
+@@ -235,4 +235,4 @@ export interface Model<TApi extends Api> {
      /** Compatibility overrides for OpenAI-compatible APIs. If not set, auto-detected from baseUrl. */
      compat?: TApi extends "openai-completions" ? OpenAICompletionsCompat : TApi extends "openai-responses" ? OpenAIResponsesCompat : never;
  }
