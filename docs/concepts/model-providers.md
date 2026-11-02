@@ -50,18 +50,19 @@ HexOS ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai-codex`
 - Auth: OAuth or Codex CLI (`~/.codex/auth.json`)
-- Example model: `openai-codex/gpt-5.6-sol`
+- Example model: `openai-codex/gpt-6.1-sol`
+- GPT-6 variants: `gpt-6.1-sol`, `gpt-6-astra`, `gpt-6.1-terra`, and `gpt-6-luna`
 - GPT-5.6 variants: `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`
 - CLI: `hexos onboard --auth-choice openai-codex` or `codex-cli`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.6-sol" } } },
+  agents: { defaults: { model: { primary: "openai-codex/gpt-6.1-sol" } } },
   models: {
     providers: {
       "openai-codex": {
         api: "openai-codex-responses",
-        models: [{ id: "gpt-5.6-sol", name: "GPT-5.6-Sol" }]
+        models: [{ id: "gpt-6.1-sol", name: "GPT-6.1-Sol" }]
       }
     }
   }

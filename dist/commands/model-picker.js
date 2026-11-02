@@ -248,7 +248,7 @@ export async function promptModelAllowlist(params) {
             message: params.message ??
                 "Allowlist models (comma-separated provider/model; blank to keep current)",
             initialValue: existingKeys.join(", "),
-            placeholder: "openai-codex/gpt-5.6-sol, anthropic/claude-opus-4-6",
+            placeholder: "openai-codex/gpt-6.1-sol, anthropic/claude-opus-4-6",
         });
         const parsed = String(raw ?? "")
             .split(",")

@@ -1,4 +1,4 @@
-export const OPENAI_CODEX_DEFAULT_MODEL = "openai-codex/gpt-5.6-sol";
+export const OPENAI_CODEX_DEFAULT_MODEL = "openai-codex/gpt-6.1-sol";
 function shouldSetOpenAICodexModel(model) {
     const trimmed = model?.trim();
     if (!trimmed)
